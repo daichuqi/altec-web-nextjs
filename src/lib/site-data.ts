@@ -53,7 +53,7 @@ export const productCategories = [
   {
     zh: "环境、压力与水处理",
     en: "Environment, Pressure & Water Treatment",
-    items: ["TH135", "TH136", "MTC35", "pH/ORP800", "CPC316"],
+    items: ["TH135", "TH136", "MTC35", "pH/ORP800", "PCP310", "CPC316"],
   },
 ];
 
@@ -74,6 +74,7 @@ export const products = [
   { model: "TH136", zh: "湿度控制器", en: "Humidity Controller", image: "/altec/products/TH136.jpg", category: "Environment, Pressure & Water Treatment" },
   { model: "MTC35", zh: "温湿度控制器", en: "Temperature-Humidity Controller", image: "/altec/products/MTC35.jpg", category: "Environment, Pressure & Water Treatment" },
   { model: "pH/ORP800", zh: "酸碱度控制器", en: "pH/ORP Controller", image: "/altec/products/PH800.jpg", category: "Environment, Pressure & Water Treatment" },
+  { model: "PCP310", zh: "压力控制器", en: "Pressure Controller", image: "/altec/products/CPC316.jpg", category: "Environment, Pressure & Water Treatment" },
   { model: "CPC316", zh: "变频恒压供水控制器", en: "Constant Pressure Controller", image: "/altec/products/CPC316.jpg", category: "Environment, Pressure & Water Treatment" },
 ];
 
@@ -348,6 +349,22 @@ export const productDetails: Record<string, ProductDetail> = {
       { label: { zh: "采样周期", en: "Sampling period" }, value: { zh: "125 ms", en: "125 ms" } },
       { label: { zh: "控制方式", en: "Control mode" }, value: { zh: "Hi/Lo 两组控制，继电器单刀双掷触点，最大 250VAC/3A", en: "Hi/Lo dual control, relay SPDT contact, max 250VAC/3A" } },
       { label: { zh: "电源", en: "Power" }, value: { zh: "85-264VAC，45/60Hz", en: "85-264VAC, 45/60Hz" } },
+    ],
+  },
+  PCP310: {
+    overview: {
+      zh: "PCP310 压力控制器面向恒压供水、补水和过程压力控制应用，可配套变频器实现稳定压力控制。",
+      en: "The PCP310 pressure controller is intended for constant-pressure water supply, replenishment and process pressure control with VFD systems.",
+    },
+    highlights: {
+      zh: ["压力闭环控制", "适合恒压供水与补水系统", "模拟量主输出", "可配套变频器使用"],
+      en: ["Closed-loop pressure control", "For constant-pressure water and replenishment systems", "Analog main output", "Works with VFD systems"],
+    },
+    specs: [
+      { label: { zh: "典型应用", en: "Typical applications" }, value: { zh: "恒压供水、锅炉补水、换热系统补水、过程压力控制", en: "Constant-pressure water supply, boiler replenishment, heat-exchange replenishment and process pressure control" } },
+      { label: { zh: "输入信号", en: "Input signals" }, value: { zh: "压力变送器及标准模拟信号", en: "Pressure transmitter and standard analog signals" } },
+      { label: { zh: "主输出", en: "Main output" }, value: { zh: "模拟量输出，可用于变频器控制", en: "Analog output for VFD control" } },
+      { label: { zh: "系统能力", en: "System capability" }, value: { zh: "适合单泵或多泵压力控制方案", en: "Suitable for single-pump or multi-pump pressure control" } },
     ],
   },
   CPC316: {

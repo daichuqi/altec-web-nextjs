@@ -17,24 +17,30 @@ function path(lang: Lang, href: string) {
   return `${lang === "en" ? "/en" : ""}${href === "/" ? "" : href}` || "/";
 }
 
+const featuredProductModels = ["AL808", "PCP310", "TC818", "PC900"];
+
 export function HomePage({ lang }: { lang: Lang }) {
   const zh = lang === "zh";
+  const featuredProducts = featuredProductModels
+    .map((model) => products.find((item) => item.model === model))
+    .filter((item): item is (typeof products)[number] => Boolean(item));
+
   return (
     <PageShell lang={lang}>
       <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), breadcrumbJsonLd(lang, "home")]} />
       <section className="bg-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-700">
               {zh ? "工业自动化过程控制仪表" : "Industrial Process Controllers"}
             </p>
-            <h1 className="mt-5 max-w-4xl text-4xl font-bold tracking-tight text-slate-950 sm:text-6xl">
-              {zh ? "面向产线的可靠测控产品与资料中心" : "Reliable control products and documentation for production lines"}
+            <h1 className="mt-5 max-w-3xl text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+              {zh ? "工业过程控制仪表与工程资料" : "Industrial Controllers for Engineering Selection"}
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
               {zh
-                ? "亚特克产品覆盖温度、湿度、压力、张力、卷绕、pH/ORP 与恒压供水。本站按工业采购和工程选型习惯重构，分页面呈现产品、应用、图库和本地下载资料。"
-                : "ALTEC covers temperature, humidity, pressure, tension, winding, pH/ORP and constant-pressure water control. This site is organized for industrial selection, engineering review and local documentation access."}
+                ? "亚特克提供温度、压力、张力、湿度及水处理控制产品。工程人员可直接查看热销型号、技术规格、接线图和本地资料。"
+                : "ALTEC provides controllers for temperature, pressure, tension, humidity and water treatment systems. Engineers can quickly review popular models, specifications, wiring diagrams and local documents."}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href={path(lang, "/products")} className="bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800">
@@ -45,16 +51,34 @@ export function HomePage({ lang }: { lang: Lang }) {
               </Link>
             </div>
           </div>
-          <div className="border border-slate-200 bg-slate-100 p-6">
+          <div className="border border-slate-200 bg-slate-100 p-4 sm:p-5">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">{zh ? "热销型号" : "Popular Models"}</p>
+                <h2 className="mt-1 text-xl font-bold text-slate-950">{zh ? "常用控制器快速入口" : "Fast Access to Key Controllers"}</h2>
+              </div>
+              <Link href={path(lang, "/products")} className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">
+                {zh ? "全部产品" : "All products"}
+              </Link>
+            </div>
             <div className="grid grid-cols-2 gap-4">
-              {products.slice(1, 5).map((item) => (
-                <div key={item.model} className="bg-white p-5">
-                  <div className="relative aspect-[1.25]">
-                    <Image src={item.image} alt={`${item.model} ${item[lang]}`} fill className="object-contain" sizes="300px" />
+              {featuredProducts.map((item) => (
+                <Link
+                  key={item.model}
+                  href={path(lang, `/products/${productSlug(item.model)}`)}
+                  className="group bg-white p-4 ring-1 ring-slate-200 hover:ring-blue-700"
+                >
+                  <div className="relative aspect-[1.28] bg-slate-50">
+                    <Image src={item.image} alt={`${item.model} ${item[lang]}`} fill className="object-contain p-3" sizes="(min-width: 1024px) 250px, 45vw" />
                   </div>
-                  <p className="mt-3 text-sm font-bold text-slate-950">{item.model}</p>
-                  <p className="text-xs text-slate-500">{item[lang]}</p>
-                </div>
+                  <div className="mt-3 flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-base font-bold text-slate-950 group-hover:text-blue-700">{item.model}</p>
+                      <p className="mt-1 text-xs leading-5 text-slate-500">{item[lang]}</p>
+                    </div>
+                    <ArrowRight size={16} className="mt-1 shrink-0 text-slate-400 group-hover:text-blue-700" />
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -63,10 +87,10 @@ export function HomePage({ lang }: { lang: Lang }) {
 
       <section className="border-y border-slate-200 bg-slate-50">
         <div className="mx-auto grid max-w-7xl gap-px bg-slate-200 sm:grid-cols-3">
-        {([
-            [Layers, zh ? "17 个产品型号" : "17 product models", zh ? "按过程控制、张力卷绕、环境水处理分类。" : "Grouped by process, tension/winding, environment and water treatment."],
+          {([
+            [Layers, zh ? `${products.length} 个产品型号` : `${products.length} product models`, zh ? "按过程控制、张力卷绕、环境水处理分类。" : "Grouped by process, tension/winding, environment and water treatment."],
             [Wrench, zh ? "工程选型导向" : "Engineering oriented", zh ? "减少营销长页，保留明确入口和资料。" : "Clear navigation and documentation over long marketing pages."],
-            [Download, zh ? "本地资料下载" : "Local downloads", zh ? "PDF/RAR 已迁移到本站，不再跳转旧网站。" : "PDF/RAR files are hosted here without legacy redirects."],
+            [Download, zh ? "资料集中提供" : "Document Library", zh ? "常用说明书、通讯协议、传感器资料与软件集中整理，便于选型和维护。" : "Manuals, protocols, sensor documents and software are organized for selection and maintenance."],
           ] as Array<[LucideIcon, string, string]>).map(([Icon, title, text]) => (
             <div key={String(title)} className="bg-slate-50 p-7">
               <Icon size={28} className="text-blue-700" />
@@ -351,7 +375,7 @@ export function DownloadsPage({ lang }: { lang: Lang }) {
       <PageTitle
         eyebrow="Downloads"
         title={zh ? "下载中心" : "Download Center"}
-        text={zh ? "说明书、通讯协议、传感器资料和软件已迁移到本站直接提供，不再跳转旧网站。" : "Manuals, protocols, sensor documents and software are hosted locally by this site. No legacy redirects."}
+        text={zh ? "常用说明书、通讯协议、传感器资料与软件集中提供，可按型号快速查找。" : "Manuals, protocols, sensor documents and software are organized here for quick lookup by model."}
       />
       <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
         <div className="overflow-hidden border border-slate-200 bg-white">
