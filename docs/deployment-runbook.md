@@ -26,22 +26,21 @@ The repository already ignores `.netlify`, but local deploys can still read that
 
 Before any manual production deploy:
 
-1. Run `npm run lint`.
-2. Run `npm run build`.
-3. Remove local Netlify generated state before deploying:
+1. Run `npm run verify`. This runs lint and a full static Next.js build.
+2. Remove local Netlify generated state before deploying:
 
    ```bash
    rm -rf .netlify
    ```
 
-4. Deploy only the static export:
+3. Deploy only the static export:
 
    ```bash
    npx netlify deploy --prod --no-build --dir out --site 0a7fa9b6-ec81-4f21-ad30-1c14265bd68f
    ```
 
-5. Confirm the deploy summary says `No functions deployed` and `No edge functions deployed`.
-6. Smoke test production:
+4. Confirm the deploy summary says `No functions deployed` and `No edge functions deployed`.
+5. Smoke test production:
 
    ```bash
    curl -fsS https://altec-web-nextjs-20260510.netlify.app/ >/tmp/altec-home.html
