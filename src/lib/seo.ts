@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { applicationArticles } from "@/lib/application-data";
-import { navItems, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
+import { contactEmail, navItems, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL || "https://altec.daichuqi.com"
@@ -10,6 +10,7 @@ export const company = {
   name: "深圳市亚特克电子有限公司",
   englishName: "Shenzhen ALTEC Electronics Co., Ltd.",
   brand: "ALTEC 亚特克",
+  email: contactEmail,
   phone: ["+86-755-26409070", "+86-755-26416767"],
   address: {
     streetAddress: "深圳市宝安区航城街道洲石路739号恒丰工业城C6栋502B号",
@@ -161,6 +162,7 @@ export function organizationJsonLd() {
     alternateName: [company.englishName, "ALTEC", "亚特克"],
     url: siteUrl,
     logo: absoluteUrl("/altec/products/AL808.jpg"),
+    email: company.email,
     telephone: company.phone,
     address: {
       "@type": "PostalAddress",

@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { LanguageSwitch } from "@/components/language-switch";
-import { languages, navItems, type Lang } from "@/lib/site-data";
+import { contactEmail, languages, navItems, type Lang } from "@/lib/site-data";
 
 function withLang(lang: Lang, href: string) {
   return `${languages[lang].base}${href === "/" ? "" : href}` || "/";
@@ -68,7 +68,9 @@ export function SiteFooter({ lang }: { lang: Lang }) {
           </p>
           <p className="flex items-center gap-3">
             <Mail size={17} className="shrink-0 text-blue-400" />
-            <Image src="/altec/legacy/e_m_a_i_l.png" alt="ALTEC email" width={112} height={18} />
+            <a href={`mailto:${contactEmail}`} className="hover:text-white">
+              {contactEmail}
+            </a>
           </p>
         </div>
       </div>

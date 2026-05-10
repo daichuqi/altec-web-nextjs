@@ -5,6 +5,8 @@ export const languages: Record<Lang, { label: string; base: string; other: Lang 
   en: { label: "English", base: "/en", other: "zh" },
 };
 
+export const contactEmail = "daiweiyi.altec@gmail.com";
+
 export const navItems = [
   { key: "about", href: "/about", zh: "公司简介", en: "About" },
   { key: "products", href: "/products", zh: "产品中心", en: "Products" },

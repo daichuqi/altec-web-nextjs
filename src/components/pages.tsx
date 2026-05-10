@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Download, FileText, Layers, Wrench, type LucideIcon } from "lucide-react";
 import { applicationArticles, applicationCategories, getApplicationBySlug } from "@/lib/application-data";
 import { productRichDetails } from "@/lib/product-rich-details";
-import { aboutContent, downloads, productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
+import { aboutContent, contactEmail, downloads, productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
 import {
   absoluteUrl,
   breadcrumbJsonLd,
@@ -560,6 +560,12 @@ export function ContactPage({ lang }: { lang: Lang }) {
             <p>{zh ? "地址：深圳市宝安区航城街道洲石路739号恒丰工业城C6栋502B号" : "Address: Shenzhen, China"}</p>
             <p>{zh ? "电话：0755-26409070 / 26416767 / 13802580359" : "Tel: +86 0755 26409070 / 26416767"}</p>
             <p>{zh ? "传真：0755-26416767" : "Fax: +86 0755 26416767"}</p>
+            <p>
+              {zh ? "邮箱：" : "Email: "}
+              <a href={`mailto:${contactEmail}`} className="font-semibold text-blue-700 hover:text-blue-900">
+                {contactEmail}
+              </a>
+            </p>
           </div>
         </div>
         <div className="border border-slate-200 bg-slate-100 p-8">
