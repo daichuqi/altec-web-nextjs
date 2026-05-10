@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { absoluteUrl, localizedPath, sitemapEntries, sitemapImages } from "@/lib/seo";
 import type { Lang } from "@/lib/site-data";
 
+export const dynamic = "force-static";
+
 const languages: Lang[] = ["zh", "en"];
 const lastModified = new Date("2026-05-10");
 
