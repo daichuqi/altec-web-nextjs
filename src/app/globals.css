@@ -24,25 +24,25 @@
 }
 
 html.dark {
-  --background: #020617;
-  --foreground: #f8fafc;
-  --canvas: #020617;
-  --panel: #0f172a;
-  --panel-muted: #1e293b;
-  --panel-contrast: #020617;
-  --line: #1e293b;
-  --line-strong: #334155;
-  --line-inverse: rgba(255, 255, 255, 0.12);
-  --heading: #f8fafc;
-  --copy: #cbd5e1;
-  --copy-muted: #94a3b8;
-  --copy-subtle: #94a3b8;
-  --copy-inverse: #e2e8f0;
-  --copy-inverse-muted: #94a3b8;
-  --accent: #60a5fa;
-  --accent-strong: #93c5fd;
-  --action: #2563eb;
-  --action-strong: #1d4ed8;
+  --background: #111416;
+  --foreground: #f4f6f8;
+  --canvas: #111416;
+  --panel: #181c21;
+  --panel-muted: #222831;
+  --panel-contrast: #0f1215;
+  --line: #2a3037;
+  --line-strong: #3b4550;
+  --line-inverse: rgba(255, 255, 255, 0.1);
+  --heading: #f4f6f8;
+  --copy: #cbd2da;
+  --copy-muted: #9ea8b3;
+  --copy-subtle: #7f8994;
+  --copy-inverse: #d8dde3;
+  --copy-inverse-muted: #99a3ae;
+  --accent: #86a9dc;
+  --accent-strong: #a3bee5;
+  --action: #335bc3;
+  --action-strong: #284aa4;
   --action-contrast: #ffffff;
   color-scheme: dark;
 }
