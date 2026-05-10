@@ -19,6 +19,10 @@ const categoryDescriptions: Record<string, Record<Lang, string>> = {
     zh: "面向纸品、印刷、包装、复合和卷绕设备的张力与同步控制。",
     en: "For tension, synchronization and winding control in paper, printing, packaging and laminating lines.",
   },
+  "Tension Sensors": {
+    zh: "配套张力控制系统使用的轴承式、微位移和应变片式张力检测元件。",
+    en: "Bearing-type, micro-displacement and strain-gauge sensors for tension control systems.",
+  },
   "Environment, Pressure & Water Treatment": {
     zh: "覆盖温湿度、pH/ORP、恒压供水、传感器和水处理相关控制。",
     en: "Covers humidity, pH/ORP, constant-pressure water supply, sensors and water treatment control.",

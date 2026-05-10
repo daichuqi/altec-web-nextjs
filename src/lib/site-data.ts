@@ -52,6 +52,11 @@ export const productCategories = [
     items: ["TC808", "TC818", "TC930", "TC950", "AL210"],
   },
   {
+    zh: "张力传感器",
+    en: "Tension Sensors",
+    items: ["CTS", "HTS", "LX", "SUP"],
+  },
+  {
     zh: "环境、压力与水处理",
     en: "Environment, Pressure & Water Treatment",
     items: ["TH135", "TH136", "MTC35", "pH/ORP800", "PCP310", "CPC316"],
@@ -71,6 +76,10 @@ export const products = [
   { model: "TC930", zh: "卷径张力控制器", en: "Radius Tension Controller", image: "/altec/products/TC930.jpg", category: "Tension & Winding Control" },
   { model: "TC950", zh: "张力控制器", en: "Tension Controller", image: "/altec/products/TC950.jpg", category: "Tension & Winding Control" },
   { model: "AL210", zh: "绕线机控制器", en: "Winding Controller", image: "/altec/products/AL210.jpg", category: "Tension & Winding Control" },
+  { model: "CTS", zh: "张力传感器", en: "Tension Sensor", image: "/altec/products/CTS.jpg", category: "Tension Sensors" },
+  { model: "HTS", zh: "张力传感器", en: "Tension Sensor", image: "/altec/products/HTS.jpg", category: "Tension Sensors" },
+  { model: "LX", zh: "微位移张力传感器", en: "Micro-displacement Tension Sensor", image: "/altec/products/LX.jpg", category: "Tension Sensors" },
+  { model: "SUP", zh: "应变片式张力传感器", en: "Strain-gauge Tension Sensor", image: "/altec/products/SUP.jpg", category: "Tension Sensors" },
   { model: "TH135", zh: "干湿球式湿度控制器", en: "Humidity Controller", image: "/altec/products/TH135.jpg", category: "Environment, Pressure & Water Treatment" },
   { model: "TH136", zh: "湿度控制器", en: "Humidity Controller", image: "/altec/products/TH136.jpg", category: "Environment, Pressure & Water Treatment" },
   { model: "MTC35", zh: "温湿度控制器", en: "Temperature-Humidity Controller", image: "/altec/products/MTC35.jpg", category: "Environment, Pressure & Water Treatment" },
@@ -288,6 +297,70 @@ export const productDetails: Record<string, ProductDetail> = {
       { label: { zh: "记忆功能", en: "Memory" }, value: { zh: "掉电记忆", en: "Power-off memory" } },
       { label: { zh: "计数传感器", en: "Counting sensor" }, value: { zh: "配套光电计数传感器", en: "Supplied photoelectric counting sensor" } },
       { label: { zh: "产量", en: "Production count" }, value: { zh: "自动产量计数及显示", en: "Automatic production count and display" } },
+    ],
+  },
+  CTS: {
+    overview: {
+      zh: "CTS 系列张力传感器采用轴承式结构，适合卷材张力检测，可选不同外径、轴承内径和 250N 至 1000N 量程。",
+      en: "The CTS series bearing-type tension sensor is used for web tension measurement, with multiple outer diameters, bearing bores and 250N to 1000N ranges.",
+    },
+    highlights: {
+      zh: ["轴承式张力检测", "250N、300N、500N、1000N 量程", "2mV/V 灵敏度", "航空插头接线"],
+      en: ["Bearing-type tension sensing", "250N, 300N, 500N and 1000N ranges", "2mV/V rated output", "Aviation connector wiring"],
+    },
+    specs: [
+      { label: { zh: "型号", en: "Models" }, value: { zh: "CTS105-17、CTS125-25", en: "CTS105-17 and CTS125-25" } },
+      { label: { zh: "供桥电压", en: "Excitation" }, value: { zh: "6-12 VDC", en: "6-12 VDC" } },
+      { label: { zh: "非线性/滞后/重复性", en: "Linearity / Hysteresis / Repeatability" }, value: { zh: "0.1% F.S.", en: "0.1% F.S." } },
+      { label: { zh: "重量", en: "Weight" }, value: { zh: "4 kg", en: "4 kg" } },
+    ],
+  },
+  HTS: {
+    overview: {
+      zh: "HTS 系列张力传感器提供 100N 至 500N 量程，适合卷材设备张力检测，配套尺寸图、安装图、接线图和受力分析。",
+      en: "The HTS tension sensor series covers 100N to 500N ranges for web tension measurement, with dimension, mounting, wiring and force-analysis drawings.",
+    },
+    highlights: {
+      zh: ["100N 至 500N 量程", "2mV/V 灵敏度", "6-12VDC 供桥", "结构紧凑，重量 1.8kg"],
+      en: ["100N to 500N ranges", "2mV/V rated output", "6-12VDC excitation", "Compact 1.8kg body"],
+    },
+    specs: [
+      { label: { zh: "量程", en: "Rated capacity" }, value: { zh: "100N、150N、200N、300N、500N", en: "100N, 150N, 200N, 300N and 500N" } },
+      { label: { zh: "输入/输出电阻", en: "Input / Output impedance" }, value: { zh: "≥350Ω / 350±1Ω", en: "≥350Ω / 350±1Ω" } },
+      { label: { zh: "非线性", en: "Non-linearity" }, value: { zh: "0.1% F.S.", en: "0.1% F.S." } },
+      { label: { zh: "插头", en: "Connector" }, value: { zh: "X14K4P / X14J4A", en: "X14K4P / X14J4A" } },
+    ],
+  },
+  LX: {
+    overview: {
+      zh: "LX 系列微位移张力传感器通过滚轮施加负载，使板簧产生微位移并转换为张力信号，支持 5V 或 24V 供电版本。",
+      en: "The LX micro-displacement tension sensor converts roller load into a displacement-based tension signal, with 5V and 24V supply versions.",
+    },
+    highlights: {
+      zh: ["150N 至 1000N 额定载荷", "微位移检测原理", "5V/0-200mV 或 24V/0-10V 输出", "基座、悬挂、侧壁安装"],
+      en: ["150N to 1000N rated load", "Micro-displacement sensing principle", "5V/0-200mV or 24V/0-10V output", "Floor, ceiling or wall mounting"],
+    },
+    specs: [
+      { label: { zh: "额定载荷", en: "Rated load" }, value: { zh: "150N、300N、500N、1000N", en: "150N, 300N, 500N and 1000N" } },
+      { label: { zh: "工作电源", en: "Power supply" }, value: { zh: "DC 5V/20mA 或 DC 24V/20mA", en: "DC 5V/20mA or DC 24V/20mA" } },
+      { label: { zh: "外形尺寸", en: "Dimensions" }, value: { zh: "134×48×78 mm", en: "134×48×78 mm" } },
+      { label: { zh: "适用环境", en: "Environment" }, value: { zh: "0-40°C", en: "0-40°C" } },
+    ],
+  },
+  SUP: {
+    overview: {
+      zh: "SUP 系列应变片式张力传感器覆盖 SUP1、SUP6、SUP62、SUP63、SUP91、SUP94 多种结构和量程，适合高精度张力检测。",
+      en: "The SUP strain-gauge tension sensor series covers SUP1, SUP6, SUP62, SUP63, SUP91 and SUP94 structures for precision tension measurement.",
+    },
+    highlights: {
+      zh: ["多结构、多量程选择", "2.0±10% mV/V 输出灵敏度", "0.02% F.S. 非线性", "支持现场标定"],
+      en: ["Multiple structures and ranges", "2.0±10% mV/V rated output", "0.02% F.S. non-linearity", "Supports calibration"],
+    },
+    specs: [
+      { label: { zh: "可选量程", en: "Capacity range" }, value: { zh: "20kg 至 600kg，按型号不同配置", en: "20kg to 600kg depending on model" } },
+      { label: { zh: "输入/输出电阻", en: "Input / Output impedance" }, value: { zh: "410±30Ω / 350±3Ω", en: "410±30Ω / 350±3Ω" } },
+      { label: { zh: "推荐供桥电压", en: "Recommended excitation" }, value: { zh: "10V，最大 15V", en: "10V, maximum 15V" } },
+      { label: { zh: "安全/极限超载", en: "Safe / Ultimate overload" }, value: { zh: "150% F.S. / 300% F.S.（SUP91 为 200% F.S.）", en: "150% F.S. / 300% F.S. (SUP91: 200% F.S.)" } },
     ],
   },
   TH135: {
