@@ -39,9 +39,21 @@ jobs:
 
       - name: Smoke test production
         run: |
-          sleep 10
-          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors https://altec-web-nextjs-20260510.netlify.app/ >/tmp/altec-home.html
-          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors https://altec-web-nextjs-20260510.netlify.app/products/th136 >/tmp/altec-th136.html
-          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors https://altec-web-nextjs-20260510.netlify.app/altec/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
+          fetch_with_wait() {
+            local url="$1"
+            local output="$2"
+            for attempt in {1..18}; do
+              if curl -fsS --connect-timeout 15 --retry 2 --retry-delay 5 --retry-all-errors "$url" >"$output"; then
+                return 0
+              fi
+              echo "Waiting for Netlify DNS/CDN propagation: $url (attempt $attempt/18)"
+              sleep 10
+            done
+            return 1
+          }
+
+          fetch_with_wait https://altec-web-nextjs-20260510.netlify.app/ /tmp/altec-home.html
+          fetch_with_wait https://altec-web-nextjs-20260510.netlify.app/products/th136 /tmp/altec-th136.html
+          fetch_with_wait https://altec-web-nextjs-20260510.netlify.app/altec/details/TH136/TH136_Panel.gif /tmp/altec-th136-panel.gif
           grep -q "ALTEC" /tmp/altec-home.html
           grep -q "完整技术资料" /tmp/altec-th136.html
