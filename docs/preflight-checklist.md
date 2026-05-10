@@ -89,7 +89,18 @@ Required sections:
 
 If the source page has images, they must be copied locally and rendered by the new page.
 
-## 6. Deploy Safely
+## 6. Check Application Detail Pages
+
+For every new knowledge or application page:
+
+- Add both Chinese and English routes.
+- Add `generateStaticParams()` for both dynamic route trees.
+- Copy all source diagrams into `public/altec/applications/details/`.
+- Rewrite rendered image paths to local `/altec/applications/details/...` URLs.
+- Do not render runtime links or redirects to old `china-altec.com` pages.
+- Confirm the list page links to the detail page and the language switch preserves the slug.
+
+## 7. Deploy Safely
 
 For manual deploys:
 
@@ -104,7 +115,7 @@ Deploy must report:
 - No functions deployed.
 - No edge functions deployed.
 
-## 7. Verify Production URL
+## 8. Verify Production URL
 
 The production URL is:
 
@@ -119,9 +130,14 @@ Smoke test:
 ```bash
 curl -fsS https://altec.daichuqi.com/ >/tmp/altec-home.html
 curl -fsS https://altec.daichuqi.com/products/th136 >/tmp/altec-th136.html
+curl -fsS https://altec.daichuqi.com/applications/control-basics >/tmp/altec-app-control.html
+curl -fsS https://altec.daichuqi.com/en/applications/tc950-tension-control-applications >/tmp/altec-app-tc950-en.html
 curl -fsS https://altec.daichuqi.com/altec/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
+curl -fsS https://altec.daichuqi.com/altec/applications/details/TC950/TC950_Wind.gif >/tmp/altec-tc950-application.gif
 grep -q "ALTEC" /tmp/altec-home.html
 grep -q "完整技术资料" /tmp/altec-th136.html
+grep -q "工业过程控制常用名词解释" /tmp/altec-app-control.html
+grep -q "TC950 Tension Controller Applications" /tmp/altec-app-tc950-en.html
 ```
 
 DNS check:
@@ -131,7 +147,7 @@ curl -s 'https://dns.google/resolve?name=altec.daichuqi.com&type=A'
 curl -s 'https://dns.google/resolve?name=altec.daichuqi.com&type=AAAA'
 ```
 
-## 8. Verify Netlify State
+## 9. Verify Netlify State
 
 ```bash
 npx netlify api getSite --data '{"site_id":"0a7fa9b6-ec81-4f21-ad30-1c14265bd68f"}'
@@ -145,7 +161,7 @@ Required:
 - No functions are deployed.
 - No edge functions are deployed.
 
-## 9. Wait For CI
+## 10. Wait For CI
 
 After pushing to `main`:
 

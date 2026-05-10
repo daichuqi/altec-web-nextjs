@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, FileText, Layers, Wrench, type LucideIcon } from "lucide-react";
+import { applicationArticles, applicationCategories, getApplicationBySlug } from "@/lib/application-data";
 import { productRichDetails } from "@/lib/product-rich-details";
-import { aboutContent, applications, downloads, productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
+import { aboutContent, downloads, productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
 import {
+  absoluteUrl,
   breadcrumbJsonLd,
   organizationJsonLd,
   productJsonLd,
@@ -346,22 +348,156 @@ export function ApplicationsPage({ lang }: { lang: Lang }) {
       <PageJsonLd lang={lang} page="applications" />
       <PageTitle
         eyebrow="Applications"
-        title={zh ? "应用方案" : "Applications"}
-        text={zh ? "来自原应用资料的典型场景整理，保留工程视角和对应产品。" : "Typical scenarios rebuilt from ALTEC application materials with related products."}
+        title={zh ? "应用方案与基础知识" : "Applications and Knowledge Base"}
+        text={
+          zh
+            ? "控制基础、测量知识和典型应用资料集中整理，便于选型、接线与现场调试。"
+            : "Control references, measurement notes and typical industrial application pages for selection, wiring and commissioning."
+        }
       />
-      <section className="mx-auto grid max-w-7xl gap-6 px-5 py-10 sm:px-8 lg:grid-cols-2">
-        {applications.map((app) => (
-          <article key={app.en} className="grid gap-5 border border-slate-200 bg-white p-6 sm:grid-cols-[220px_1fr]">
-            <div className="relative aspect-[1.2] bg-slate-100">
-              <Image src={app.image} alt={app[lang]} fill className="object-cover" sizes="240px" />
+      <section className="mx-auto grid max-w-7xl gap-10 px-5 py-10 sm:px-8">
+        {applicationCategories.map((category) => (
+          <div key={category.key}>
+            <div className="mb-5 flex flex-col justify-between gap-3 border-b border-slate-200 pb-4 md:flex-row md:items-end">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-700">
+                  {category.key === "knowledge" ? "Knowledge" : "Solutions"}
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-slate-950">{category[lang]}</h2>
+              </div>
+              <p className="max-w-2xl text-sm leading-6 text-slate-600">{category.description[lang]}</p>
             </div>
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[0.12em] text-blue-700">{app.related}</p>
-              <h2 className="mt-3 text-2xl font-bold">{app[lang]}</h2>
-              <p className="mt-4 leading-7 text-slate-600">{zh ? app.zhText : app.enText}</p>
+            <div className="grid gap-5 lg:grid-cols-2">
+              {applicationArticles
+                .filter((article) => article.category === category.key)
+                .map((article) => (
+                  <Link
+                    key={article.slug}
+                    href={path(lang, `/applications/${article.slug}`)}
+                    className="group grid gap-5 border border-slate-200 bg-white p-5 hover:border-blue-700 sm:grid-cols-[210px_1fr]"
+                  >
+                    <div className="relative aspect-[1.25] bg-slate-100">
+                      <Image src={article.image} alt={article.title[lang]} fill className="object-contain p-4" sizes="220px" />
+                    </div>
+                    <div>
+                      <div className="flex flex-wrap gap-2">
+                        {article.related.map((item) => (
+                          <span key={item} className="bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                      <h3 className="mt-4 text-xl font-bold text-slate-950 group-hover:text-blue-700">{article.title[lang]}</h3>
+                      <p className="mt-3 text-sm leading-6 text-slate-600">{article.excerpt[lang]}</p>
+                      <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-blue-700">
+                        {zh ? "查看详情" : "Read details"}
+                        <ArrowRight size={16} />
+                      </span>
+                    </div>
+                  </Link>
+                ))}
             </div>
-          </article>
+          </div>
         ))}
+      </section>
+    </PageShell>
+  );
+}
+
+export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string }) {
+  const zh = lang === "zh";
+  const article = getApplicationBySlug(slug);
+
+  if (!article) {
+    return null;
+  }
+
+  const category = applicationCategories.find((item) => item.key === article.category);
+  const relatedProducts = products.filter((item) => article.related.includes(item.model));
+  const relatedArticles = applicationArticles
+    .filter((item) => item.category === article.category && item.slug !== article.slug)
+    .slice(0, 4);
+
+  return (
+    <PageShell lang={lang}>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "TechArticle",
+          headline: article.title[lang],
+          description: article.excerpt[lang],
+          image: absoluteUrl(article.image),
+          inLanguage: zh ? "zh-CN" : "en-US",
+          publisher: {
+            "@type": "Organization",
+            name: zh ? "深圳市亚特克电子有限公司" : "Shenzhen ALTEC Electronics Co., Ltd.",
+          },
+        }}
+      />
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <div>
+            <Link href={path(lang, "/applications")} className="text-sm font-bold text-blue-700 hover:text-blue-900">
+              {zh ? "返回应用方案" : "Back to applications"}
+            </Link>
+            <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-slate-500">{category?.[lang]}</p>
+            <h1 className="mt-4 max-w-3xl text-3xl font-bold tracking-tight text-slate-950 sm:text-5xl">{article.title[lang]}</h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">{article.excerpt[lang]}</p>
+            <div className="mt-8 flex flex-wrap gap-2">
+              {article.related.map((item) => (
+                <span key={item} className="bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-700">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="relative aspect-[1.2] border border-slate-200 bg-slate-100">
+            <Image src={article.image} alt={article.title[lang]} fill className="object-contain p-6" sizes="(min-width: 1024px) 42vw, 100vw" priority />
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <article className="border border-slate-200 bg-white">
+          <div className="border-b border-slate-200 px-6 py-5">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-700">Technical Note</p>
+            <h2 className="mt-2 text-2xl font-bold">{zh ? "详细内容" : "Details"}</h2>
+          </div>
+          <div className="product-rich-detail application-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: article.html[lang] }} />
+        </article>
+
+        <aside className="space-y-6">
+          {relatedProducts.length > 0 ? (
+            <div className="border border-slate-200 bg-white p-6">
+              <h2 className="text-xl font-bold">{zh ? "相关产品" : "Related Products"}</h2>
+              <div className="mt-5 grid gap-3">
+                {relatedProducts.map((item) => (
+                  <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-slate-200 p-3 hover:border-blue-700">
+                    <div className="relative h-16 w-16 shrink-0 bg-slate-100">
+                      <Image src={item.image} alt={item.model} fill className="object-contain p-2" sizes="64px" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-950 group-hover:text-blue-700">{item.model}</p>
+                      <p className="text-sm leading-5 text-slate-600">{item[lang]}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <div className="border border-slate-200 bg-white p-6">
+            <h2 className="text-xl font-bold">{zh ? "同类资料" : "Related Notes"}</h2>
+            <div className="mt-5 grid gap-3">
+              {relatedArticles.map((item) => (
+                <Link key={item.slug} href={path(lang, `/applications/${item.slug}`)} className="block border border-slate-200 p-4 hover:border-blue-700">
+                  <p className="font-bold text-slate-950">{item.title[lang]}</p>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{item.excerpt[lang]}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </aside>
       </section>
     </PageShell>
   );

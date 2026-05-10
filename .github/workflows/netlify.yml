@@ -54,20 +54,27 @@ jobs:
 
           fetch_with_wait https://altec.daichuqi.com/ /tmp/altec-home.html
           fetch_with_wait https://altec.daichuqi.com/products/th136 /tmp/altec-th136.html
+          fetch_with_wait https://altec.daichuqi.com/applications/control-basics /tmp/altec-app-control.html
+          fetch_with_wait https://altec.daichuqi.com/en/applications/tc950-tension-control-applications /tmp/altec-app-tc950-en.html
           fetch_with_wait https://altec.daichuqi.com/altec/details/TH136/TH136_Panel.gif /tmp/altec-th136-panel.gif
+          fetch_with_wait https://altec.daichuqi.com/altec/applications/details/TC950/TC950_Wind.gif /tmp/altec-tc950-application.gif
           grep -q "ALTEC" /tmp/altec-home.html
           grep -q "完整技术资料" /tmp/altec-th136.html
+          grep -q "工业过程控制常用名词解释" /tmp/altec-app-control.html
+          grep -q "TC950 Tension Controller Applications" /tmp/altec-app-tc950-en.html
 
       - name: Verify Netlify deploy health
         run: |
           npx netlify api getSite --data '{"site_id":"0a7fa9b6-ec81-4f21-ad30-1c14265bd68f"}' --auth "$NETLIFY_AUTH_TOKEN" >/tmp/netlify-site.json
           npx netlify api getSiteFileByPathName --data '{"site_id":"0a7fa9b6-ec81-4f21-ad30-1c14265bd68f","file_path":"/index.html"}' --auth "$NETLIFY_AUTH_TOKEN" >/tmp/netlify-index.json
           npx netlify api getSiteFileByPathName --data '{"site_id":"0a7fa9b6-ec81-4f21-ad30-1c14265bd68f","file_path":"/products/th136.html"}' --auth "$NETLIFY_AUTH_TOKEN" >/tmp/netlify-th136.json
+          npx netlify api getSiteFileByPathName --data '{"site_id":"0a7fa9b6-ec81-4f21-ad30-1c14265bd68f","file_path":"/applications/control-basics.html"}' --auth "$NETLIFY_AUTH_TOKEN" >/tmp/netlify-app-control.json
           node - <<'NODE'
           const fs = require("node:fs");
           const site = JSON.parse(fs.readFileSync("/tmp/netlify-site.json", "utf8"));
           const index = JSON.parse(fs.readFileSync("/tmp/netlify-index.json", "utf8"));
           const th136 = JSON.parse(fs.readFileSync("/tmp/netlify-th136.json", "utf8"));
+          const appControl = JSON.parse(fs.readFileSync("/tmp/netlify-app-control.json", "utf8"));
           const deploy = site.published_deploy;
 
           if (site.state !== "current") throw new Error(`Unexpected site state: ${site.state}`);
@@ -77,6 +84,7 @@ jobs:
           if (deploy.edge_functions_present) throw new Error("Unexpected edge functions deployed");
           if (!index?.path?.endsWith("/index.html")) throw new Error("Missing deployed /index.html");
           if (!th136?.path?.endsWith("/products/th136.html")) throw new Error("Missing deployed /products/th136.html");
+          if (!appControl?.path?.endsWith("/applications/control-basics.html")) throw new Error("Missing deployed /applications/control-basics.html");
           if (!deploy.screenshot_url) console.warn("Netlify deploy screenshot is not available yet");
           NODE
         env:

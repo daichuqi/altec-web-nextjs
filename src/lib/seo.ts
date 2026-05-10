@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { applications, navItems, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
+import { applicationArticles } from "@/lib/application-data";
+import { navItems, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL || "https://altec.daichuqi.com"
@@ -48,12 +49,12 @@ export const seoPages = {
   },
   applications: {
     path: "/applications",
-    zhTitle: "应用方案 | 张力控制、温湿度控制、水处理控制",
-    enTitle: "Applications | Tension, Humidity and Water Treatment Control",
+    zhTitle: "应用方案与基础知识 | 工业控制、测量与典型系统",
+    enTitle: "Applications and Knowledge Base | Industrial Control References",
     zhDescription:
-      "查看 ALTEC 亚特克在卷材张力控制、木材干燥湿度控制、pH/ORP 水处理和恒压供水等工业场景的应用。",
+      "查看 ALTEC 亚特克工业过程控制基础知识、温湿度测量知识，以及张力控制、pH/ORP 水处理、恒压供水等典型应用方案。",
     enDescription:
-      "Review ALTEC applications for web tension control, timber drying humidity control, pH/ORP water treatment and industrial process control.",
+      "Review ALTEC control references, measurement notes and application solutions for tension control, pH/ORP water treatment, constant-pressure water supply and industrial process control.",
   },
   gallery: {
     path: "/gallery",
@@ -263,9 +264,10 @@ export const sitemapEntries = [
   seoPages.home.path,
   ...navItems.map((item) => item.href),
   ...products.map((product) => `/products/${productSlug(product.model)}`),
+  ...applicationArticles.map((article) => `/applications/${article.slug}`),
 ];
 
 export const sitemapImages = [
   ...products.map((product) => product.image),
-  ...applications.map((application) => application.image),
+  ...applicationArticles.map((article) => article.image),
 ];
