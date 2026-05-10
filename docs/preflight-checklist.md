@@ -64,6 +64,9 @@ find public/altec -iname '*PC900*' -print
 Required:
 
 - Product card image exists.
+- Product card image comes from the old product page image path, such as `http://www.china-altec.com/images/AL810/AL810.jpg`.
+- Do not use AI-enhanced product photos for production.
+- Do not use `images_eng/gallery` thumbnails as the primary product image.
 - Detail page images exist under `public/altec/details/<MODEL>/`.
 - Downloads are local if shown as downloadable resources.
 - Browser-visible image URLs return `200`.
@@ -152,4 +155,3 @@ gh run watch <run-id> --exit-status
 ```
 
 Do not call the task done until GitHub Actions has passed.
-
