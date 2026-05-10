@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { applicationArticles } from "@/lib/application-data";
 import { contactEmail, navItems, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
+import { assetUrl } from "@/lib/cdn-assets";
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL || "https://altec.daichuqi.com"
@@ -87,6 +88,11 @@ export function absoluteUrl(path: string) {
   return `${siteUrl}${path}`;
 }
 
+function absoluteAssetUrl(path: string) {
+  const candidate = assetUrl(path);
+  return candidate.startsWith("http") ? candidate : absoluteUrl(candidate);
+}
+
 export function pageMetadata(key: SeoPageKey, lang: Lang): Metadata {
   const page = seoPages[key];
   const title = lang === "zh" ? page.zhTitle : page.enTitle;
@@ -115,7 +121,7 @@ export function pageMetadata(key: SeoPageKey, lang: Lang): Metadata {
       type: "website",
       images: [
         {
-          url: "/altec/products/AL808.jpg",
+          url: absoluteAssetUrl("/altec/products/AL808.jpg"),
           width: 800,
           height: 640,
           alt: lang === "zh" ? "ALTEC 亚特克控制器" : "ALTEC industrial controller",
@@ -126,7 +132,7 @@ export function pageMetadata(key: SeoPageKey, lang: Lang): Metadata {
       card: "summary_large_image",
       title,
       description,
-      images: ["/altec/products/AL808.jpg"],
+      images: [absoluteAssetUrl("/altec/products/AL808.jpg")],
     },
   };
 }
@@ -152,7 +158,7 @@ export function organizationJsonLd() {
     name: company.name,
     alternateName: [company.englishName, "ALTEC", "亚特克"],
     url: siteUrl,
-    logo: absoluteUrl("/altec/products/AL808.jpg"),
+    logo: absoluteAssetUrl("/altec/products/AL808.jpg"),
     email: company.email,
     telephone: company.phone,
     address: {
@@ -187,7 +193,7 @@ export function productListJsonLd(lang: Lang) {
           name: "ALTEC",
         },
         category: product.category,
-        image: absoluteUrl(product.image),
+        image: absoluteAssetUrl(product.image),
         url: absoluteUrl(localizedPath(lang, `/products/${productSlug(product.model)}`)),
         description:
           lang === "zh"
@@ -214,7 +220,7 @@ export function productJsonLd(lang: Lang, model: string) {
       name: "ALTEC",
     },
     category: product.category,
-    image: absoluteUrl(product.image),
+    image: absoluteAssetUrl(product.image),
     url: absoluteUrl(localizedPath(lang, `/products/${productSlug(product.model)}`)),
     description:
       detail?.overview[lang] ??

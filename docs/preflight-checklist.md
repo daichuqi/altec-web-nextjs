@@ -115,6 +115,29 @@ Deploy must report:
 - No functions deployed.
 - No edge functions deployed.
 
+### 7.1 Aliyun OSS Preflight
+
+If `ALIYUN_DEPLOY_ENABLED=true`, verify Aliyun configuration:
+
+```bash
+gh variable list | rg -i "ALIYUN"
+gh secret list | rg -i "ALIYUN"
+```
+
+Required:
+
+- `ALIYUN_ACCESS_KEY_ID`
+- `ALIYUN_ACCESS_KEY_SECRET`
+- `ALIYUN_OSS_BUCKET`
+- `ALIYUN_OSS_ENDPOINT`
+
+Recommended:
+
+- `ALIYUN_OSS_PREFIX`
+- `ALIYUN_OSS_REGION`
+- `ALIYUN_SITE_URL`
+- `ALIYUN_OSSUTIL_VERSION`
+
 ## 8. Verify Production URL
 
 The production URL is:
@@ -146,6 +169,19 @@ DNS check:
 curl -s 'https://dns.google/resolve?name=altec.daichuqi.com&type=A'
 curl -s 'https://dns.google/resolve?name=altec.daichuqi.com&type=AAAA'
 ```
+
+If Aliyun origin is enabled, add an additional smoke check:
+
+```bash
+curl -fsS "${ALIYUN_SITE_URL}/" >/tmp/aliyun-home.html
+curl -fsS "${ALIYUN_SITE_URL}/products/th136" >/tmp/aliyun-th136.html
+curl -fsS "${ALIYUN_SITE_URL}/en/products/pc900" >/tmp/aliyun-pc900-en.html
+curl -fsS "${ALIYUN_SITE_URL}/altec/details/TH136/TH136_Panel.gif" >/tmp/aliyun-th136.gif
+grep -q "ALTEC" /tmp/aliyun-home.html
+grep -q "完整技术资料" /tmp/aliyun-th136.html
+```
+
+If a clean path still fails on Aliyun, confirm OSS/CNAME/CDN routing supports extensionless HTML aliases.
 
 ## 9. Verify Netlify State
 

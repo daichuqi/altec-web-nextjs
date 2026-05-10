@@ -4,6 +4,7 @@ Related docs:
 
 - `docs/incident-retrospective-2026-05-10.md`
 - `docs/preflight-checklist.md`
+- `docs/aliyun-oss-setup.md`
 
 ## Current Production Setup
 
@@ -69,6 +70,32 @@ The GitHub Actions Netlify workflow now includes:
 Do not remove these checks. They are there to catch the exact class of failure where the deploy command succeeds but the public site is not actually usable.
 
 Do not use the default `*.netlify.app` hostname as the customer-facing URL. On May 10, 2026, public DNS lookups for `altec-web-nextjs-20260510.netlify.app` returned `NXDOMAIN` from Google DNS even while the deploy was healthy in Netlify. The production domain is now `altec.daichuqi.com`, backed by the `daichuqi.com` Netlify DNS zone.
+
+## Aliyun OSS Deploy Path
+
+An optional Aliyun publish workflow is available at `.github/workflows/aliyun-oss.yml`.
+
+It runs on `main` when `ALIYUN_DEPLOY_ENABLED=true` and performs:
+
+- Static build (`npm run build`)
+- Sync `out/` to OSS bucket
+- Extensionless HTML alias upload for clean route compatibility
+- Optional smoke checks against `ALIYUN_SITE_URL` if set
+
+Required secret/variable setup:
+
+- `ALIYUN_DEPLOY_ENABLED` (repository variable: `true` to run this job)
+- `ALIYUN_ACCESS_KEY_ID`
+- `ALIYUN_ACCESS_KEY_SECRET`
+- `ALIYUN_OSS_BUCKET`
+- `ALIYUN_OSS_ENDPOINT`
+- `ALIYUN_OSS_PREFIX` (optional)
+- `ALIYUN_SITE_URL` (optional; used for smoke checks)
+
+Notes on routing:
+
+- OSS static website hosting does not guarantee SPA-like route rewriting the way Netlify does. This workflow therefore uploads both `xxx.html` and `xxx` for page routes, so URLs like `/products/al808` resolve directly.
+- If your domain/CNAME/CDN requires additional fallback rules, keep them aligned with this route shape.
 
 If the public URL smoke test fails, check the Netlify deploy first:
 

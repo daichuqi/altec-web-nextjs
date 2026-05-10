@@ -37,6 +37,42 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
 
+      - name: Sync static assets to CDN
+        env:
+          CDN_S3_BUCKET: ${{ secrets.CDN_S3_BUCKET }}
+          CDN_S3_PREFIX: ${{ secrets.CDN_S3_PREFIX }}
+          CDN_AWS_REGION: ${{ secrets.CDN_AWS_REGION }}
+          CDN_CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CDN_CLOUDFRONT_DISTRIBUTION_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.CDN_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CDN_AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.CDN_AWS_SESSION_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${CDN_S3_BUCKET:-}" || -z "${CDN_AWS_REGION:-}" || -z "${AWS_ACCESS_KEY_ID:-}" || -z "${AWS_SECRET_ACCESS_KEY:-}" ]]; then
+            echo "CDN sync skipped: missing CDN_S3_BUCKET/CDN_AWS_REGION/CDN_AWS_ACCESS_KEY_ID/CDN_AWS_SECRET_ACCESS_KEY."
+            exit 0
+          fi
+
+          export AWS_DEFAULT_REGION="${CDN_AWS_REGION}"
+
+          TARGET_PREFIX="${CDN_S3_PREFIX:-}"
+          TARGET_PREFIX="${TARGET_PREFIX%/}"
+          if [[ -n "${TARGET_PREFIX}" ]]; then
+            DEST_PREFIX="s3://${CDN_S3_BUCKET}/${TARGET_PREFIX}"
+          else
+            DEST_PREFIX="s3://${CDN_S3_BUCKET}"
+          fi
+
+          aws s3 sync out/_next/static "${DEST_PREFIX}/_next/static" --delete --cache-control "public,max-age=31536000,immutable"
+          aws s3 sync out/altec "${DEST_PREFIX}/altec" --delete --cache-control "public,max-age=604800"
+
+          if [[ -n "${CDN_CLOUDFRONT_DISTRIBUTION_ID:-}" ]]; then
+            aws cloudfront create-invalidation --distribution-id "${CDN_CLOUDFRONT_DISTRIBUTION_ID}" --paths "/_next/*" "/altec/*" >/tmp/cf-invalidation.json
+          else
+            echo "CloudFront invalidation skipped: CDN_CLOUDFRONT_DISTRIBUTION_ID is not set."
+          fi
+
       - name: Smoke test production
         run: |
           fetch_with_wait() {

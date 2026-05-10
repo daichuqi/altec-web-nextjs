@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Search, X } from "lucide-react";
 import { productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
+import { assetUrl } from "@/lib/cdn-assets";
 
 type Product = (typeof products)[number];
 type ProductCategory = (typeof productCategories)[number];
@@ -251,7 +252,7 @@ function ProductResultCard({ lang, product }: { lang: Lang; product: Product }) 
     >
       <div className="relative min-h-[180px] bg-panel-muted">
         <Image
-          src={product.image}
+          src={assetUrl(product.image)}
           alt={`${product.model} ${product[lang]}`}
           fill
           className="object-contain p-1 sm:p-2"

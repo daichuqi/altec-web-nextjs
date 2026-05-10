@@ -175,6 +175,23 @@ Prevention:
   - Exact commands used to verify the fix.
   - A checklist item that prevents the same issue.
 
+### 9. CDN refactor must pass full build before merge
+
+A CDN-related refactor introduced a TypeScript regression during HTML injection:
+
+```text
+Type 'string | undefined' is not assignable to type 'string | TrustedHTML'.
+```
+
+Root cause:
+
+- `richDetailHtmlWithCdn` was derived from optional source data without providing a string fallback before passing it into `dangerouslySetInnerHTML`.
+
+Prevention:
+
+- In every render path, keep values used in `__html` typed as non-optional strings.
+- Require `npm run verify` (lint + build) after each content/data-model and route refactor.
+
 ## Current Required Checks
 
 Run these before pushing any meaningful code or content change:

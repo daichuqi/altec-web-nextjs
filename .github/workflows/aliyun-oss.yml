@@ -1,0 +1,154 @@
+name: Deploy to Aliyun OSS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Aliyun deploy gate
+        id: gate
+        run: |
+          if [[ "${ALIYUN_DEPLOY_ENABLED:-false}" == "true" ]]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "Aliyun deploy is enabled."
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Aliyun deploy is disabled. Set repository variable ALIYUN_DEPLOY_ENABLED=true to enable."
+          fi
+        env:
+          ALIYUN_DEPLOY_ENABLED: ${{ vars.ALIYUN_DEPLOY_ENABLED }}
+
+      - name: Setup Node
+        if: steps.gate.outputs.enabled == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.gate.outputs.enabled == 'true'
+        run: npm ci
+
+      - name: Build
+        if: steps.gate.outputs.enabled == 'true'
+        run: npm run build
+
+      - name: Guard static deploy
+        if: steps.gate.outputs.enabled == 'true'
+        run: |
+          test -d out
+          test -f out/index.html
+
+      - name: Install ossutil
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          ALIYUN_OSSUTIL_VERSION: ${{ vars.ALIYUN_OSSUTIL_VERSION }}
+        run: |
+          set -euo pipefail
+
+          VERSION="${ALIYUN_OSSUTIL_VERSION:-1.7.18}"
+          curl -fsSL "https://gosspublic.alicdn.com/ossutil/${VERSION}/ossutil64" -o /tmp/ossutil64
+          chmod +x /tmp/ossutil64
+          echo "ossutil version:"
+          /tmp/ossutil64 --version
+
+      - name: Sync exported site to OSS
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
+          ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
+          ALIYUN_OSS_BUCKET: ${{ secrets.ALIYUN_OSS_BUCKET }}
+          ALIYUN_OSS_PREFIX: ${{ secrets.ALIYUN_OSS_PREFIX }}
+          ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
+          ALIYUN_OSS_REGION: ${{ secrets.ALIYUN_OSS_REGION }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${ALIYUN_ACCESS_KEY_ID:-}" || -z "${ALIYUN_ACCESS_KEY_SECRET:-}" || -z "${ALIYUN_OSS_BUCKET:-}" || -z "${ALIYUN_OSS_ENDPOINT:-}" ]]; then
+            echo "Aliyun OSS deploy failed: missing ALIYUN_ACCESS_KEY_ID/ALIYUN_ACCESS_KEY_SECRET/ALIYUN_OSS_BUCKET/ALIYUN_OSS_ENDPOINT."
+            exit 1
+          fi
+
+          BUCKET_PREFIX="${ALIYUN_OSS_PREFIX%/}"
+          if [[ -n "${BUCKET_PREFIX}" ]]; then
+            OSS_DEST="oss://${ALIYUN_OSS_BUCKET}/${BUCKET_PREFIX}"
+          else
+            OSS_DEST="oss://${ALIYUN_OSS_BUCKET}"
+          fi
+
+          # Keep route requests like /products/th136 working by creating extensionless objects in OSS.
+          # This mirrors Next.js export output while avoiding function/server-side rewrites.
+          if [[ -n "${ALIYUN_OSS_REGION:-}" ]]; then
+            export OSS_REGION="${ALIYUN_OSS_REGION}"
+          fi
+
+          if ! /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
+            -k "${ALIYUN_ACCESS_KEY_SECRET}" \
+            -e "${ALIYUN_OSS_ENDPOINT}" \
+            sync out "${OSS_DEST}" \
+            --delete \
+            --force; then
+            echo "sync not available; fallback to recursive copy without delete."
+            /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
+              -k "${ALIYUN_ACCESS_KEY_SECRET}" \
+              -e "${ALIYUN_OSS_ENDPOINT}" \
+              cp -r --force out "${OSS_DEST}"
+          fi
+
+          while IFS= read -r HTML_FILE; do
+            RELATIVE="${HTML_FILE#out/}"
+            ROUTE="${RELATIVE%.html}"
+
+            if [[ "$ROUTE" == "index.html" ]]; then
+              continue
+            fi
+
+            TARGET="${OSS_DEST}/${ROUTE}"
+            /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
+              -k "${ALIYUN_ACCESS_KEY_SECRET}" \
+              -e "${ALIYUN_OSS_ENDPOINT}" \
+              cp "${HTML_FILE}" "${TARGET}" \
+              --force
+          done < <(find out -type f -name "*.html")
+
+      - name: Smoke test Aliyun host
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          ALIYUN_SITE_URL: ${{ vars.ALIYUN_SITE_URL }}
+        run: |
+          if [[ -z "${ALIYUN_SITE_URL:-}" ]]; then
+            echo "Skip smoke test: missing ALIYUN_SITE_URL repository variable."
+            exit 0
+          fi
+
+          fetch_with_wait() {
+            local url="$1"
+            local output="$2"
+            for attempt in {1..8}; do
+              if curl -fsS --connect-timeout 20 --retry 2 --retry-delay 5 --retry-all-errors "${url}" >"${output}"; then
+                return 0
+              fi
+              echo "Waiting for Aliyun DNS/CDN propagation: ${url} (attempt ${attempt}/8)"
+              sleep 8
+            done
+            return 1
+          }
+
+          fetch_with_wait "${ALIYUN_SITE_URL}/" /tmp/alitech-home.html
+          fetch_with_wait "${ALIYUN_SITE_URL}/products/al808" /tmp/alitech-al808.html
+          fetch_with_wait "${ALIYUN_SITE_URL}/en/products/pc900" /tmp/alitech-pc900-en.html
+          fetch_with_wait "${ALIYUN_SITE_URL}/altec/applications/details/TC950/TC950_Wind.gif" /tmp/alitech-tc950.gif
+          grep -q "ALTEC" /tmp/alitech-home.html
+          grep -q "工业过程控制" /tmp/alitech-al808.html
+          grep -q "Tension Controller" /tmp/alitech-pc900-en.html

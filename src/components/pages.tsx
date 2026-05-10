@@ -5,6 +5,7 @@ import { applicationArticles, applicationCategories, getApplicationBySlug } from
 import { productRichDetails } from "@/lib/product-rich-details";
 import { aboutContent, contactEmail, downloads, productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
 import { ProductBrowser } from "@/components/product-browser";
+import { assetUrl, rewriteHtmlAssetLinks } from "@/lib/cdn-assets";
 import {
   absoluteUrl,
   breadcrumbJsonLd,
@@ -72,7 +73,7 @@ export function HomePage({ lang }: { lang: Lang }) {
                   className="group bg-panel p-4 ring-1 ring-line hover:ring-accent"
                 >
                   <div className="relative aspect-[1.28] bg-canvas">
-                    <Image src={item.image} alt={`${item.model} ${item[lang]}`} fill className="object-contain p-3" sizes="(min-width: 1024px) 250px, 45vw" />
+                    <Image src={assetUrl(item.image)} alt={`${item.model} ${item[lang]}`} fill className="object-contain p-3" sizes="(min-width: 1024px) 250px, 45vw" />
                   </div>
                   <div className="mt-3 flex items-start justify-between gap-3">
                     <div>
@@ -200,6 +201,7 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
   const category = productCategories.find((item) => item.items.includes(product.model));
   const richDetail = productRichDetails[product.model];
   const richDetailHtml = richDetail ? (zh ? richDetail.html : richDetail.htmlEn) : undefined;
+  const richDetailHtmlWithCdn = richDetailHtml ? rewriteHtmlAssetLinks(richDetailHtml) : "";
   const relatedProducts = products.filter((item) => item.category === product.category && item.model !== product.model).slice(0, 4);
   const productToken = normalizeToken(product.model);
   const relatedDownloads = downloads
@@ -212,7 +214,7 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
       <section className="border-b border-line bg-panel">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="relative aspect-[1.15] border border-line bg-panel-muted">
-            <Image src={product.image} alt={`${product.model} ${product[lang]}`} fill className="object-contain p-10" sizes="(min-width: 1024px) 48vw, 100vw" priority />
+            <Image src={assetUrl(product.image)} alt={`${product.model} ${product[lang]}`} fill className="object-contain p-10" sizes="(min-width: 1024px) 48vw, 100vw" priority />
           </div>
           <div>
             <Link href={path(lang, "/products")} className="text-sm font-bold text-accent hover:text-accent-strong">
@@ -268,7 +270,7 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
               <p className="text-sm font-bold uppercase tracking-[0.16em] text-accent">Technical Detail</p>
               <h2 className="mt-2 text-2xl font-bold">{zh ? "完整技术资料" : "Technical Details"}</h2>
             </div>
-            <div className="product-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: richDetailHtml }} />
+            <div className="product-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: richDetailHtmlWithCdn }} />
           </div>
         </section>
       ) : null}
@@ -279,7 +281,7 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
           <div className="mt-5 divide-y divide-line">
             {relatedDownloads.length > 0 ? (
               relatedDownloads.map((item) => (
-                <a key={item.file} href={item.href} download className="flex items-center justify-between gap-4 py-4 hover:text-accent">
+                <a key={item.file} href={assetUrl(item.href)} download className="flex items-center justify-between gap-4 py-4 hover:text-accent">
                   <span className="flex items-center gap-3 font-semibold">
                     <FileText size={18} className="shrink-0 text-accent" />
                     {item.title}
@@ -298,7 +300,7 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
             {relatedProducts.map((item) => (
               <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-line p-3 hover:border-accent">
                 <div className="relative h-16 w-16 shrink-0 bg-panel-muted">
-                  <Image src={item.image} alt={item.model} fill className="object-contain p-2" sizes="64px" />
+                  <Image src={assetUrl(item.image)} alt={item.model} fill className="object-contain p-2" sizes="64px" />
                 </div>
                 <div>
                   <p className="font-bold text-heading group-hover:text-accent">{item.model}</p>
@@ -349,7 +351,7 @@ export function ApplicationsPage({ lang }: { lang: Lang }) {
                     className="group grid gap-5 border border-line bg-panel p-5 hover:border-accent sm:grid-cols-[210px_1fr]"
                   >
                     <div className="relative aspect-[1.25] bg-panel-muted">
-                      <Image src={article.image} alt={article.title[lang]} fill className="object-contain p-4" sizes="220px" />
+                      <Image src={assetUrl(article.image)} alt={article.title[lang]} fill className="object-contain p-4" sizes="220px" />
                     </div>
                     <div>
                       <div className="flex flex-wrap gap-2">
@@ -424,7 +426,7 @@ export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string
             </div>
           </div>
           <div className="relative aspect-[1.2] border border-line bg-panel-muted">
-            <Image src={article.image} alt={article.title[lang]} fill className="object-contain p-6" sizes="(min-width: 1024px) 42vw, 100vw" priority />
+            <Image src={assetUrl(article.image)} alt={article.title[lang]} fill className="object-contain p-6" sizes="(min-width: 1024px) 42vw, 100vw" priority />
           </div>
         </div>
       </section>
@@ -435,7 +437,7 @@ export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string
             <p className="text-sm font-bold uppercase tracking-[0.16em] text-accent">Technical Note</p>
             <h2 className="mt-2 text-2xl font-bold">{zh ? "详细内容" : "Details"}</h2>
           </div>
-          <div className="product-rich-detail application-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: article.html[lang] }} />
+          <div className="product-rich-detail application-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: rewriteHtmlAssetLinks(article.html[lang]) }} />
         </article>
 
         <aside className="space-y-6">
@@ -444,13 +446,13 @@ export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string
               <h2 className="text-xl font-bold">{zh ? "相关产品" : "Related Products"}</h2>
               <div className="mt-5 grid gap-3">
                 {relatedProducts.map((item) => (
-                  <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-line p-3 hover:border-accent">
-                    <div className="relative h-16 w-16 shrink-0 bg-panel-muted">
-                      <Image src={item.image} alt={item.model} fill className="object-contain p-2" sizes="64px" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-heading group-hover:text-accent">{item.model}</p>
-                      <p className="text-sm leading-5 text-copy-muted">{item[lang]}</p>
+                    <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-line p-3 hover:border-accent">
+                      <div className="relative h-16 w-16 shrink-0 bg-panel-muted">
+                        <Image src={assetUrl(item.image)} alt={item.model} fill className="object-contain p-2" sizes="64px" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-heading group-hover:text-accent">{item.model}</p>
+                        <p className="text-sm leading-5 text-copy-muted">{item[lang]}</p>
                     </div>
                   </Link>
                 ))}
@@ -496,7 +498,7 @@ export function DownloadsPage({ lang }: { lang: Lang }) {
           {downloads.map((item) => (
             <a
               key={item.file}
-              href={item.href}
+              href={assetUrl(item.href)}
               download
               className="grid gap-3 border-t border-line px-5 py-4 hover:bg-panel-muted md:grid-cols-[1fr_90px_120px_120px] md:items-center"
             >
