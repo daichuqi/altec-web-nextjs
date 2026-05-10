@@ -14,7 +14,7 @@ export function LanguageSwitch({ lang }: { lang: Lang }) {
   return (
     <Link
       href={target}
-      className="inline-flex h-9 items-center border border-slate-300 px-3 text-sm font-semibold text-slate-700 hover:border-slate-500 hover:text-slate-950"
+      className="inline-flex h-9 items-center border border-line-strong px-3 text-sm font-semibold text-copy hover:border-line-strong hover:text-heading"
     >
       {lang === "zh" ? "English" : "中文"}
     </Link>

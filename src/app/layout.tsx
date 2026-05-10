@@ -3,6 +3,21 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { company, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
+const themeInitScript = `
+  (function () {
+    try {
+      var stored = window.localStorage.getItem("altec-theme");
+      var theme = stored === "dark" || stored === "light"
+        ? stored
+        : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      var root = document.documentElement;
+      root.classList.toggle("dark", theme === "dark");
+      root.dataset.theme = theme;
+      root.style.colorScheme = theme;
+    } catch (error) {}
+  })();
+`;
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -66,8 +81,12 @@ export default function RootLayout({
     <html
       lang="zh-CN"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {children}
+      </body>
     </html>
   );
 }

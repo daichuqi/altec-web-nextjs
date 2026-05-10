@@ -31,36 +31,36 @@ export function HomePage({ lang }: { lang: Lang }) {
   return (
     <PageShell lang={lang}>
       <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), breadcrumbJsonLd(lang, "home")]} />
-      <section className="bg-white">
+      <section className="bg-panel">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-blue-700">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-accent">
               {zh ? "工业自动化过程控制仪表" : "Industrial Process Controllers"}
             </p>
-            <h1 className="mt-5 max-w-3xl text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl lg:text-5xl">
+            <h1 className="mt-5 max-w-3xl text-3xl font-bold tracking-tight text-heading sm:text-4xl lg:text-5xl">
               {zh ? "工业过程控制仪表与工程资料" : "Industrial Controllers for Engineering Selection"}
             </h1>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base leading-8 text-copy-muted sm:text-lg">
               {zh
                 ? "亚特克提供温度、压力、张力、湿度及水处理控制产品。工程人员可直接查看热销型号、技术规格、接线图和本地资料。"
                 : "ALTEC provides controllers for temperature, pressure, tension, humidity and water treatment systems. Engineers can quickly review popular models, specifications, wiring diagrams and local documents."}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href={path(lang, "/products")} className="bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800">
+              <Link href={path(lang, "/products")} className="bg-action px-5 py-3 text-sm font-semibold text-action-contrast hover:bg-action-strong">
                 {zh ? "进入产品中心" : "View products"}
               </Link>
-              <Link href={path(lang, "/downloads")} className="border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-800 hover:border-slate-500">
+              <Link href={path(lang, "/downloads")} className="border border-line-strong px-5 py-3 text-sm font-semibold text-copy hover:border-line-strong">
                 {zh ? "下载资料" : "Download documents"}
               </Link>
             </div>
           </div>
-          <div className="border border-slate-200 bg-slate-100 p-4 sm:p-5">
+          <div className="border border-line bg-panel-muted p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">{zh ? "热销型号" : "Popular Models"}</p>
-                <h2 className="mt-1 text-xl font-bold text-slate-950">{zh ? "常用控制器快速入口" : "Fast Access to Key Controllers"}</h2>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-accent">{zh ? "热销型号" : "Popular Models"}</p>
+                <h2 className="mt-1 text-xl font-bold text-heading">{zh ? "常用控制器快速入口" : "Fast Access to Key Controllers"}</h2>
               </div>
-              <Link href={path(lang, "/products")} className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">
+              <Link href={path(lang, "/products")} className="shrink-0 text-sm font-bold text-accent hover:text-accent-strong">
                 {zh ? "全部产品" : "All products"}
               </Link>
             </div>
@@ -69,17 +69,17 @@ export function HomePage({ lang }: { lang: Lang }) {
                 <Link
                   key={item.model}
                   href={path(lang, `/products/${productSlug(item.model)}`)}
-                  className="group bg-white p-4 ring-1 ring-slate-200 hover:ring-blue-700"
+                  className="group bg-panel p-4 ring-1 ring-line hover:ring-accent"
                 >
-                  <div className="relative aspect-[1.28] bg-slate-50">
+                  <div className="relative aspect-[1.28] bg-canvas">
                     <Image src={item.image} alt={`${item.model} ${item[lang]}`} fill className="object-contain p-3" sizes="(min-width: 1024px) 250px, 45vw" />
                   </div>
                   <div className="mt-3 flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-base font-bold text-slate-950 group-hover:text-blue-700">{item.model}</p>
-                      <p className="mt-1 text-xs leading-5 text-slate-500">{item[lang]}</p>
+                      <p className="text-base font-bold text-heading group-hover:text-accent">{item.model}</p>
+                      <p className="mt-1 text-xs leading-5 text-copy-subtle">{item[lang]}</p>
                     </div>
-                    <ArrowRight size={16} className="mt-1 shrink-0 text-slate-400 group-hover:text-blue-700" />
+                    <ArrowRight size={16} className="mt-1 shrink-0 text-copy-subtle group-hover:text-accent" />
                   </div>
                 </Link>
               ))}
@@ -88,17 +88,17 @@ export function HomePage({ lang }: { lang: Lang }) {
         </div>
       </section>
 
-      <section className="border-y border-slate-200 bg-slate-50">
-        <div className="mx-auto grid max-w-7xl gap-px bg-slate-200 sm:grid-cols-3">
+      <section className="border-y border-line bg-canvas">
+        <div className="mx-auto grid max-w-7xl gap-px bg-line sm:grid-cols-3">
           {([
             [Layers, zh ? `${products.length} 个产品型号` : `${products.length} product models`, zh ? "按过程控制、张力卷绕、环境水处理分类。" : "Grouped by process, tension/winding, environment and water treatment."],
             [Wrench, zh ? "工程选型导向" : "Engineering oriented", zh ? "减少营销长页，保留明确入口和资料。" : "Clear navigation and documentation over long marketing pages."],
             [Download, zh ? "资料集中提供" : "Document Library", zh ? "常用说明书、通讯协议、传感器资料与软件集中整理，便于选型和维护。" : "Manuals, protocols, sensor documents and software are organized for selection and maintenance."],
           ] as Array<[LucideIcon, string, string]>).map(([Icon, title, text]) => (
-            <div key={String(title)} className="bg-slate-50 p-7">
-              <Icon size={28} className="text-blue-700" />
-              <h2 className="mt-5 text-xl font-bold text-slate-950">{title}</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600">{text}</p>
+            <div key={String(title)} className="bg-canvas p-7">
+              <Icon size={28} className="text-accent" />
+              <h2 className="mt-5 text-xl font-bold text-heading">{title}</h2>
+              <p className="mt-3 text-sm leading-6 text-copy-muted">{text}</p>
             </div>
           ))}
         </div>
@@ -111,12 +111,12 @@ export function HomePage({ lang }: { lang: Lang }) {
           ["/applications", zh ? "应用方案" : "Applications", zh ? "查看典型工业场景。" : "Review typical industrial use cases."],
           ["/downloads", zh ? "下载中心" : "Downloads", zh ? "获取说明书、协议和软件。" : "Get manuals, protocols and software."],
         ].map(([href, title, text]) => (
-          <Link key={href} href={path(lang, href)} className="group border border-slate-200 bg-white p-6 hover:border-blue-700">
+          <Link key={href} href={path(lang, href)} className="group border border-line bg-panel p-6 hover:border-accent">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold">{title}</h2>
-              <ArrowRight size={18} className="text-slate-400 group-hover:text-blue-700" />
+              <ArrowRight size={18} className="text-copy-subtle group-hover:text-accent" />
             </div>
-            <p className="mt-4 text-sm leading-6 text-slate-600">{text}</p>
+            <p className="mt-4 text-sm leading-6 text-copy-muted">{text}</p>
           </Link>
         ))}
       </section>
@@ -140,23 +140,23 @@ export function AboutPage({ lang }: { lang: Lang }) {
         }
       />
       <section className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
-        <aside className="border border-slate-200 bg-white p-6">
+        <aside className="border border-line bg-panel p-6">
           <h2 className="text-xl font-bold">{zh ? "核心能力" : "Highlights"}</h2>
           <div className="mt-5 grid gap-3">
             {content.highlights.map((item) => (
-              <div key={item} className="bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
+              <div key={item} className="bg-panel-muted px-4 py-3 text-sm font-semibold text-copy">
                 {item}
               </div>
             ))}
           </div>
         </aside>
-        <article className="border border-slate-200 bg-white p-7">
-          <div className="space-y-5 text-base leading-8 text-slate-700">
+        <article className="border border-line bg-panel p-7">
+          <div className="space-y-5 text-base leading-8 text-copy">
             {content.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
-          <div className="mt-8 border-l-4 border-blue-700 bg-slate-50 p-5 text-sm leading-7 text-slate-700">
+          <div className="mt-8 border-l-4 border-accent bg-canvas p-5 text-sm leading-7 text-copy">
             {content.productSummary}
           </div>
         </article>
@@ -208,24 +208,24 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
   return (
     <PageShell lang={lang}>
       <JsonLd data={productJsonLd(lang, product.model)} />
-      <section className="border-b border-slate-200 bg-white">
+      <section className="border-b border-line bg-panel">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="relative aspect-[1.15] border border-slate-200 bg-slate-100">
+          <div className="relative aspect-[1.15] border border-line bg-panel-muted">
             <Image src={product.image} alt={`${product.model} ${product[lang]}`} fill className="object-contain p-10" sizes="(min-width: 1024px) 48vw, 100vw" priority />
           </div>
           <div>
-            <Link href={path(lang, "/products")} className="text-sm font-bold text-blue-700 hover:text-blue-900">
+            <Link href={path(lang, "/products")} className="text-sm font-bold text-accent hover:text-accent-strong">
               {zh ? "返回产品中心" : "Back to products"}
             </Link>
-            <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-slate-500">{category?.[lang] ?? product.category}</p>
-            <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-950 sm:text-6xl">{product.model}</h1>
-            <p className="mt-4 text-2xl font-semibold text-slate-800">{product[lang]}</p>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">{detail.overview[lang]}</p>
+            <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-copy-subtle">{category?.[lang] ?? product.category}</p>
+            <h1 className="mt-4 text-4xl font-bold tracking-tight text-heading sm:text-6xl">{product.model}</h1>
+            <p className="mt-4 text-2xl font-semibold text-copy">{product[lang]}</p>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-copy-muted">{detail.overview[lang]}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href={path(lang, "/downloads")} className="bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800">
+              <Link href={path(lang, "/downloads")} className="bg-action px-5 py-3 text-sm font-semibold text-action-contrast hover:bg-action-strong">
                 {zh ? "查看下载资料" : "View downloads"}
               </Link>
-              <Link href={path(lang, "/contact")} className="border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-800 hover:border-slate-500">
+              <Link href={path(lang, "/contact")} className="border border-line-strong px-5 py-3 text-sm font-semibold text-copy hover:border-line-strong">
                 {zh ? "咨询选型" : "Ask for selection help"}
               </Link>
             </div>
@@ -234,26 +234,26 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[0.85fr_1.15fr]">
-        <aside className="border border-slate-200 bg-white p-6">
+        <aside className="border border-line bg-panel p-6">
           <h2 className="text-2xl font-bold">{zh ? "产品特点" : "Highlights"}</h2>
           <div className="mt-6 grid gap-3">
             {detail.highlights[lang].map((item) => (
-              <div key={item} className="flex gap-3 bg-slate-100 px-4 py-3 text-sm font-semibold leading-6 text-slate-700">
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-700" />
+              <div key={item} className="flex gap-3 bg-panel-muted px-4 py-3 text-sm font-semibold leading-6 text-copy">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-action" />
                 <span>{item}</span>
               </div>
             ))}
           </div>
         </aside>
-        <article className="border border-slate-200 bg-white">
-          <div className="border-b border-slate-200 px-6 py-5">
+        <article className="border border-line bg-panel">
+          <div className="border-b border-line px-6 py-5">
             <h2 className="text-2xl font-bold">{zh ? "关键规格" : "Key Specifications"}</h2>
           </div>
-          <dl className="divide-y divide-slate-200">
+          <dl className="divide-y divide-line">
             {detail.specs.map((spec) => (
               <div key={spec.label.en} className="grid gap-2 px-6 py-4 sm:grid-cols-[180px_1fr]">
-                <dt className="font-bold text-slate-950">{spec.label[lang]}</dt>
-                <dd className="leading-7 text-slate-600">{spec.value[lang]}</dd>
+                <dt className="font-bold text-heading">{spec.label[lang]}</dt>
+                <dd className="leading-7 text-copy-muted">{spec.value[lang]}</dd>
               </div>
             ))}
           </dl>
@@ -262,9 +262,9 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
 
       {richDetail ? (
         <section className="mx-auto max-w-7xl px-5 pb-10 sm:px-8">
-          <div className="border border-slate-200 bg-white">
-            <div className="border-b border-slate-200 px-6 py-5">
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-700">Technical Detail</p>
+          <div className="border border-line bg-panel">
+            <div className="border-b border-line px-6 py-5">
+              <p className="text-sm font-bold uppercase tracking-[0.16em] text-accent">Technical Detail</p>
               <h2 className="mt-2 text-2xl font-bold">{zh ? "完整技术资料" : "Technical Details"}</h2>
             </div>
             <div className="product-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: richDetail.html }} />
@@ -273,35 +273,35 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
       ) : null}
 
       <section className="mx-auto grid max-w-7xl gap-8 px-5 pb-14 sm:px-8 lg:grid-cols-2">
-        <div className="border border-slate-200 bg-white p-6">
+        <div className="border border-line bg-panel p-6">
           <h2 className="text-2xl font-bold">{zh ? "相关下载" : "Related Downloads"}</h2>
-          <div className="mt-5 divide-y divide-slate-200">
+          <div className="mt-5 divide-y divide-line">
             {relatedDownloads.length > 0 ? (
               relatedDownloads.map((item) => (
-                <a key={item.file} href={item.href} download className="flex items-center justify-between gap-4 py-4 hover:text-blue-700">
+                <a key={item.file} href={item.href} download className="flex items-center justify-between gap-4 py-4 hover:text-accent">
                   <span className="flex items-center gap-3 font-semibold">
-                    <FileText size={18} className="shrink-0 text-blue-700" />
+                    <FileText size={18} className="shrink-0 text-accent" />
                     {item.title}
                   </span>
-                  <span className="shrink-0 text-sm text-slate-500">{item.type}</span>
+                  <span className="shrink-0 text-sm text-copy-subtle">{item.type}</span>
                 </a>
               ))
             ) : (
-              <p className="py-4 text-sm leading-6 text-slate-600">{zh ? "暂无单独匹配资料，请前往下载中心查看完整资料库。" : "No directly matched document yet. Visit the download center for the full library."}</p>
+              <p className="py-4 text-sm leading-6 text-copy-muted">{zh ? "暂无单独匹配资料，请前往下载中心查看完整资料库。" : "No directly matched document yet. Visit the download center for the full library."}</p>
             )}
           </div>
         </div>
-        <div className="border border-slate-200 bg-white p-6">
+        <div className="border border-line bg-panel p-6">
           <h2 className="text-2xl font-bold">{zh ? "同类产品" : "Related Products"}</h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {relatedProducts.map((item) => (
-              <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-slate-200 p-3 hover:border-blue-700">
-                <div className="relative h-16 w-16 shrink-0 bg-slate-100">
+              <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-line p-3 hover:border-accent">
+                <div className="relative h-16 w-16 shrink-0 bg-panel-muted">
                   <Image src={item.image} alt={item.model} fill className="object-contain p-2" sizes="64px" />
                 </div>
                 <div>
-                  <p className="font-bold text-slate-950 group-hover:text-blue-700">{item.model}</p>
-                  <p className="text-sm text-slate-600">{item[lang]}</p>
+                  <p className="font-bold text-heading group-hover:text-accent">{item.model}</p>
+                  <p className="text-sm text-copy-muted">{item[lang]}</p>
                 </div>
               </Link>
             ))}
@@ -329,14 +329,14 @@ export function ApplicationsPage({ lang }: { lang: Lang }) {
       <section className="mx-auto grid max-w-7xl gap-10 px-5 py-10 sm:px-8">
         {applicationCategories.map((category) => (
           <div key={category.key}>
-            <div className="mb-5 flex flex-col justify-between gap-3 border-b border-slate-200 pb-4 md:flex-row md:items-end">
+            <div className="mb-5 flex flex-col justify-between gap-3 border-b border-line pb-4 md:flex-row md:items-end">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-700">
+                <p className="text-sm font-bold uppercase tracking-[0.16em] text-accent">
                   {category.key === "knowledge" ? "Knowledge" : "Solutions"}
                 </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-950">{category[lang]}</h2>
+                <h2 className="mt-2 text-2xl font-bold text-heading">{category[lang]}</h2>
               </div>
-              <p className="max-w-2xl text-sm leading-6 text-slate-600">{category.description[lang]}</p>
+              <p className="max-w-2xl text-sm leading-6 text-copy-muted">{category.description[lang]}</p>
             </div>
             <div className="grid gap-5 lg:grid-cols-2">
               {applicationArticles
@@ -345,22 +345,22 @@ export function ApplicationsPage({ lang }: { lang: Lang }) {
                   <Link
                     key={article.slug}
                     href={path(lang, `/applications/${article.slug}`)}
-                    className="group grid gap-5 border border-slate-200 bg-white p-5 hover:border-blue-700 sm:grid-cols-[210px_1fr]"
+                    className="group grid gap-5 border border-line bg-panel p-5 hover:border-accent sm:grid-cols-[210px_1fr]"
                   >
-                    <div className="relative aspect-[1.25] bg-slate-100">
+                    <div className="relative aspect-[1.25] bg-panel-muted">
                       <Image src={article.image} alt={article.title[lang]} fill className="object-contain p-4" sizes="220px" />
                     </div>
                     <div>
                       <div className="flex flex-wrap gap-2">
                         {article.related.map((item) => (
-                          <span key={item} className="bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+                          <span key={item} className="bg-panel-muted px-2.5 py-1 text-xs font-bold text-copy-muted">
                             {item}
                           </span>
                         ))}
                       </div>
-                      <h3 className="mt-4 text-xl font-bold text-slate-950 group-hover:text-blue-700">{article.title[lang]}</h3>
-                      <p className="mt-3 text-sm leading-6 text-slate-600">{article.excerpt[lang]}</p>
-                      <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-blue-700">
+                      <h3 className="mt-4 text-xl font-bold text-heading group-hover:text-accent">{article.title[lang]}</h3>
+                      <p className="mt-3 text-sm leading-6 text-copy-muted">{article.excerpt[lang]}</p>
+                      <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-accent">
                         {zh ? "查看详情" : "Read details"}
                         <ArrowRight size={16} />
                       </span>
@@ -405,33 +405,33 @@ export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string
           },
         }}
       />
-      <section className="border-b border-slate-200 bg-white">
+      <section className="border-b border-line bg-panel">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div>
-            <Link href={path(lang, "/applications")} className="text-sm font-bold text-blue-700 hover:text-blue-900">
+            <Link href={path(lang, "/applications")} className="text-sm font-bold text-accent hover:text-accent-strong">
               {zh ? "返回应用方案" : "Back to applications"}
             </Link>
-            <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-slate-500">{category?.[lang]}</p>
-            <h1 className="mt-4 max-w-3xl text-3xl font-bold tracking-tight text-slate-950 sm:text-5xl">{article.title[lang]}</h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">{article.excerpt[lang]}</p>
+            <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-copy-subtle">{category?.[lang]}</p>
+            <h1 className="mt-4 max-w-3xl text-3xl font-bold tracking-tight text-heading sm:text-5xl">{article.title[lang]}</h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-copy-muted">{article.excerpt[lang]}</p>
             <div className="mt-8 flex flex-wrap gap-2">
               {article.related.map((item) => (
-                <span key={item} className="bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-700">
+                <span key={item} className="bg-panel-muted px-3 py-1.5 text-sm font-bold text-copy">
                   {item}
                 </span>
               ))}
             </div>
           </div>
-          <div className="relative aspect-[1.2] border border-slate-200 bg-slate-100">
+          <div className="relative aspect-[1.2] border border-line bg-panel-muted">
             <Image src={article.image} alt={article.title[lang]} fill className="object-contain p-6" sizes="(min-width: 1024px) 42vw, 100vw" priority />
           </div>
         </div>
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <article className="border border-slate-200 bg-white">
-          <div className="border-b border-slate-200 px-6 py-5">
-            <p className="text-sm font-bold uppercase tracking-[0.16em] text-blue-700">Technical Note</p>
+        <article className="border border-line bg-panel">
+          <div className="border-b border-line px-6 py-5">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-accent">Technical Note</p>
             <h2 className="mt-2 text-2xl font-bold">{zh ? "详细内容" : "Details"}</h2>
           </div>
           <div className="product-rich-detail application-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: article.html[lang] }} />
@@ -439,17 +439,17 @@ export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string
 
         <aside className="space-y-6">
           {relatedProducts.length > 0 ? (
-            <div className="border border-slate-200 bg-white p-6">
+            <div className="border border-line bg-panel p-6">
               <h2 className="text-xl font-bold">{zh ? "相关产品" : "Related Products"}</h2>
               <div className="mt-5 grid gap-3">
                 {relatedProducts.map((item) => (
-                  <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-slate-200 p-3 hover:border-blue-700">
-                    <div className="relative h-16 w-16 shrink-0 bg-slate-100">
+                  <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-line p-3 hover:border-accent">
+                    <div className="relative h-16 w-16 shrink-0 bg-panel-muted">
                       <Image src={item.image} alt={item.model} fill className="object-contain p-2" sizes="64px" />
                     </div>
                     <div>
-                      <p className="font-bold text-slate-950 group-hover:text-blue-700">{item.model}</p>
-                      <p className="text-sm leading-5 text-slate-600">{item[lang]}</p>
+                      <p className="font-bold text-heading group-hover:text-accent">{item.model}</p>
+                      <p className="text-sm leading-5 text-copy-muted">{item[lang]}</p>
                     </div>
                   </Link>
                 ))}
@@ -457,13 +457,13 @@ export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string
             </div>
           ) : null}
 
-          <div className="border border-slate-200 bg-white p-6">
+          <div className="border border-line bg-panel p-6">
             <h2 className="text-xl font-bold">{zh ? "同类资料" : "Related Notes"}</h2>
             <div className="mt-5 grid gap-3">
               {relatedArticles.map((item) => (
-                <Link key={item.slug} href={path(lang, `/applications/${item.slug}`)} className="block border border-slate-200 p-4 hover:border-blue-700">
-                  <p className="font-bold text-slate-950">{item.title[lang]}</p>
-                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{item.excerpt[lang]}</p>
+                <Link key={item.slug} href={path(lang, `/applications/${item.slug}`)} className="block border border-line p-4 hover:border-accent">
+                  <p className="font-bold text-heading">{item.title[lang]}</p>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-copy-muted">{item.excerpt[lang]}</p>
                 </Link>
               ))}
             </div>
@@ -485,8 +485,8 @@ export function DownloadsPage({ lang }: { lang: Lang }) {
         text={zh ? "常用说明书、通讯协议、传感器资料与软件集中提供，可按型号快速查找。" : "Manuals, protocols, sensor documents and software are organized here for quick lookup by model."}
       />
       <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
-        <div className="overflow-hidden border border-slate-200 bg-white">
-          <div className="grid grid-cols-[1fr_90px_120px_120px] bg-slate-100 px-5 py-3 text-sm font-bold text-slate-600 max-md:hidden">
+        <div className="overflow-hidden border border-line bg-panel">
+          <div className="grid grid-cols-[1fr_90px_120px_120px] bg-panel-muted px-5 py-3 text-sm font-bold text-copy-muted max-md:hidden">
             <span>{zh ? "文件" : "File"}</span>
             <span>{zh ? "类型" : "Type"}</span>
             <span>{zh ? "大小" : "Size"}</span>
@@ -497,15 +497,15 @@ export function DownloadsPage({ lang }: { lang: Lang }) {
               key={item.file}
               href={item.href}
               download
-              className="grid gap-3 border-t border-slate-200 px-5 py-4 hover:bg-slate-50 md:grid-cols-[1fr_90px_120px_120px] md:items-center"
+              className="grid gap-3 border-t border-line px-5 py-4 hover:bg-panel-muted md:grid-cols-[1fr_90px_120px_120px] md:items-center"
             >
-              <span className="flex items-center gap-3 font-semibold text-slate-950">
-                <FileText size={18} className="text-blue-700" />
+              <span className="flex items-center gap-3 font-semibold text-heading">
+                <FileText size={18} className="text-accent" />
                 {item.title}
               </span>
-              <span className="text-sm text-slate-600">{item.type}</span>
-              <span className="text-sm text-slate-600">{item.size}</span>
-              <span className="text-sm text-slate-600">{item.date}</span>
+              <span className="text-sm text-copy-muted">{item.type}</span>
+              <span className="text-sm text-copy-muted">{item.size}</span>
+              <span className="text-sm text-copy-muted">{item.date}</span>
             </a>
           ))}
         </div>
@@ -525,28 +525,28 @@ export function ContactPage({ lang }: { lang: Lang }) {
         text={zh ? "如需产品选型、资料确认或定制仪表，请联系亚特克。" : "Contact ALTEC for product selection, documentation and custom instruments."}
       />
       <section className="mx-auto grid max-w-7xl gap-6 px-5 py-10 sm:px-8 lg:grid-cols-2">
-        <div className="border border-slate-200 bg-white p-8">
+        <div className="border border-line bg-panel p-8">
           <h2 className="text-2xl font-bold">{zh ? "深圳市亚特克电子有限公司" : "Shenzhen ALTEC Electronics Co., Ltd."}</h2>
-          <div className="mt-6 space-y-4 leading-7 text-slate-600">
+          <div className="mt-6 space-y-4 leading-7 text-copy-muted">
             <p>{zh ? "地址：深圳市宝安区航城街道洲石路739号恒丰工业城C6栋502B号" : "Address: Shenzhen, China"}</p>
             <p>{zh ? "电话：0755-26409070 / 26416767 / 13802580359" : "Tel: +86 0755 26409070 / 26416767"}</p>
             <p>{zh ? "传真：0755-26416767" : "Fax: +86 0755 26416767"}</p>
             <p>
               {zh ? "邮箱：" : "Email: "}
-              <a href={`mailto:${contactEmail}`} className="font-semibold text-blue-700 hover:text-blue-900">
+              <a href={`mailto:${contactEmail}`} className="font-semibold text-accent hover:text-accent-strong">
                 {contactEmail}
               </a>
             </p>
           </div>
         </div>
-        <div className="border border-slate-200 bg-slate-100 p-8">
+        <div className="border border-line bg-panel-muted p-8">
           <h2 className="text-2xl font-bold">{zh ? "资料与支持" : "Documents & Support"}</h2>
-          <p className="mt-4 leading-7 text-slate-600">
+          <p className="mt-4 leading-7 text-copy-muted">
             {zh
               ? "产品说明书和软件请直接前往下载中心获取，所有可用文件均由本站直接提供。"
               : "Manuals and software are available directly from the Download Center and hosted by this site."}
           </p>
-          <Link href={path(lang, "/downloads")} className="mt-6 inline-flex bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800">
+          <Link href={path(lang, "/downloads")} className="mt-6 inline-flex bg-action px-5 py-3 text-sm font-semibold text-action-contrast hover:bg-action-strong">
             {zh ? "前往下载中心" : "Go to downloads"}
           </Link>
         </div>

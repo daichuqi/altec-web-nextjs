@@ -3,11 +3,71 @@
 :root {
   --background: #f8fafc;
   --foreground: #020617;
+  --canvas: #f8fafc;
+  --panel: #ffffff;
+  --panel-muted: #f1f5f9;
+  --panel-contrast: #020617;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+  --line-inverse: rgba(255, 255, 255, 0.1);
+  --heading: #020617;
+  --copy: #334155;
+  --copy-muted: #475569;
+  --copy-subtle: #64748b;
+  --copy-inverse: #cbd5e1;
+  --copy-inverse-muted: #94a3b8;
+  --accent: #1d4ed8;
+  --accent-strong: #1e3a8a;
+  --action: #1d4ed8;
+  --action-strong: #1e40af;
+  --action-contrast: #ffffff;
+}
+
+html.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --canvas: #020617;
+  --panel: #0f172a;
+  --panel-muted: #1e293b;
+  --panel-contrast: #020617;
+  --line: #1e293b;
+  --line-strong: #334155;
+  --line-inverse: rgba(255, 255, 255, 0.12);
+  --heading: #f8fafc;
+  --copy: #cbd5e1;
+  --copy-muted: #94a3b8;
+  --copy-subtle: #94a3b8;
+  --copy-inverse: #e2e8f0;
+  --copy-inverse-muted: #94a3b8;
+  --accent: #60a5fa;
+  --accent-strong: #93c5fd;
+  --action: #2563eb;
+  --action-strong: #1d4ed8;
+  --action-contrast: #ffffff;
+  color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-canvas: var(--canvas);
+  --color-panel: var(--panel);
+  --color-panel-muted: var(--panel-muted);
+  --color-panel-contrast: var(--panel-contrast);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-line-inverse: var(--line-inverse);
+  --color-heading: var(--heading);
+  --color-copy: var(--copy);
+  --color-copy-muted: var(--copy-muted);
+  --color-copy-subtle: var(--copy-subtle);
+  --color-copy-inverse: var(--copy-inverse);
+  --color-copy-inverse-muted: var(--copy-inverse-muted);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-action: var(--action);
+  --color-action-strong: var(--action-strong);
+  --color-action-contrast: var(--action-contrast);
   --font-sans: "Geist", "Geist Fallback", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
 }
@@ -23,13 +83,13 @@ html {
 }
 
 ::selection {
-  background: #1d4ed8;
-  color: #ffffff;
+  background: var(--action);
+  color: var(--action-contrast);
 }
 
 .product-rich-detail {
   overflow-x: auto;
-  color: #334155;
+  color: var(--copy);
   font-size: 0.95rem;
   line-height: 1.75;
 }
@@ -45,24 +105,24 @@ html {
 
 .product-rich-detail .contents a {
   display: inline-flex;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--line-strong);
   padding: 0.5rem 0.75rem;
-  color: #1d4ed8;
+  color: var(--accent);
   font-weight: 700;
 }
 
 .product-rich-detail h2 {
   margin: 2rem 0 1rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--line);
   padding-top: 1.5rem;
-  color: #020617;
+  color: var(--heading);
   font-size: 1.35rem;
   font-weight: 800;
 }
 
 .product-rich-detail h3 {
   margin: 1.4rem 0 0.5rem;
-  color: #0f172a;
+  color: var(--heading);
   font-size: 1rem;
   font-weight: 800;
 }
@@ -82,8 +142,8 @@ html {
   margin: 1rem 0 1.5rem;
   max-width: min(100%, 760px);
   height: auto;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
+  border: 1px solid var(--line);
+  background: var(--panel);
 }
 
 .product-rich-detail figure {
@@ -95,7 +155,7 @@ html {
 }
 
 .product-rich-detail figcaption {
-  color: #64748b;
+  color: var(--copy-subtle);
   font-size: 0.85rem;
   font-weight: 700;
 }
@@ -108,27 +168,27 @@ html {
   margin: 1rem 0 1.5rem;
   min-width: 520px;
   border-collapse: collapse;
-  background: #ffffff;
+  background: var(--panel);
 }
 
 .product-rich-detail caption {
   padding: 0.6rem 0;
-  color: #020617;
+  color: var(--heading);
   font-weight: 800;
   text-align: left;
 }
 
 .product-rich-detail th,
 .product-rich-detail td {
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--line-strong);
   padding: 0.65rem 0.8rem;
   vertical-align: top;
 }
 
 .product-rich-detail th,
 .product-rich-detail .box {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--panel-muted);
+  color: var(--heading);
   font-weight: 800;
 }
 
@@ -140,7 +200,7 @@ html {
 }
 
 .product-rich-detail a {
-  color: #1d4ed8;
+  color: var(--accent);
   font-weight: 700;
 }
 
@@ -155,21 +215,21 @@ html {
 }
 
 .product-rich-detail .pc900-feature-grid div {
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
+  border: 1px solid var(--line-strong);
+  background: var(--panel-muted);
   padding: 0.9rem 1rem;
 }
 
 .product-rich-detail .pc900-feature-grid strong {
   display: block;
-  color: #020617;
+  color: var(--heading);
   font-size: 1rem;
 }
 
 .product-rich-detail .pc900-feature-grid span {
   display: block;
   margin-top: 0.25rem;
-  color: #475569;
+  color: var(--copy-muted);
 }
 
 @media (min-width: 768px) {
