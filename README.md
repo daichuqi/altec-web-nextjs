@@ -2,7 +2,7 @@
 
 Next.js + Tailwind CSS rebuild for Shenzhen ALTEC Electronics Co., Ltd.
 
-Content and product imagery were collected from `http://www.china-altec.com` and reorganized into a modern responsive landing page.
+Legacy ALTEC content, product imagery, manuals and product details have been reorganized into a modern bilingual industrial catalog. Download files are hosted locally by this site.
 
 ## Development
 
@@ -17,6 +17,16 @@ npm run dev
 npm run lint
 npm run build
 ```
+
+## SEO
+
+Set `NEXT_PUBLIC_SITE_URL` to the production origin before deploying, for example:
+
+```bash
+NEXT_PUBLIC_SITE_URL=https://www.example.com
+```
+
+The value is used for canonical URLs, `hreflang`, `robots.txt`, `sitemap.xml`, Open Graph metadata and structured data.
 
 ## Netlify
 

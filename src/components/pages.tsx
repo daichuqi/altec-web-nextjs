@@ -1,7 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Download, FileText, Grid2X2, Layers, Wrench, type LucideIcon } from "lucide-react";
-import { aboutContent, applications, downloads, productCategories, products, type Lang } from "@/lib/site-data";
+import { ArrowRight, Download, FileText, Layers, Wrench, type LucideIcon } from "lucide-react";
+import { aboutContent, applications, downloads, productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
+import {
+  breadcrumbJsonLd,
+  organizationJsonLd,
+  productJsonLd,
+  productListJsonLd,
+  websiteJsonLd,
+  type SeoPageKey,
+} from "@/lib/seo";
 import { PageShell, PageTitle } from "@/components/site-layout";
 
 function path(lang: Lang, href: string) {
@@ -12,6 +20,7 @@ export function HomePage({ lang }: { lang: Lang }) {
   const zh = lang === "zh";
   return (
     <PageShell lang={lang}>
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), breadcrumbJsonLd(lang, "home")]} />
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
@@ -40,7 +49,7 @@ export function HomePage({ lang }: { lang: Lang }) {
               {products.slice(1, 5).map((item) => (
                 <div key={item.model} className="bg-white p-5">
                   <div className="relative aspect-[1.25]">
-                    <Image src={item.image} alt={item.model} fill className="object-contain" sizes="300px" />
+                    <Image src={item.image} alt={`${item.model} ${item[lang]}`} fill className="object-contain" sizes="300px" />
                   </div>
                   <p className="mt-3 text-sm font-bold text-slate-950">{item.model}</p>
                   <p className="text-xs text-slate-500">{item[lang]}</p>
@@ -93,6 +102,7 @@ export function AboutPage({ lang }: { lang: Lang }) {
   const content = aboutContent[lang];
   return (
     <PageShell lang={lang}>
+      <PageJsonLd lang={lang} page="about" />
       <PageTitle
         eyebrow="About ALTEC"
         title={zh ? "公司简介" : "About ALTEC"}
@@ -132,6 +142,7 @@ export function ProductsPage({ lang }: { lang: Lang }) {
   const zh = lang === "zh";
   return (
     <PageShell lang={lang}>
+      <JsonLd data={[breadcrumbJsonLd(lang, "products"), productListJsonLd(lang)]} />
       <PageTitle
         eyebrow={zh ? "Products" : "Products"}
         title={zh ? "产品中心" : "Product Center"}
@@ -144,7 +155,9 @@ export function ProductsPage({ lang }: { lang: Lang }) {
               <h2 className="text-xl font-bold">{category[lang]}</h2>
               <div className="mt-5 flex flex-wrap gap-2">
                 {category.items.map((item) => (
-                  <span key={item} className="bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">{item}</span>
+                  <Link key={item} href={path(lang, `/products/${productSlug(item)}`)} className="bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-blue-700 hover:text-white">
+                    {item}
+                  </Link>
                 ))}
               </div>
             </div>
@@ -156,10 +169,126 @@ export function ProductsPage({ lang }: { lang: Lang }) {
   );
 }
 
+function normalizeToken(value: string) {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }) {
+  const zh = lang === "zh";
+  const product = products.find((item) => item.model === model);
+  const detail = product ? productDetails[product.model] : undefined;
+
+  if (!product || !detail) {
+    return null;
+  }
+
+  const category = productCategories.find((item) => item.items.includes(product.model));
+  const relatedProducts = products.filter((item) => item.category === product.category && item.model !== product.model).slice(0, 4);
+  const productToken = normalizeToken(product.model);
+  const relatedDownloads = downloads
+    .filter((item) => normalizeToken(`${item.title} ${item.file}`).includes(productToken))
+    .slice(0, 6);
+
+  return (
+    <PageShell lang={lang}>
+      <JsonLd data={productJsonLd(lang, product.model)} />
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div className="relative aspect-[1.15] border border-slate-200 bg-slate-100">
+            <Image src={product.image} alt={`${product.model} ${product[lang]}`} fill className="object-contain p-10" sizes="(min-width: 1024px) 48vw, 100vw" priority />
+          </div>
+          <div>
+            <Link href={path(lang, "/products")} className="text-sm font-bold text-blue-700 hover:text-blue-900">
+              {zh ? "返回产品中心" : "Back to products"}
+            </Link>
+            <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-slate-500">{category?.[lang] ?? product.category}</p>
+            <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-950 sm:text-6xl">{product.model}</h1>
+            <p className="mt-4 text-2xl font-semibold text-slate-800">{product[lang]}</p>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">{detail.overview[lang]}</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href={path(lang, "/downloads")} className="bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800">
+                {zh ? "查看下载资料" : "View downloads"}
+              </Link>
+              <Link href={path(lang, "/contact")} className="border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-800 hover:border-slate-500">
+                {zh ? "咨询选型" : "Ask for selection help"}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[0.85fr_1.15fr]">
+        <aside className="border border-slate-200 bg-white p-6">
+          <h2 className="text-2xl font-bold">{zh ? "产品特点" : "Highlights"}</h2>
+          <div className="mt-6 grid gap-3">
+            {detail.highlights[lang].map((item) => (
+              <div key={item} className="flex gap-3 bg-slate-100 px-4 py-3 text-sm font-semibold leading-6 text-slate-700">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-blue-700" />
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+        </aside>
+        <article className="border border-slate-200 bg-white">
+          <div className="border-b border-slate-200 px-6 py-5">
+            <h2 className="text-2xl font-bold">{zh ? "关键规格" : "Key Specifications"}</h2>
+          </div>
+          <dl className="divide-y divide-slate-200">
+            {detail.specs.map((spec) => (
+              <div key={spec.label.en} className="grid gap-2 px-6 py-4 sm:grid-cols-[180px_1fr]">
+                <dt className="font-bold text-slate-950">{spec.label[lang]}</dt>
+                <dd className="leading-7 text-slate-600">{spec.value[lang]}</dd>
+              </div>
+            ))}
+          </dl>
+        </article>
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-8 px-5 pb-14 sm:px-8 lg:grid-cols-2">
+        <div className="border border-slate-200 bg-white p-6">
+          <h2 className="text-2xl font-bold">{zh ? "相关下载" : "Related Downloads"}</h2>
+          <div className="mt-5 divide-y divide-slate-200">
+            {relatedDownloads.length > 0 ? (
+              relatedDownloads.map((item) => (
+                <a key={item.file} href={item.href} download className="flex items-center justify-between gap-4 py-4 hover:text-blue-700">
+                  <span className="flex items-center gap-3 font-semibold">
+                    <FileText size={18} className="shrink-0 text-blue-700" />
+                    {item.title}
+                  </span>
+                  <span className="shrink-0 text-sm text-slate-500">{item.type}</span>
+                </a>
+              ))
+            ) : (
+              <p className="py-4 text-sm leading-6 text-slate-600">{zh ? "暂无单独匹配资料，请前往下载中心查看完整资料库。" : "No directly matched document yet. Visit the download center for the full library."}</p>
+            )}
+          </div>
+        </div>
+        <div className="border border-slate-200 bg-white p-6">
+          <h2 className="text-2xl font-bold">{zh ? "同类产品" : "Related Products"}</h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {relatedProducts.map((item) => (
+              <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-slate-200 p-3 hover:border-blue-700">
+                <div className="relative h-16 w-16 shrink-0 bg-slate-100">
+                  <Image src={item.image} alt={item.model} fill className="object-contain p-2" sizes="64px" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-950 group-hover:text-blue-700">{item.model}</p>
+                  <p className="text-sm text-slate-600">{item[lang]}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    </PageShell>
+  );
+}
+
 export function GalleryPage({ lang }: { lang: Lang }) {
   const zh = lang === "zh";
   return (
     <PageShell lang={lang}>
+      <PageJsonLd lang={lang} page="gallery" />
       <PageTitle
         eyebrow="Gallery"
         title={zh ? "产品图库" : "Products Gallery"}
@@ -176,6 +305,7 @@ export function ApplicationsPage({ lang }: { lang: Lang }) {
   const zh = lang === "zh";
   return (
     <PageShell lang={lang}>
+      <PageJsonLd lang={lang} page="applications" />
       <PageTitle
         eyebrow="Applications"
         title={zh ? "应用方案" : "Applications"}
@@ -203,6 +333,7 @@ export function DownloadsPage({ lang }: { lang: Lang }) {
   const zh = lang === "zh";
   return (
     <PageShell lang={lang}>
+      <PageJsonLd lang={lang} page="downloads" />
       <PageTitle
         eyebrow="Downloads"
         title={zh ? "下载中心" : "Download Center"}
@@ -242,6 +373,7 @@ export function ContactPage({ lang }: { lang: Lang }) {
   const zh = lang === "zh";
   return (
     <PageShell lang={lang}>
+      <JsonLd data={[organizationJsonLd(), breadcrumbJsonLd(lang, "contact")]} />
       <PageTitle
         eyebrow="Contact"
         title={zh ? "联系我们" : "Contact Us"}
@@ -276,19 +408,39 @@ function ProductGrid({ lang, compact = false }: { lang: Lang; compact?: boolean 
   return (
     <div className={`mt-8 grid gap-5 ${compact ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
       {products.map((item) => (
-        <article key={item.model} className="border border-slate-200 bg-white p-5">
+        <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group border border-slate-200 bg-white p-5 hover:border-blue-700">
           <div className="relative aspect-[1.2] bg-slate-100">
-            <Image src={item.image} alt={item.model} fill className="object-contain p-5" sizes="(min-width: 1024px) 25vw, 50vw" />
+            <Image src={item.image} alt={`${item.model} ${item[lang]}`} fill className="object-contain p-5" sizes="(min-width: 1024px) 25vw, 50vw" />
           </div>
           <div className="mt-5 flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold">{item.model}</h2>
+              <h2 className="text-xl font-bold group-hover:text-blue-700">{item.model}</h2>
               <p className="mt-1 text-sm text-slate-600">{item[lang]}</p>
             </div>
-            <Grid2X2 size={18} className="mt-1 shrink-0 text-slate-400" />
+            <ArrowRight size={18} className="mt-1 shrink-0 text-slate-400 group-hover:text-blue-700" />
           </div>
-        </article>
+        </Link>
       ))}
     </div>
+  );
+}
+
+function PageJsonLd({ lang, page }: { lang: Lang; page: SeoPageKey }) {
+  return <JsonLd data={breadcrumbJsonLd(lang, page)} />;
+}
+
+function JsonLd({ data }: { data: object | object[] }) {
+  const graphs = Array.isArray(data) ? data : [data];
+
+  return (
+    <>
+      {graphs.map((graph, index) => (
+        <script
+          key={index}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }}
+        />
+      ))}
+    </>
   );
 }

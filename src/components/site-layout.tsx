@@ -12,16 +12,8 @@ export function SiteHeader({ lang }: { lang: Lang }) {
   return (
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-        <Link href={withLang(lang, "/")} className="flex items-center gap-3">
-          <span className="grid size-11 place-items-center bg-slate-950 text-sm font-black tracking-wide text-white">
-            AT
-          </span>
-          <span>
-            <span className="block text-lg font-bold leading-5 text-slate-950">ALTEC</span>
-            <span className="block text-xs text-slate-500">
-              {lang === "zh" ? "亚特克工业控制" : "Industrial Control"}
-            </span>
-          </span>
+        <Link href={withLang(lang, "/")} className="flex items-center" aria-label="ALTEC">
+          <Image src="/altec-logo.svg" alt="ALTEC" width={157} height={60} priority />
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-semibold text-slate-600 lg:flex">
           {navItems.map((item) => (
@@ -49,7 +41,7 @@ export function SiteFooter({ lang }: { lang: Lang }) {
     <footer className="border-t border-slate-200 bg-slate-950 text-slate-300">
       <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 md:grid-cols-[1fr_1.2fr]">
         <div>
-          <div className="text-lg font-bold text-white">ALTEC</div>
+          <Image src="/altec-logo.svg" alt="ALTEC" width={126} height={48} />
           <p className="mt-3 max-w-md text-sm leading-6 text-slate-400">
             {lang === "zh"
               ? "深圳市亚特克电子有限公司，专注工业自动化智能过程控制仪表。"
@@ -91,11 +83,11 @@ export function PageShell({
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-950">
+    <div className="min-h-screen bg-slate-50 text-slate-950">
       <SiteHeader lang={lang} />
-      {children}
+      <main>{children}</main>
       <SiteFooter lang={lang} />
-    </main>
+    </div>
   );
 }
 
