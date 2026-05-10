@@ -24,7 +24,24 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Guard static deploy
+        run: |
+          test -d out
+          test -f out/index.html
+          test ! -d .netlify/functions
+          test ! -d .netlify/functions-internal
+          test ! -d .netlify/edge-functions
+
       - name: Deploy
         run: npx netlify deploy --prod --no-build --dir out --site 0a7fa9b6-ec81-4f21-ad30-1c14265bd68f --auth "$NETLIFY_AUTH_TOKEN"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Smoke test production
+        run: |
+          sleep 10
+          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors https://altec-web-nextjs-20260510.netlify.app/ >/tmp/altec-home.html
+          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors https://altec-web-nextjs-20260510.netlify.app/products/th136 >/tmp/altec-th136.html
+          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors https://altec-web-nextjs-20260510.netlify.app/altec/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
+          grep -q "ALTEC" /tmp/altec-home.html
+          grep -q "完整技术资料" /tmp/altec-th136.html
