@@ -60,6 +60,13 @@ html {
   font-weight: 800;
 }
 
+.product-rich-detail h3 {
+  margin: 1.4rem 0 0.5rem;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
 .product-rich-detail p,
 .product-rich-detail ol,
 .product-rich-detail ul {
@@ -117,4 +124,38 @@ html {
 .product-rich-detail a {
   color: #1d4ed8;
   font-weight: 700;
+}
+
+.product-rich-detail .pc900-detail-block {
+  margin-top: 2rem;
+}
+
+.product-rich-detail .pc900-feature-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.product-rich-detail .pc900-feature-grid div {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  padding: 0.9rem 1rem;
+}
+
+.product-rich-detail .pc900-feature-grid strong {
+  display: block;
+  color: #020617;
+  font-size: 1rem;
+}
+
+.product-rich-detail .pc900-feature-grid span {
+  display: block;
+  margin-top: 0.25rem;
+  color: #475569;
+}
+
+@media (min-width: 768px) {
+  .product-rich-detail .pc900-feature-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
