@@ -6,12 +6,38 @@ export const languages: Record<Lang, { label: string; base: string; other: Lang 
 };
 
 export const navItems = [
+  { key: "about", href: "/about", zh: "公司简介", en: "About" },
   { key: "products", href: "/products", zh: "产品中心", en: "Products" },
   { key: "applications", href: "/applications", zh: "应用方案", en: "Applications" },
   { key: "gallery", href: "/gallery", zh: "产品图库", en: "Gallery" },
   { key: "downloads", href: "/downloads", zh: "下载中心", en: "Downloads" },
   { key: "contact", href: "/contact", zh: "联系我们", en: "Contact" },
 ];
+
+export const aboutContent = {
+  zh: {
+    paragraphs: [
+      "深圳市亚特克电子有限公司专业从事工业自动化智能过程控制仪表的研究开发及生产应用，在工业自动化领域有丰富的实践经验。",
+      "已涉足的主要领域及产品有电炉行业的温度控制器、环境试验设备的湿度控制器、纸品印刷及凹版印刷行业的张力控制器及速度同步控制器、环保行业的 pH/ORP 控制器、建筑机械行业的称重配料控制器、楼宇中央空调节能的温差控制器、变频供水泵群压力控制器等。所生产的产品适用于温度、湿度、压力、张力、线速度、转速、计数、长度、pH 值、称重配料、电机软启动等工业领域的精确测控及记录。",
+      "深圳市亚特克电子有限公司具有较强的独立产品开发能力，所有产品都是自主开发的高技术产品，技术上不仅在国内处于领先水平，与市场上同级别进口仪表相比，也具备更高的性能价格比。本公司有能力承接特型仪表的开发及生产。",
+      "公司始终坚持“质量第一，服务至上”的质量方针，为广大用户提供可靠的产品及满意的服务，根据客户的特殊需求，承接订制了许多行业的专用仪表。",
+    ],
+    productSummary:
+      "公司主要产品有：AL807/AL808/AL809/AL810/AL830 系列工业调节器、PC900 系列温度控制器、AL808 压力控制器、TC818/TC808 张力控制器、TC930/TC950 系列张力控制器、MC320 速度同步控制器、pH/ORP 控制器、AL210 绕线机控制器、MTC35 系列小型温湿度控制器和工控软件。",
+    highlights: ["工业自动化过程控制", "自主研发产品", "特型仪表开发生产", "质量第一，服务至上"],
+  },
+  en: {
+    paragraphs: [
+      "Shenzhen ALTEC Electronics Co., Ltd. specializes in the research, development, production and application of intelligent industrial process control instruments, with extensive practical experience in industrial automation.",
+      "Its products and application areas include temperature controllers for electric furnace industries, humidity controllers for environmental test equipment, tension and speed synchronization controllers for paper, printing and gravure printing industries, pH/ORP controllers for environmental protection, weighing and batching controllers for construction machinery, temperature differential controllers for central air-conditioning energy saving, and variable-frequency constant-pressure water supply controllers.",
+      "ALTEC has strong independent product development capability. Its products are self-developed high-technology instruments with competitive performance and value, and the company can undertake the development and production of special-purpose instruments.",
+      "The company follows the quality policy of quality first and service foremost, providing reliable products and responsive service while supporting customized instruments for specific industry needs.",
+    ],
+    productSummary:
+      "Main products include AL807/AL808/AL809/AL810/AL830 industrial controllers, PC900 temperature controllers, AL808 pressure controllers, TC818/TC808/TC930/TC950 tension controllers, MC320 speed synchronization controllers, pH/ORP controllers, AL210 winding controllers, MTC35 compact temperature-humidity controllers and industrial control software.",
+    highlights: ["Industrial process control", "Self-developed products", "Custom instrument development", "Quality first, service foremost"],
+  },
+};
 
 export const productCategories = [
   {

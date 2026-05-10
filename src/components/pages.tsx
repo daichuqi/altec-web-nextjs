@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, FileText, Grid2X2, Layers, Wrench, type LucideIcon } from "lucide-react";
-import { applications, downloads, productCategories, products, type Lang } from "@/lib/site-data";
+import { aboutContent, applications, downloads, productCategories, products, type Lang } from "@/lib/site-data";
 import { PageShell, PageTitle } from "@/components/site-layout";
 
 function path(lang: Lang, href: string) {
@@ -67,8 +67,9 @@ export function HomePage({ lang }: { lang: Lang }) {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 lg:grid-cols-4">
+      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 lg:grid-cols-5">
         {[
+          ["/about", zh ? "公司简介" : "About", zh ? "了解亚特克的研发、生产与服务能力。" : "Learn about ALTEC's R&D, production and service capability."],
           ["/products", zh ? "产品中心" : "Products", zh ? "按类别查看控制器产品。" : "Browse controllers by category."],
           ["/applications", zh ? "应用方案" : "Applications", zh ? "查看典型工业场景。" : "Review typical industrial use cases."],
           ["/gallery", zh ? "产品图库" : "Gallery", zh ? "快速浏览全部产品图片。" : "Scan the complete product gallery."],
@@ -82,6 +83,46 @@ export function HomePage({ lang }: { lang: Lang }) {
             <p className="mt-4 text-sm leading-6 text-slate-600">{text}</p>
           </Link>
         ))}
+      </section>
+    </PageShell>
+  );
+}
+
+export function AboutPage({ lang }: { lang: Lang }) {
+  const zh = lang === "zh";
+  const content = aboutContent[lang];
+  return (
+    <PageShell lang={lang}>
+      <PageTitle
+        eyebrow="About ALTEC"
+        title={zh ? "公司简介" : "About ALTEC"}
+        text={
+          zh
+            ? "内容整理自原中文公司简介页面，保留公司能力、应用领域和质量方针等核心信息。"
+            : "Adapted from ALTEC's company profile, covering capabilities, application areas and quality policy."
+        }
+      />
+      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
+        <aside className="border border-slate-200 bg-white p-6">
+          <h2 className="text-xl font-bold">{zh ? "核心能力" : "Highlights"}</h2>
+          <div className="mt-5 grid gap-3">
+            {content.highlights.map((item) => (
+              <div key={item} className="bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
+                {item}
+              </div>
+            ))}
+          </div>
+        </aside>
+        <article className="border border-slate-200 bg-white p-7">
+          <div className="space-y-5 text-base leading-8 text-slate-700">
+            {content.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+          <div className="mt-8 border-l-4 border-blue-700 bg-slate-50 p-5 text-sm leading-7 text-slate-700">
+            {content.productSummary}
+          </div>
+        </article>
       </section>
     </PageShell>
   );
