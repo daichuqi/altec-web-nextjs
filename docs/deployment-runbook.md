@@ -5,10 +5,12 @@ Related docs:
 - `docs/incident-retrospective-2026-05-10.md`
 - `docs/preflight-checklist.md`
 - `docs/aliyun-oss-setup.md`
+- `docs/aliyun-virtual-host-deploy.md`
 
 ## Current Production Setup
 
 - Production URL: `https://altec.daichuqi.com`
+- China production URL: `http://china-altec.com`
 - Netlify default domain: `https://altec-web-nextjs-20260510.netlify.app`
 - Netlify site id: `0a7fa9b6-ec81-4f21-ad30-1c14265bd68f`
 - Netlify DNS zone: `daichuqi.com`
@@ -109,3 +111,20 @@ Then confirm the latest `published_deploy` is `ready`, has no functions, has no 
 curl -s 'https://dns.google/resolve?name=altec.daichuqi.com&type=A'
 curl -s 'https://dns.google/resolve?name=altec.daichuqi.com&type=AAAA'
 ```
+
+## Aliyun Virtual Host Deploy Path
+
+For mainland China performance, the site can also be published to the Aliyun Cloud Virtual Host for `china-altec.com`. This host is FTP-based, not OSS-based, so the Aliyun CLI is not the right deployment tool.
+
+Use `docs/aliyun-virtual-host-deploy.md` for the full process. The short version is:
+
+- Run `npm run verify`.
+- Copy `out/` to a temporary deploy folder.
+- Add route `index.html` aliases for extensionless URLs.
+- Zip the prepared folder.
+- Upload the zip to `htdocs/`.
+- Extract it through the Aliyun host file manager with overwrite enabled.
+- Delete the uploaded zip after extraction.
+- Smoke test `http://china-altec.com/`, `/products/al808`, `/en/products/pc900`, and a product image.
+
+Do not use recursive FTP mirroring as the normal deploy path. It is too slow for this site and has already produced retry failures.

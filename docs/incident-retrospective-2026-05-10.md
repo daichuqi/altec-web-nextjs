@@ -192,6 +192,29 @@ Prevention:
 - In every render path, keep values used in `__html` typed as non-optional strings.
 - Require `npm run verify` (lint + build) after each content/data-model and route refactor.
 
+### 10. FTP mirroring was the wrong deployment method for Aliyun virtual host
+
+The first Aliyun virtual host publish attempt tried to upload the static export file by file over FTP. It was slow and produced retry failures.
+
+Root cause:
+
+- The virtual host is a plain FTP-backed host with many small static files under `_next`, product images, detail images, and route files.
+- Recursive FTP mirroring spends too much time on per-file connection and retry overhead.
+- The host's `htdocs` directory could not be renamed over FTP, so an atomic directory swap was not available.
+
+Fix:
+
+- Package the prepared static export as one zip file.
+- Upload the zip to `htdocs`.
+- Use the Aliyun file manager to extract it into the web root with overwrite enabled.
+- Delete the zip after extraction.
+
+Prevention:
+
+- Use `docs/aliyun-virtual-host-deploy.md` for China production deploys.
+- Do not use recursive FTP mirroring as the default path for this site.
+- Always create directory `index.html` aliases for clean exported routes before zipping.
+
 ## Current Required Checks
 
 Run these before pushing any meaningful code or content change:
@@ -210,6 +233,19 @@ curl -fsS https://altec.daichuqi.com/products/th136 >/tmp/altec-th136.html
 curl -fsS https://altec.daichuqi.com/altec/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
 grep -q "ALTEC" /tmp/altec-home.html
 grep -Eq "complete technical details|完整技术资料" /tmp/altec-th136.html
+```
+
+After Aliyun virtual host deployment, verify China production:
+
+```bash
+curl -fsS -L http://china-altec.com/ >/tmp/altec-aliyun-home.html
+curl -fsS -L http://china-altec.com/products/al808 >/tmp/altec-aliyun-al808.html
+curl -fsS -L http://china-altec.com/en/products/pc900 >/tmp/altec-aliyun-pc900-en.html
+curl -fsS -L http://china-altec.com/altec/products/AL808.jpg >/tmp/altec-aliyun-al808.jpg
+grep -q "ALTEC" /tmp/altec-aliyun-home.html
+grep -q "AL808" /tmp/altec-aliyun-al808.html
+grep -q "PC900" /tmp/altec-aliyun-pc900-en.html
+file /tmp/altec-aliyun-al808.jpg
 ```
 
 Check Netlify deployment health:
