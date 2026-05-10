@@ -4,6 +4,7 @@ import { ArrowRight, Download, FileText, Layers, Wrench, type LucideIcon } from 
 import { applicationArticles, applicationCategories, getApplicationBySlug } from "@/lib/application-data";
 import { productRichDetails } from "@/lib/product-rich-details";
 import { aboutContent, contactEmail, downloads, productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
+import { ProductBrowser } from "@/components/product-browser";
 import {
   absoluteUrl,
   breadcrumbJsonLd,
@@ -103,12 +104,11 @@ export function HomePage({ lang }: { lang: Lang }) {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 lg:grid-cols-5">
+      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 lg:grid-cols-4">
         {[
           ["/about", zh ? "公司简介" : "About", zh ? "了解亚特克的研发、生产与服务能力。" : "Learn about ALTEC's R&D, production and service capability."],
           ["/products", zh ? "产品中心" : "Products", zh ? "按类别查看控制器产品。" : "Browse controllers by category."],
           ["/applications", zh ? "应用方案" : "Applications", zh ? "查看典型工业场景。" : "Review typical industrial use cases."],
-          ["/gallery", zh ? "产品图库" : "Gallery", zh ? "快速浏览全部产品图片。" : "Scan the complete product gallery."],
           ["/downloads", zh ? "下载中心" : "Downloads", zh ? "获取说明书、协议和软件。" : "Get manuals, protocols and software."],
         ].map(([href, title, text]) => (
           <Link key={href} href={path(lang, href)} className="group border border-slate-200 bg-white p-6 hover:border-blue-700">
@@ -173,25 +173,13 @@ export function ProductsPage({ lang }: { lang: Lang }) {
       <PageTitle
         eyebrow={zh ? "Products" : "Products"}
         title={zh ? "产品中心" : "Product Center"}
-        text={zh ? "按工业应用类别组织产品，便于工程选型和资料查找。" : "Products are organized by industrial application categories for engineering selection."}
+        text={
+          zh
+            ? "按应用方向整理全部控制器型号，可搜索型号、产品名称和规格关键词，快速进入详情页。"
+            : "Browse all controller models by application area, or search by model, product name and specification keyword."
+        }
       />
-      <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {productCategories.map((category) => (
-            <div key={category.en} className="border border-slate-200 bg-white p-6">
-              <h2 className="text-xl font-bold">{category[lang]}</h2>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {category.items.map((item) => (
-                  <Link key={item} href={path(lang, `/products/${productSlug(item)}`)} className="bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700 hover:bg-blue-700 hover:text-white">
-                    {item}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <ProductGrid lang={lang} />
-      </section>
+      <ProductBrowser lang={lang} />
     </PageShell>
   );
 }
@@ -319,23 +307,6 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
             ))}
           </div>
         </div>
-      </section>
-    </PageShell>
-  );
-}
-
-export function GalleryPage({ lang }: { lang: Lang }) {
-  const zh = lang === "zh";
-  return (
-    <PageShell lang={lang}>
-      <PageJsonLd lang={lang} page="gallery" />
-      <PageTitle
-        eyebrow="Gallery"
-        title={zh ? "产品图库" : "Products Gallery"}
-        text={zh ? "完整产品图集合，适合快速识别型号与外观。" : "A complete product image set for model and appearance review."}
-      />
-      <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
-        <ProductGrid lang={lang} compact />
       </section>
     </PageShell>
   );
@@ -581,27 +552,6 @@ export function ContactPage({ lang }: { lang: Lang }) {
         </div>
       </section>
     </PageShell>
-  );
-}
-
-function ProductGrid({ lang, compact = false }: { lang: Lang; compact?: boolean }) {
-  return (
-    <div className={`mt-8 grid gap-5 ${compact ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
-      {products.map((item) => (
-        <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group border border-slate-200 bg-white p-5 hover:border-blue-700">
-          <div className="relative aspect-[1.2] bg-slate-100">
-            <Image src={item.image} alt={`${item.model} ${item[lang]}`} fill className="object-contain p-5" sizes="(min-width: 1024px) 25vw, 50vw" />
-          </div>
-          <div className="mt-5 flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold group-hover:text-blue-700">{item.model}</h2>
-              <p className="mt-1 text-sm text-slate-600">{item[lang]}</p>
-            </div>
-            <ArrowRight size={18} className="mt-1 shrink-0 text-slate-400 group-hover:text-blue-700" />
-          </div>
-        </Link>
-      ))}
-    </div>
   );
 }
 

@@ -22,7 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         },
       },
       images:
-        path === "/" || path === "/products" || path === "/gallery"
+        path === "/" || path === "/products"
           ? sitemapImages.map((image) => absoluteUrl(image))
           : undefined,
     })),

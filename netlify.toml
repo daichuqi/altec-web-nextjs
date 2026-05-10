@@ -4,3 +4,13 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+[[redirects]]
+  from = "/gallery"
+  to = "/products"
+  status = 301
+
+[[redirects]]
+  from = "/en/gallery"
+  to = "/en/products"
+  status = 301

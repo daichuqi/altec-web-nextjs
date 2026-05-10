@@ -57,15 +57,6 @@ export const seoPages = {
     enDescription:
       "Review ALTEC control references, measurement notes and application solutions for tension control, pH/ORP water treatment, constant-pressure water supply and industrial process control.",
   },
-  gallery: {
-    path: "/gallery",
-    zhTitle: "产品图库 | ALTEC 亚特克控制器外观图片",
-    enTitle: "Product Gallery | ALTEC Controller Images",
-    zhDescription:
-      "浏览 ALTEC 亚特克温度控制器、张力控制器、湿度控制器、pH/ORP 控制器等产品图片。",
-    enDescription:
-      "Browse images of ALTEC temperature controllers, tension controllers, humidity controllers, pH/ORP controllers and related industrial instruments.",
-  },
   downloads: {
     path: "/downloads",
     zhTitle: "下载中心 | ALTEC 产品说明书、通讯协议和软件",

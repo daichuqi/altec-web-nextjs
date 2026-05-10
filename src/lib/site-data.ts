@@ -11,7 +11,6 @@ export const navItems = [
   { key: "about", href: "/about", zh: "公司简介", en: "About" },
   { key: "products", href: "/products", zh: "产品中心", en: "Products" },
   { key: "applications", href: "/applications", zh: "应用方案", en: "Applications" },
-  { key: "gallery", href: "/gallery", zh: "产品图库", en: "Gallery" },
   { key: "downloads", href: "/downloads", zh: "下载中心", en: "Downloads" },
   { key: "contact", href: "/contact", zh: "联系我们", en: "Contact" },
 ];
