@@ -198,7 +198,8 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
   }
 
   const category = productCategories.find((item) => item.items.includes(product.model));
-  const richDetail = lang === "zh" ? productRichDetails[product.model] : undefined;
+  const richDetail = productRichDetails[product.model];
+  const richDetailHtml = richDetail ? (zh ? richDetail.html : richDetail.htmlEn) : undefined;
   const relatedProducts = products.filter((item) => item.category === product.category && item.model !== product.model).slice(0, 4);
   const productToken = normalizeToken(product.model);
   const relatedDownloads = downloads
@@ -260,14 +261,14 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
         </article>
       </section>
 
-      {richDetail ? (
+      {richDetailHtml ? (
         <section className="mx-auto max-w-7xl px-5 pb-10 sm:px-8">
           <div className="border border-line bg-panel">
             <div className="border-b border-line px-6 py-5">
               <p className="text-sm font-bold uppercase tracking-[0.16em] text-accent">Technical Detail</p>
               <h2 className="mt-2 text-2xl font-bold">{zh ? "完整技术资料" : "Technical Details"}</h2>
             </div>
-            <div className="product-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: richDetail.html }} />
+            <div className="product-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: richDetailHtml }} />
           </div>
         </section>
       ) : null}

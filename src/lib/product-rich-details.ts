@@ -1,6 +1,126 @@
 export type ProductRichDetail = {
   html: string;
+  htmlEn?: string;
 };
+
+const tc950ZhHtml = `
+<div class="product-detail-intro">
+  <p>TC950 张力控制器用于高精度恒张力控制系统，可接收 0-50mV 张力信号，经 PID 运算后输出模拟量、PWM 或移相脉冲信号，适合收卷、放卷、速度同步和功率单元驱动等张力控制场景。</p>
+  <p>仪表支持自动/手动切换、同步追踪、零张力报警和通讯/张力变送功能，可驱动变频器、RSP 功率单元、SKCH 可控硅模块及 AL33 三相力矩电机模块。</p>
+  <ul class="contents">
+    <li><a href="#code">型号定义</a></li>
+    <li><a href="#panel">操作界面</a></li>
+    <li><a href="#dim">外形尺寸</a></li>
+    <li><a href="#mount">安装</a></li>
+    <li><a href="#wiring">电气连接</a></li>
+    <li><a href="#spec">技术规格</a></li>
+    <li><a href="#app">典型应用</a></li>
+    <li><a href="#doc">相关文档</a></li>
+  </ul>
+</div>
+<span id="code"></span>
+<h2>型号定义</h2>
+<table class="coding"><tbody><tr><td class="box">TC950</td><td class="nobox">-</td><td class="box">主输出</td><td class="nobox">-</td><td class="box">通讯功能</td></tr><tr><td class="sn"></td><td></td><td class="sn">①</td><td></td><td class="sn">②</td></tr></tbody></table>
+<table class="code_table"><caption>① 主输出</caption><tbody><tr><th scope="row">代号</th><td>含义</td></tr><tr><th scope="row">A420</th><td>电流输出 4-20mA</td></tr><tr><th scope="row">V10</th><td>电压输出 0-10V</td></tr><tr><th scope="row">V05</th><td>电压输出 0-5V</td></tr><tr><th scope="row">PWM</th><td>PWM 高速脉冲输出</td></tr><tr><th scope="row">Y1</th><td>单相移相脉冲输出</td></tr><tr><th scope="row">Y3</th><td>三相移相脉冲输出</td></tr></tbody></table>
+<table class="code_table"><caption>② 通讯功能</caption><tbody><tr><th scope="row">代码</th><td>含义</td></tr><tr><th scope="row">0</th><td>无通讯</td></tr><tr><th scope="row">RS232</th><td>RS232 通讯接口</td></tr><tr><th scope="row">RS485</th><td>RS485 通讯接口</td></tr><tr><th scope="row">BS</th><td>张力变送输出功能</td></tr></tbody></table>
+<p>例如：TC950-A420-BS 表示带张力变送功能，主输出为 4-20mA 的张力控制器。</p>
+<p>注意：当输出为移相脉冲输出时，如电源频率不为 50Hz，订货时需特别注明。</p>
+<span id="panel"></span>
+<h2>操作界面</h2>
+<img class="illustration" src="/altec/details/TC950/TC930_Panel.gif" alt="TC950 操作界面">
+<table class="spec_table"><tbody><tr><th scope="row">PV 显示</th><td>显示过程值，也可显示参数名称缩写。</td></tr><tr><th scope="row">SV 显示</th><td>显示设定值、参数值或报警代码。</td></tr><tr><th scope="row">运行指示</th><td>包括 OUT1、OUT2、RUN、HAND、AUTO、OUT ON、A/B 轴运行、报警和通讯等状态指示。</td></tr><tr><th scope="row">操作按键</th><td>CAL/SET、OUTPUT ON/OFF、PROG/SET、DISP/SELECT、PAR/SET、AUTO/HAND 及增减键。</td></tr><tr><th scope="row">下排状态</th><td>N 为张力设定指示，% 为输出功率指示，R 为同步速度指示。</td></tr></tbody></table>
+<span id="dim"></span>
+<h2>外形尺寸</h2>
+<img class="illustration" src="/altec/details/TC950/TC930_Dim.gif" alt="TC950 外形尺寸">
+<span id="mount"></span>
+<h2>安装</h2>
+<img class="illustration" src="/altec/details/TC950/TC930_Mount.gif" alt="TC950 安装尺寸">
+<span id="wiring"></span>
+<h2>电气连接</h2>
+<h3>TC950 标准接线</h3>
+<img class="illustration" src="/altec/details/TC950/TC950_Wiring.gif" alt="TC950 标准接线">
+<h3>TC950-Y1 电气接线图</h3>
+<img class="illustration" src="/altec/details/TC950/TC950_Y1_Wiring.gif" alt="TC950-Y1 电气接线">
+<h3>TC950-V05 控制三相力矩电机接线图</h3>
+<p>TC950 可输出 0-5V 信号直接控制 AL33 型三相力矩电机模块，驱动三相力矩电机。该方案接线简单、可靠性高，适用于高精度恒张力控制系统。</p>
+<p>AL33 型三相力矩电机模块具有多种型号，订货时请注明电机功率或驱动电流。</p>
+<img class="illustration" src="/altec/details/TC950/TC950_V05.gif" alt="TC950-V05 控制三相力矩电机接线">
+<span id="spec"></span>
+<h2>技术规格</h2>
+<table class="spec_table"><tbody><tr><th scope="row">测量精度</th><td>满量程 ±0.2%FS ±1 个字</td></tr><tr><th scope="row">采样周期</th><td>100 ms</td></tr><tr><th scope="row">张力输入信号</th><td>0-50mV</td></tr><tr><th scope="row">输出</th><td>模拟量：4-20mA、0-20mA、0-10V<br>PWM 高速脉冲输出<br>单相移相脉冲输出<br>三相移相脉冲输出</td></tr><tr><th scope="row">报警</th><td>零张力报警；继电器常开触点，最大 250VAC / 3A</td></tr><tr><th scope="row">调节算法</th><td>比例、积分、微分调节 PID，具备无超调及无欠调控制特性。</td></tr><tr><th scope="row">数字通讯</th><td>RS-232、RS-485</td></tr><tr><th scope="row">显示</th><td>上排 4 位高亮绿色 LED，下排 4 位高亮红色 LED，带状态指示灯。</td></tr><tr><th scope="row">电源</th><td>100-260VAC，50/60Hz</td></tr><tr><th scope="row">环境</th><td>工作温度 0-50℃，相对湿度 ≤85%</td></tr><tr><th scope="row">外形尺寸</th><td>96(W) × 96(H) × 100(D) mm</td></tr></tbody></table>
+<span id="app"></span>
+<h2>典型应用</h2>
+<figure><img src="/altec/applications/details/TC950/TC950_RSP_Unwind.gif" alt="TC950 配合 RSP 功率单元用于放卷张力控制"><figcaption>TC950 配合 RSP 功率单元用于放卷张力控制</figcaption></figure>
+<figure><img src="/altec/applications/details/TC950/TC950_RSP_Wind.gif" alt="TC950 配合 RSP 功率单元用于收卷张力控制"><figcaption>TC950 配合 RSP 功率单元用于收卷张力控制</figcaption></figure>
+<figure><img src="/altec/applications/details/TC950/TC950_Wind.gif" alt="TC950-A420 模拟量输出控制变频器收卷"><figcaption>TC950-A420 模拟量输出控制变频器收卷</figcaption></figure>
+<figure><img src="/altec/applications/details/TC950/TC950_SKCH.gif" alt="TC950-Y1 配合 SKCH 系列可控硅模块"><figcaption>TC950-Y1 配合 SKCH 系列可控硅模块</figcaption></figure>
+<figure><img src="/altec/applications/details/TC950/TC950_speed_tracking.gif" alt="TC950 速度同步张力控制系统"><figcaption>TC950 速度同步张力控制系统</figcaption></figure>
+<span id="doc"></span>
+<h2>相关文档</h2>
+<ol>
+  <li>TC950 张力控制器使用说明书 <a href="/altec/downloads/TC950.pdf" download>PDF</a></li>
+  <li>TC950-Y1 与 SKCH 系列可控硅模块接线图 <a href="/altec/downloads/TC950_SKCH_Wire.pdf" download>PDF</a></li>
+</ol>
+`;
+
+const tc950EnHtml = `
+<div class="product-detail-intro">
+  <p>The TC950 tension controller is designed for high-precision constant tension control. It accepts a 0-50mV tension input, runs PID control, and provides analog, PWM, single-phase or three-phase phase-shifting outputs for power units and drive systems.</p>
+  <p>Typical systems include winding and unwinding sections, RSP power units, SKCH SCR modules, inverters and torque-motor modules. Automatic/manual operation, synchronous tracking, zero-tension alarm and optional communication or tension transmission are supported.</p>
+  <ul class="contents">
+    <li><a href="#code">Coding</a></li>
+    <li><a href="#panel">Panel Description</a></li>
+    <li><a href="#dim">Dimensions</a></li>
+    <li><a href="#mount">Mounting</a></li>
+    <li><a href="#wiring">Wiring</a></li>
+    <li><a href="#spec">Specifications</a></li>
+    <li><a href="#app">Typical Applications</a></li>
+    <li><a href="#doc">Documents</a></li>
+  </ul>
+</div>
+<span id="code"></span>
+<h2>Coding</h2>
+<table class="coding"><tbody><tr><td class="box">TC950</td><td class="nobox">-</td><td class="box">Main output</td><td class="nobox">-</td><td class="box">Communications</td></tr><tr><td class="sn"></td><td></td><td class="sn">(1)</td><td></td><td class="sn">(2)</td></tr></tbody></table>
+<table class="code_table"><caption>(1) Main output</caption><tbody><tr><th scope="row">A420</th><td>4-20mA output</td></tr><tr><th scope="row">V10</th><td>0-10V output</td></tr><tr><th scope="row">V05</th><td>0-5V output</td></tr><tr><th scope="row">PWM</th><td>Pulse-width modulation output</td></tr><tr><th scope="row">Y1</th><td>Single-phase phase-shifting output</td></tr><tr><th scope="row">Y3</th><td>Three-phase phase-shifting output</td></tr></tbody></table>
+<table class="code_table"><caption>(2) Communications</caption><tbody><tr><th scope="row">0</th><td>None</td></tr><tr><th scope="row">RS232</th><td>RS232, 3 wire, communication distance up to 15m</td></tr><tr><th scope="row">RS485</th><td>RS485, 2 wire, communication distance up to 1.2km</td></tr><tr><th scope="row">BS</th><td>Tension transmission output</td></tr></tbody></table>
+<p>Examples: TC950-A420-0, TC950-V10-0.</p>
+<p>For phase-shifting output, specify the power frequency when it is not 50Hz.</p>
+<span id="panel"></span>
+<h2>Panel Description</h2>
+<img class="illustration" src="/altec/details/TC950/TC930_Panel_en.gif" alt="TC950 panel description">
+<table class="spec_table"><tbody><tr><th scope="row">PV display</th><td>Indicates the process value and abbreviated parameter names.</td></tr><tr><th scope="row">SV display</th><td>Indicates the setting value, parameter value or alarm code.</td></tr><tr><th scope="row">Status indicators</th><td>OUT1, OUT2, RUN, HAND, AUTO, OUT ON, A/B shaft running, alarm and communication indicators.</td></tr><tr><th scope="row">Operation keys</th><td>CAL/SET, OUTPUT ON/OFF, PROG/SET, DISP/SELECT, PAR/SET, AUTO/HAND, increase and decrease keys.</td></tr><tr><th scope="row">Lower status display</th><td>N indicates tension setpoint, % indicates output power, and R indicates synchronous speed.</td></tr></tbody></table>
+<span id="dim"></span>
+<h2>Dimensions</h2>
+<img class="illustration" src="/altec/details/TC950/TC930_Dim_en.gif" alt="TC950 dimensions">
+<span id="mount"></span>
+<h2>Mounting</h2>
+<img class="illustration" src="/altec/details/TC950/TC930_Mount_en.gif" alt="TC950 mounting dimensions">
+<span id="wiring"></span>
+<h2>Wiring</h2>
+<h3>Standard Wiring</h3>
+<img class="illustration" src="/altec/details/TC950/TC950_Wiring_en.gif" alt="TC950 standard wiring">
+<h3>Single-Phase Phase-Shifting Output</h3>
+<img class="illustration" src="/altec/details/TC950/TC950_SP.gif" alt="TC950 single-phase phase-shifting wiring">
+<h3>Torque Motor Module Wiring</h3>
+<img class="illustration" src="/altec/details/TC950/TC950_Motor_SP.gif" alt="TC950 torque motor module wiring">
+<span id="spec"></span>
+<h2>Specifications</h2>
+<table class="spec_table"><tbody><tr><th scope="row">Accuracy</th><td>±0.2% FS ±1 digit</td></tr><tr><th scope="row">Sample rate</th><td>100 ms</td></tr><tr><th scope="row">Tension signal input</th><td>0-50mV</td></tr><tr><th scope="row">Output</th><td>Analog: 4-20mA, 0-20mA, 0-10V<br>PWM output<br>Single-phase phase-shifting output<br>Three-phase phase-shifting output</td></tr><tr><th scope="row">Alarm</th><td>Zero-tension alarm; relay output, normally open, max. 250VAC / 3A</td></tr><tr><th scope="row">Control algorithm</th><td>PID, proportional, integral and derivative control.</td></tr><tr><th scope="row">Communications</th><td>RS-232 and RS-485</td></tr><tr><th scope="row">Displays</th><td>Upper 4-digit high-brightness green LED, lower 4-digit high-brightness red LED and LED indicators.</td></tr><tr><th scope="row">Power supply</th><td>100-240VAC, 50/60Hz</td></tr><tr><th scope="row">Environment</th><td>Ambient temperature 0-50°C, humidity ≤85%</td></tr><tr><th scope="row">Dimensions</th><td>96(W) × 96(H) × 100(D) mm</td></tr></tbody></table>
+<span id="app"></span>
+<h2>Typical Applications</h2>
+<figure><img src="/altec/applications/details/TC950/TC950_RSP_Unwind_en.gif" alt="TC950 with RSP power unit for unwinding"><figcaption>TC950 with RSP power unit for unwinding</figcaption></figure>
+<figure><img src="/altec/applications/details/TC950/TC950_RSP_Wind_en.gif" alt="TC950 with RSP power unit for winding"><figcaption>TC950 with RSP power unit for winding</figcaption></figure>
+<figure><img src="/altec/applications/details/TC950/TC950_A420_Wind.gif" alt="TC950-A420 with inverter"><figcaption>TC950-A420 with inverter</figcaption></figure>
+<figure><img src="/altec/applications/details/TC950/TC950_Y1_SKCH_Rewind.gif" alt="TC950-Y1 with SKCH series SCR module"><figcaption>TC950-Y1 with SKCH series SCR module</figcaption></figure>
+<figure><img src="/altec/applications/details/TC950/TC950-Y1_SKCH_Wire.gif" alt="TC950-Y1 and SKCH wiring"><figcaption>TC950-Y1 and SKCH series SCR module wiring</figcaption></figure>
+<figure><img src="/altec/applications/details/TC950/TC950_speed_tracking_en.gif" alt="TC950 speed tracking tension control"><figcaption>TC950 speed tracking tension control</figcaption></figure>
+<span id="doc"></span>
+<h2>Documents</h2>
+<ol>
+  <li>TC950 Tension Controller Manual <a href="/altec/downloads/TC950_EN.pdf" download>PDF</a></li>
+  <li>TC950-Y1 with SKCH Series SCR Module Wiring <a href="/altec/downloads/TC950_SKCH_Wire.pdf" download>PDF</a></li>
+</ol>
+`;
 
 export const productRichDetails: Record<string, ProductRichDetail> = {
   "AL807": {
@@ -34,7 +154,8 @@ export const productRichDetails: Record<string, ProductRichDetail> = {
     html: "<div class=\"product-detail-intro\"><ul class=\"contents\"><li><a href=\"#code\">型号定义</a></li><li><a href=\"#panel\">操作界面</a></li><li><a href=\"#dim\">外形尺寸</a></li><li><a href=\"#mount\">安装</a></li><li><a href=\"#wiring\">电气连接</a></li><li><a href=\"#spec\">技术规格</a></li><li><a href=\"#doc\">相关文档</a></li></ul></div><span id=\"code\"></span><h2>型号定义</h2><table class=\"coding\"><tbody><tr><td class=\"box\">TC930</td><td class=\"nobox\">-</td><td class=\"box\">主输出</td><td class=\"nobox\">-</td><td class=\"box\">通讯功能</td></tr><tr><td class=\"sn\"></td><td></td><td class=\"sn\">①</td><td></td><td class=\"sn\">②</td></tr></tbody></table><table class=\"code_table\"><caption>① 主输出</caption><tbody><tr><th scope=\"row\">代号</th><td>含义</td></tr><tr><th scope=\"row\">A420</th><td>电流输出 4-20mA</td></tr><tr><th scope=\"row\">V05</th><td>电压输出 0-5V</td></tr><tr><th scope=\"row\">V10</th><td>电压输出 0-10V</td></tr></tbody></table><table class=\"code_table\"><caption>② 通讯功能</caption><tbody><tr><th scope=\"row\">代码</th><td>含义</td></tr><tr><th scope=\"row\">0</th><td>无</td></tr><tr><th scope=\"row\">RS232</th><td>带RS232通讯接口</td></tr><tr><th scope=\"row\">RS485</th><td>带RS485通讯接口</td></tr><tr><th scope=\"row\">BS</th><td>带张力变送输出功能</td></tr></tbody></table><p>例如:型号TC930-A420-BS为带卷径变送功能的卷径张力控制器,输出控制信号为4-20mA。</p><p>注意:当输出为移相脉冲输出时,如电源频率不为50Hz,定货时需特别注明。</p><span id=\"panel\"></span><h2>操作界面</h2><img class=\"illustration\" src=\"/altec/details/TC930/TC930_Panel.gif\" alt=\"TC930张力控制器面板\"><span id=\"dim\"></span><h2>外形尺寸</h2><img class=\"illustration\" src=\"/altec/details/TC930/TC930_Dim.gif\" alt=\"TC930尺寸\"><span id=\"mount\"></span><h2>安装</h2><img class=\"illustration\" src=\"/altec/details/TC930/TC930_Mount.gif\" alt=\"TC930安装\"><span id=\"wiring\"></span><h2>电气连接</h2><img class=\"illustration\" src=\"/altec/details/TC930/TC930_Wiring.gif\" alt=\"TC930接线\"><span id=\"spec\"></span><h2>技术规格</h2><table class=\"spec_table\"><tbody><tr><th scope=\"row\">卷径输入信号</th><td>接近开关或编码器, 三极管NPN输出, 最高频率15kHz</td></tr><tr><th scope=\"row\">输出</th><td>两路0-20mA, 4-20mA输出<br> 移相脉冲输出 </td></tr><tr><th scope=\"row\">报警</th><td>带零张力报警功能</td></tr><tr><th scope=\"row\">调节算法</th><td>卷径式张力控制</td></tr><tr><th scope=\"row\">数字通讯</th><td>RS-232(3线), RS-485(2线), 测量值变送</td></tr><tr><th scope=\"row\">环境</th><td>工作温度: 0-50℃, 相对湿度≤85%</td></tr><tr><th scope=\"row\">电源</th><td>电压范围: 100~240VAC, 50Hz<br> 当输出为移相脉冲输出时,如电源频率不为50Hz,定货时需特别注明</td></tr><tr><th scope=\"row\">外形尺寸</th><td>96(W)×96(H)×100(D)mm</td></tr></tbody></table><span id=\"doc\"></span><h2>相关文档</h2><ol><li>TC930卷径张力控制器使用说明书 <a href=\"/altec/downloads/TC930.pdf\" download=\"\">PDF</a></li></ol>",
   },
   "TC950": {
-    html: "<div class=\"product-detail-intro\"><ul class=\"contents\"><li><a href=\"#code\">型号定义</a></li><li><a href=\"#panel\">操作界面</a></li><li><a href=\"#dim\">外形尺寸</a></li><li><a href=\"#mount\">安装</a></li><li><a href=\"#wiring\">电气连接</a></li><li><a href=\"#spec\">技术规格</a></li><li><a href=\"#doc\">相关文档</a></li></ul></div><span id=\"code\"></span><h2>型号定义</h2><table class=\"coding\"><tbody><tr><td class=\"box\">TC950</td><td class=\"nobox\">-</td><td class=\"box\">主输出</td><td class=\"nobox\">-</td><td class=\"box\">通讯功能</td></tr><tr><td class=\"sn\"></td><td></td><td class=\"sn\">①</td><td></td><td class=\"sn\">②</td></tr></tbody></table><table class=\"code_table\"><caption>① 主输出</caption><tbody><tr><th scope=\"row\">代号</th><td>含义</td></tr><tr><th scope=\"row\">A420</th><td>电流输出 4-20mA</td></tr><tr><th scope=\"row\">V10</th><td>电压输出 0-10V</td></tr><tr><th scope=\"row\">V05</th><td>电压输出 0-5V</td></tr><tr><th scope=\"row\">PWM</th><td>PWM高速脉冲输出</td></tr><tr><th scope=\"row\">Y1</th><td>单相移相脉冲输出</td></tr></tbody></table><table class=\"code_table\"><caption>② 通讯功能</caption><tbody><tr><th scope=\"row\">代码</th><td>含义</td></tr><tr><th scope=\"row\">0</th><td>无</td></tr><tr><th scope=\"row\">RS232</th><td>带RS232通讯接口</td></tr><tr><th scope=\"row\">RS485</th><td>带RS485通讯接口</td></tr><tr><th scope=\"row\">BS</th><td>带张力变送输出功能</td></tr></tbody></table><p>例如:型号TC950-A420-BS为带张力变送功能的张力控制器,输出控制信号为4-20mA。</p><p>注意:当输出为移相脉冲输出时,如电源频率不为50Hz,定货时需特别注明。</p><span id=\"panel\"></span><h2>操作界面</h2><img class=\"illustration\" src=\"/altec/details/TC950/TC930_Panel.gif\" alt=\"TC950 technical diagram\"><span id=\"dim\"></span><h2>外形尺寸</h2><img class=\"illustration\" src=\"/altec/details/TC950/TC930_Dim.gif\" alt=\"TC950 technical diagram\"><span id=\"mount\"></span><h2>安装</h2><img class=\"illustration\" src=\"/altec/details/TC950/TC930_Mount.gif\" alt=\"TC950 technical diagram\"><span id=\"wiring\"></span><h2>电气连接</h2><img class=\"illustration\" src=\"/altec/details/TC950/TC950_Wiring.gif\" alt=\"TC950 technical diagram\"><h2>TC950-Y1电气接线图</h2><img class=\"illustration\" src=\"/altec/details/TC950/TC950_Y1_Wiring.gif\" alt=\"TC950 technical diagram\"><h2>TC950-V05控制三相力矩电机接线图</h2><p>TC950可输出0-5V信号直接控制AL33型三相力矩电机模块,驱动三相力矩电机,该方案具有简单、可靠、控制精度高等优点,广泛应用于各种高精度恒张力控制系统。</p><p>Al33型三相力矩电机模块具有多种型号,定货时请注明电机功率或驱动电流。</p><img class=\"illustration\" src=\"/altec/details/TC950/TC950_V05.gif\" alt=\"TC950 technical diagram\"><span id=\"spec\"></span><h2>技术规格</h2><table class=\"spec_table\"><tbody><tr><th scope=\"row\">测量精度</th><td>满量程的±0.2%FS±1个字</td></tr><tr><th scope=\"row\">采样周期</th><td>100 ms</td></tr><tr><th scope=\"row\">张力输入信号</th><td>0-50mV</td></tr><tr><th scope=\"row\">输出</th><td>模拟量, 4-20mA, 0-20mA 或 0-10V<br> PWM高速脉冲输出<br> 单相移相脉冲输出<br> 三相移相脉冲输出 </td></tr><tr><th scope=\"row\">报警</th><td>继电器,常开触点(max.250VAC,3A)<br> 报警方式: 零张力报警 </td></tr><tr><th scope=\"row\">调节算法</th><td>比例,积分,微分调节(PID), 具备无超调及无欠调的优良控制特性。</td></tr><tr><th scope=\"row\">数字通讯</th><td>RS-232(3线), RS-485(2线)</td></tr><tr><th scope=\"row\">电源</th><td>电压范围: 100~260VAC, 50/60Hz</td></tr><tr><th scope=\"row\">环境</th><td>工作温度: 0-50℃, 相对湿度≤85%</td></tr><tr><th scope=\"row\">外形尺寸</th><td>96(W)×96(H)×100(D)mm</td></tr></tbody></table><span id=\"doc\"></span><h2>相关文档</h2><ol><li>TC950张力控制器使用说明书 <a href=\"/altec/downloads/TC950.pdf\" download=\"\">PDF</a></li></ol>",
+    html: tc950ZhHtml,
+    htmlEn: tc950EnHtml,
   },
   "AL210": {
     html: "<div class=\"product-detail-intro\"><p>AL210绕线计数控制器是本公司专为高档高速绕线机配套而设计生产的产品，具有功能强大，抗干扰性能强，操作简单，体积小，价格低等特点，适用于与各种不同场合的绕线机配套使用。</p><p>适合于绕制各类变压器、微电机、中周、电感、吊扇、镇流器、马达中的线圈及绕组。</p><ul class=\"contents\"><li><a href=\"#feature\">功能特点</a></li><li><a href=\"#panel\">操作界面</a></li><li><a href=\"#dim\">外形尺寸</a></li><li><a href=\"#wire\">电气连接</a></li><li><a href=\"#sensor\">光电传感器安装附图</a></li><li><a href=\"#doc\">相关文档</a></li></ul></div><span id=\"feature\"></span><h2>功能特点</h2><ul><li>具有正反转加减数计数功能</li><li>加速度,最高转速,预停减速圈数均可在面板进行设置,保证了绕细线时不会断线</li><li>具有双刹车功能,保证工作中的停车位置保持一致</li><li>自动产量计数及显示功能</li><li>绕线过程中有紧急刹车功能</li><li>具有掉电记忆功能</li><li>配套提供光电计数传感器</li><li>可直接控制300W直流电机</li><li>外型尺寸为120*60mm</li></ul><span id=\"panel\"></span><h2>操作界面</h2><img class=\"illustration\" src=\"/altec/details/AL210/AL210_Panel.gif\" alt=\"AL210 technical diagram\"><span id=\"dim\"></span><h2>外形尺寸</h2><img class=\"illustration\" src=\"/altec/details/AL210/AL210_Dim.gif\" alt=\"AL210 technical diagram\"><span id=\"wire\"></span><h2>电气连接</h2><img class=\"illustration\" src=\"/altec/details/AL210/AL210_Wire.gif\" alt=\"AL210 technical diagram\"><span id=\"sensor\"></span><h2>光电传感器安装附图</h2><img class=\"illustration\" src=\"/altec/details/AL210/AL210_Sensor.gif\" alt=\"AL210 technical diagram\"><span id=\"doc\"></span><h2>相关文档</h2><ul><li><a href=\"/altec/downloads/AL807.pdf\" download=\"\">AL210绕线计数控制器使用说明书 (PDF, 284K)</a></li></ul>",

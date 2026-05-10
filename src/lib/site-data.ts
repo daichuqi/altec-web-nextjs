@@ -258,18 +258,20 @@ export const productDetails: Record<string, ProductDetail> = {
   },
   TC950: {
     overview: {
-      zh: "TC950 张力控制器提供模拟量、PWM 和单相移相脉冲输出，可用于高精度恒张力控制系统，并可直接配合三相力矩电机模块。",
-      en: "The TC950 tension controller provides analog, PWM and single-phase phase-angle outputs for high-precision constant tension control and torque motor module control.",
+      zh: "TC950 张力控制器接收 0-50mV 张力信号，提供模拟量、PWM、单相或三相移相输出，适用于高精度恒张力、速度同步、收放卷和功率单元驱动系统。",
+      en: "The TC950 tension controller accepts a 0-50mV tension signal and provides analog, PWM, single-phase or three-phase phase-shifting outputs for high-precision constant tension, speed tracking, winding/unwinding and power-unit control.",
     },
     highlights: {
-      zh: ["4-20mA、0-10V、0-5V、PWM、Y1 输出", "可控制 AL33 三相力矩电机模块", "张力变送可选", "RS232/RS485 通讯"],
-      en: ["4-20mA, 0-10V, 0-5V, PWM and Y1 outputs", "Controls AL33 three-phase torque motor module", "Optional tension transmission", "RS232/RS485 communication"],
+      zh: ["4-20mA、0-10V、0-5V、PWM、Y1/Y3 输出", "支持 RSP、SKCH、变频器和 AL33 力矩电机模块", "自动/手动切换与同步追踪", "零张力报警、张力变送与 RS232/RS485 通讯"],
+      en: ["4-20mA, 0-10V, 0-5V, PWM, Y1 and Y3 outputs", "Supports RSP, SKCH, inverter and AL33 torque-motor modules", "Automatic/manual operation and synchronous tracking", "Zero-tension alarm, tension transmission and RS232/RS485 communication"],
     },
     specs: [
       { label: { zh: "测量精度", en: "Accuracy" }, value: { zh: "满量程 ±0.2%FS ±1 个字", en: "±0.2% FS ±1 digit" } },
       { label: { zh: "采样周期", en: "Sampling period" }, value: { zh: "100 ms", en: "100 ms" } },
-      { label: { zh: "主输出", en: "Main output" }, value: { zh: "4-20mA、0-10V、0-5V、PWM、单相移相脉冲", en: "4-20mA, 0-10V, 0-5V, PWM and single-phase phase-angle pulse" } },
-      { label: { zh: "典型方案", en: "Typical solution" }, value: { zh: "输出 0-5V 控制 AL33 三相力矩电机模块", en: "0-5V output to AL33 three-phase torque motor module" } },
+      { label: { zh: "张力输入", en: "Tension input" }, value: { zh: "0-50mV", en: "0-50mV" } },
+      { label: { zh: "主输出", en: "Main output" }, value: { zh: "4-20mA、0-20mA、0-10V、0-5V、PWM、单相/三相移相脉冲", en: "4-20mA, 0-20mA, 0-10V, 0-5V, PWM, single-phase and three-phase phase-shifting outputs" } },
+      { label: { zh: "显示与报警", en: "Display and alarm" }, value: { zh: "双 4 位 LED 显示，零张力报警，继电器常开触点 250VAC/3A", en: "Dual 4-digit LED displays, zero-tension alarm, NO relay contact 250VAC/3A" } },
+      { label: { zh: "典型方案", en: "Typical solutions" }, value: { zh: "RSP 功率单元、SKCH 可控硅模块、变频器、AL33 三相力矩电机模块", en: "RSP power unit, SKCH SCR module, inverter and AL33 three-phase torque-motor module" } },
     ],
   },
   AL210: {
@@ -451,6 +453,7 @@ export const downloads = [
   ["TC930 Radius Tension Controller Manual", "751K", "06/12/2009", "TC930.pdf"],
   ["TC950 Tension Controller Manual", "810K", "05/18/2005", "TC950_EN.pdf"],
   ["TC950 中文说明书", "810K", "05/18/2005", "TC950.pdf"],
+  ["TC950-Y1 with SKCH Series SCR Module Wiring", "238K", "05/18/2005", "TC950_SKCH_Wire.pdf"],
   ["SUP Series Tension Sensor Manual", "118K", "07/13/2006", "SUP_LoadCell_EN.pdf"],
   ["SUP 系列张力传感器说明书", "118K", "07/13/2006", "SUP_LoadCell.pdf"],
   ["HTS Series Tension Sensor Manual", "185K", "06/18/2007", "HTS_Tension_Sensor.pdf"],
