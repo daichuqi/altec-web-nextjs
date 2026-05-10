@@ -35,15 +35,15 @@ export function HomePage({ lang }: { lang: Lang }) {
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-accent">
-              {zh ? "工业自动化过程控制仪表" : "Industrial Process Controllers"}
+              {zh ? "工业自动化智能过程控制仪表" : "Industrial Automation Process Instruments"}
             </p>
             <h1 className="mt-5 max-w-3xl text-3xl font-bold tracking-tight text-heading sm:text-4xl lg:text-5xl">
-              {zh ? "工业过程控制仪表与工程资料" : "Industrial Controllers for Engineering Selection"}
+              {zh ? "为工业现场提供稳定可靠的测控仪表" : "Reliable Process Control Instruments for Industrial Sites"}
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-copy-muted sm:text-lg">
               {zh
-                ? "亚特克提供温度、压力、张力、湿度及水处理控制产品。工程人员可直接查看热销型号、技术规格、接线图和本地资料。"
-                : "ALTEC provides controllers for temperature, pressure, tension, humidity and water treatment systems. Engineers can quickly review popular models, specifications, wiring diagrams and local documents."}
+                ? "亚特克专注工业自动化智能过程控制仪表的研发、生产与应用，长期服务电炉、环境试验、印刷张力、环保水处理、中央空调节能和变频供水等行业。产品覆盖温度、湿度、压力、张力、pH/ORP、称重配料等精确测控场景，并可承接行业专用仪表定制。"
+                : "ALTEC develops and manufactures intelligent process control instruments for industrial automation, serving electric furnaces, environmental test equipment, printing tension control, water treatment, HVAC energy saving and variable-frequency water supply. Its portfolio covers precise measurement and control of temperature, humidity, pressure, tension, pH/ORP, weighing and dosing, with custom instruments available for specialized applications."}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href={path(lang, "/products")} className="bg-action px-5 py-3 text-sm font-semibold text-action-contrast hover:bg-action-strong">
