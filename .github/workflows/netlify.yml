@@ -75,9 +75,9 @@ jobs:
           if (!deploy || deploy.state !== "ready") throw new Error(`Published deploy is not ready: ${deploy?.state}`);
           if (deploy.available_functions?.length) throw new Error(`Unexpected functions deployed: ${deploy.available_functions.join(", ")}`);
           if (deploy.edge_functions_present) throw new Error("Unexpected edge functions deployed");
-          if (!deploy.screenshot_url) throw new Error("Netlify did not capture a deploy screenshot");
           if (!index?.path?.endsWith("/index.html")) throw new Error("Missing deployed /index.html");
           if (!th136?.path?.endsWith("/products/th136.html")) throw new Error("Missing deployed /products/th136.html");
+          if (!deploy.screenshot_url) console.warn("Netlify deploy screenshot is not available yet");
           NODE
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}

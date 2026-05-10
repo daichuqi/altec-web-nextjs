@@ -57,7 +57,7 @@ The GitHub Actions Netlify workflow now includes:
 
 - A static deploy guard that fails if generated Netlify function folders are present.
 - A best-effort production URL smoke test that waits for Netlify DNS/CDN propagation, then requests the homepage, TH136 detail page, and a TH136 technical image.
-- A required Netlify API health check that confirms the published deploy is `ready`, contains no functions or edge functions, has a deploy screenshot, and includes critical static files.
+- A required Netlify API health check that confirms the published deploy is `ready`, contains no functions or edge functions, and includes critical static files.
 
 Do not remove these checks. They are there to catch the exact class of failure where the deploy command succeeds but the public site is not actually usable.
 
@@ -67,4 +67,4 @@ If the public URL smoke test warns with `Could not resolve host`, do not assume 
 npx netlify api getSite --data '{"site_id":"0a7fa9b6-ec81-4f21-ad30-1c14265bd68f"}'
 ```
 
-Then confirm the latest `published_deploy` is `ready`, has no functions, and has a screenshot URL. If Netlify is ready but DNS is still failing from GitHub Actions, verify from a browser or an external fetcher before changing application code.
+Then confirm the latest `published_deploy` is `ready` and has no functions. A screenshot URL is helpful but not required because Netlify may populate it later. If Netlify is ready but DNS is still failing from GitHub Actions, verify from a browser or an external fetcher before changing application code.
