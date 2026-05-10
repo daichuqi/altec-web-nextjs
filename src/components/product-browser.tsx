@@ -247,15 +247,15 @@ function ProductResultCard({ lang, product }: { lang: Lang; product: Product }) 
   return (
     <Link
       href={path(lang, `/products/${productSlug(product.model)}`)}
-      className="group grid min-h-full border border-line bg-panel hover:border-accent sm:grid-cols-[170px_1fr]"
+      className="group grid min-h-full border border-line bg-panel hover:border-accent sm:grid-cols-[210px_1fr]"
     >
-      <div className="relative min-h-[170px] bg-panel-muted">
+      <div className="relative min-h-[180px] bg-panel-muted">
         <Image
           src={product.image}
           alt={`${product.model} ${product[lang]}`}
           fill
-          className="object-contain p-5"
-          sizes="(min-width: 1024px) 170px, 50vw"
+          className="object-contain p-1 sm:p-2"
+          sizes="(min-width: 1024px) 210px, 60vw"
         />
       </div>
       <div className="flex min-w-0 flex-col p-5">
