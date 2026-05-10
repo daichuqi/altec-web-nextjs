@@ -77,15 +77,19 @@ export function ThemeToggle({ lang }: { lang: Lang }) {
       aria-label={lang === "zh" ? "切换深色或浅色模式" : "Toggle dark or light mode"}
       aria-pressed={isDark}
       onClick={toggleTheme}
-      className="relative inline-flex h-9 w-[4.25rem] items-center justify-between border border-line-strong bg-panel p-1 text-copy-muted transition hover:border-line-strong"
+      className="relative inline-grid h-9 w-[4.5rem] grid-cols-2 items-center border border-line-strong bg-panel p-0.5 text-copy-muted transition hover:border-line-strong"
     >
       <span
-        className={`absolute top-1 h-7 w-7 bg-action transition-transform duration-200 ${
-          isDark ? "translate-x-8" : "translate-x-0"
+        className={`pointer-events-none absolute left-0.5 top-0.5 h-8 w-[2.125rem] bg-action transition-transform duration-200 ${
+          isDark ? "translate-x-[2.125rem]" : "translate-x-0"
         }`}
       />
-      <Sun size={15} className={`relative z-10 ml-1 ${isDark ? "text-copy-subtle" : "text-action-contrast"}`} />
-      <Moon size={15} className={`relative z-10 mr-1 ${isDark ? "text-action-contrast" : "text-copy-subtle"}`} />
+      <span className={`relative z-10 grid h-8 place-items-center ${isDark ? "text-copy-subtle" : "text-action-contrast"}`}>
+        <Sun size={16} />
+      </span>
+      <span className={`relative z-10 grid h-8 place-items-center ${isDark ? "text-action-contrast" : "text-copy-subtle"}`}>
+        <Moon size={16} />
+      </span>
     </button>
   );
 }
