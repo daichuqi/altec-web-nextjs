@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { applications, navItems, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
 
 export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://altec-web-nextjs-20260510.netlify.app"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://altec.daichuqi.com"
 ).replace(/\/$/, "");
 
 export const company = {

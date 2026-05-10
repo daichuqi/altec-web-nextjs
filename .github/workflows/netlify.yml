@@ -38,24 +38,23 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
 
       - name: Smoke test production
-        continue-on-error: true
         run: |
           fetch_with_wait() {
             local url="$1"
             local output="$2"
-            for attempt in {1..3}; do
-              if curl -fsS --connect-timeout 15 --retry 2 --retry-delay 5 --retry-all-errors "$url" >"$output"; then
+            for attempt in {1..6}; do
+              if curl -fsS --connect-timeout 20 --retry 2 --retry-delay 5 --retry-all-errors "$url" >"$output"; then
                 return 0
               fi
-              echo "Waiting for Netlify DNS/CDN propagation: $url (attempt $attempt/3)"
+              echo "Waiting for production DNS/CDN propagation: $url (attempt $attempt/6)"
               sleep 10
             done
             return 1
           }
 
-          fetch_with_wait https://altec-web-nextjs-20260510.netlify.app/ /tmp/altec-home.html
-          fetch_with_wait https://altec-web-nextjs-20260510.netlify.app/products/th136 /tmp/altec-th136.html
-          fetch_with_wait https://altec-web-nextjs-20260510.netlify.app/altec/details/TH136/TH136_Panel.gif /tmp/altec-th136-panel.gif
+          fetch_with_wait https://altec.daichuqi.com/ /tmp/altec-home.html
+          fetch_with_wait https://altec.daichuqi.com/products/th136 /tmp/altec-th136.html
+          fetch_with_wait https://altec.daichuqi.com/altec/details/TH136/TH136_Panel.gif /tmp/altec-th136-panel.gif
           grep -q "ALTEC" /tmp/altec-home.html
           grep -q "完整技术资料" /tmp/altec-th136.html
 
@@ -72,6 +71,7 @@ jobs:
           const deploy = site.published_deploy;
 
           if (site.state !== "current") throw new Error(`Unexpected site state: ${site.state}`);
+          if (site.custom_domain !== "altec.daichuqi.com") throw new Error(`Unexpected production domain: ${site.custom_domain}`);
           if (!deploy || deploy.state !== "ready") throw new Error(`Published deploy is not ready: ${deploy?.state}`);
           if (deploy.available_functions?.length) throw new Error(`Unexpected functions deployed: ${deploy.available_functions.join(", ")}`);
           if (deploy.edge_functions_present) throw new Error("Unexpected edge functions deployed");
