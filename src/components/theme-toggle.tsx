@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 import type { Lang } from "@/lib/site-data";
 
 type Theme = "light" | "dark";
 
 const storageKey = "altec-theme";
+const themeChangeEvent = "altec-theme-change";
 
 function resolveTheme(): Theme {
   if (typeof window === "undefined") {
@@ -28,8 +29,35 @@ function applyTheme(theme: Theme) {
   root.style.colorScheme = theme;
 }
 
+function getServerThemeSnapshot(): Theme {
+  return "light";
+}
+
+function subscribeToThemeChanges(callback: () => void) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const handleSystemChange = () => {
+    if (!window.localStorage.getItem(storageKey)) {
+      callback();
+    }
+  };
+
+  window.addEventListener("storage", callback);
+  window.addEventListener(themeChangeEvent, callback);
+  mediaQuery.addEventListener("change", handleSystemChange);
+
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(themeChangeEvent, callback);
+    mediaQuery.removeEventListener("change", handleSystemChange);
+  };
+}
+
 export function ThemeToggle({ lang }: { lang: Lang }) {
-  const [theme, setTheme] = useState<Theme>(() => resolveTheme());
+  const theme = useSyncExternalStore(subscribeToThemeChanges, resolveTheme, getServerThemeSnapshot);
   const isDark = theme === "dark";
 
   useEffect(() => {
@@ -38,9 +66,9 @@ export function ThemeToggle({ lang }: { lang: Lang }) {
 
   function toggleTheme() {
     const nextTheme: Theme = isDark ? "light" : "dark";
-    setTheme(nextTheme);
-    applyTheme(nextTheme);
     window.localStorage.setItem(storageKey, nextTheme);
+    window.dispatchEvent(new Event(themeChangeEvent));
+    applyTheme(nextTheme);
   }
 
   return (
@@ -49,7 +77,6 @@ export function ThemeToggle({ lang }: { lang: Lang }) {
       aria-label={lang === "zh" ? "切换深色或浅色模式" : "Toggle dark or light mode"}
       aria-pressed={isDark}
       onClick={toggleTheme}
-      suppressHydrationWarning
       className="relative inline-flex h-9 w-[4.25rem] items-center justify-between border border-line-strong bg-panel p-1 text-copy-muted transition hover:border-line-strong"
     >
       <span
