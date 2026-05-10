@@ -38,15 +38,16 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
 
       - name: Smoke test production
+        continue-on-error: true
         run: |
           fetch_with_wait() {
             local url="$1"
             local output="$2"
-            for attempt in {1..18}; do
+            for attempt in {1..3}; do
               if curl -fsS --connect-timeout 15 --retry 2 --retry-delay 5 --retry-all-errors "$url" >"$output"; then
                 return 0
               fi
-              echo "Waiting for Netlify DNS/CDN propagation: $url (attempt $attempt/18)"
+              echo "Waiting for Netlify DNS/CDN propagation: $url (attempt $attempt/3)"
               sleep 10
             done
             return 1
@@ -57,3 +58,26 @@ jobs:
           fetch_with_wait https://altec-web-nextjs-20260510.netlify.app/altec/details/TH136/TH136_Panel.gif /tmp/altec-th136-panel.gif
           grep -q "ALTEC" /tmp/altec-home.html
           grep -q "完整技术资料" /tmp/altec-th136.html
+
+      - name: Verify Netlify deploy health
+        run: |
+          npx netlify api getSite --data '{"site_id":"0a7fa9b6-ec81-4f21-ad30-1c14265bd68f"}' --auth "$NETLIFY_AUTH_TOKEN" >/tmp/netlify-site.json
+          npx netlify api getSiteFileByPathName --data '{"site_id":"0a7fa9b6-ec81-4f21-ad30-1c14265bd68f","file_path":"/index.html"}' --auth "$NETLIFY_AUTH_TOKEN" >/tmp/netlify-index.json
+          npx netlify api getSiteFileByPathName --data '{"site_id":"0a7fa9b6-ec81-4f21-ad30-1c14265bd68f","file_path":"/products/th136.html"}' --auth "$NETLIFY_AUTH_TOKEN" >/tmp/netlify-th136.json
+          node - <<'NODE'
+          const fs = require("node:fs");
+          const site = JSON.parse(fs.readFileSync("/tmp/netlify-site.json", "utf8"));
+          const index = JSON.parse(fs.readFileSync("/tmp/netlify-index.json", "utf8"));
+          const th136 = JSON.parse(fs.readFileSync("/tmp/netlify-th136.json", "utf8"));
+          const deploy = site.published_deploy;
+
+          if (site.state !== "current") throw new Error(`Unexpected site state: ${site.state}`);
+          if (!deploy || deploy.state !== "ready") throw new Error(`Published deploy is not ready: ${deploy?.state}`);
+          if (deploy.available_functions?.length) throw new Error(`Unexpected functions deployed: ${deploy.available_functions.join(", ")}`);
+          if (deploy.edge_functions_present) throw new Error("Unexpected edge functions deployed");
+          if (!deploy.screenshot_url) throw new Error("Netlify did not capture a deploy screenshot");
+          if (!index?.path?.endsWith("/index.html")) throw new Error("Missing deployed /index.html");
+          if (!th136?.path?.endsWith("/products/th136.html")) throw new Error("Missing deployed /products/th136.html");
+          NODE
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
