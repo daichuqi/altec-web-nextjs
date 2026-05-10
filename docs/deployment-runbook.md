@@ -1,5 +1,10 @@
 # ALTEC Netlify Deployment Runbook
 
+Related docs:
+
+- `docs/incident-retrospective-2026-05-10.md`
+- `docs/preflight-checklist.md`
+
 ## Current Production Setup
 
 - Production URL: `https://altec.daichuqi.com`
