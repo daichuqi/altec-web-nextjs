@@ -4,7 +4,7 @@ import { contactEmail, navItems, productDetails, productSlug, products, type Lan
 import { assetUrl } from "@/lib/cdn-assets";
 
 export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://altec.daichuqi.com"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://china-altec.com"
 ).replace(/\/$/, "");
 
 export const company = {

@@ -25,46 +25,14 @@ npm run build
 Set `NEXT_PUBLIC_SITE_URL` to the production origin before deploying, for example:
 
 ```bash
-NEXT_PUBLIC_SITE_URL=https://www.example.com
+NEXT_PUBLIC_SITE_URL=https://china-altec.com
 ```
 
 The value is used for canonical URLs, `hreflang`, `robots.txt`, `sitemap.xml`, Open Graph metadata and structured data.
 
-## Netlify
-
-The project includes `netlify.toml` with:
-
-- build command: `npm run build`
-- publish directory: `out`
-- build Node version: `22`
-
-## CDN + CI pipeline
-
-The site supports an optional CDN for static assets.
-
-- Set `NEXT_PUBLIC_CDN_BASE_URL` in Netlify environment variables (for example `https://cdn.example.com`).
-- Set GitHub Actions secrets for each deploy:
-  - `CDN_AWS_REGION`
-  - `CDN_S3_BUCKET`
-  - `CDN_S3_PREFIX` (optional, e.g. `altec`)
-- `CDN_AWS_ACCESS_KEY_ID`
-- `CDN_AWS_SECRET_ACCESS_KEY`
-- `CDN_AWS_SESSION_TOKEN` (optional for temporary credentials)
-- `CDN_CLOUDFRONT_DISTRIBUTION_ID` (optional)
-
-CI will always build and deploy to Netlify first, then sync:
-- `out/_next/static` -> CDN bucket path `/_next/static`
-- `out/altec` -> CDN bucket path `/altec`
-
-If `CDN_CLOUDFRONT_DISTRIBUTION_ID` is configured, the workflow will invalidate `/_next/*` and `/altec/*` after upload.
-
 ## Aliyun OSS Deployment
 
-The repository also includes an Aliyun OSS deploy workflow (`.github/workflows/aliyun-oss.yml`) for faster access in mainland China.
-
-Required repository variable:
-
-- `ALIYUN_DEPLOY_ENABLED` (set to `true` to enable the Aliyun publish job)
+Production deployment uses Aliyun only. The deploy workflow is `.github/workflows/aliyun-oss.yml`.
 
 Required GitHub secrets:
 

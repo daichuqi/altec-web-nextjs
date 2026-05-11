@@ -39,8 +39,7 @@ so the URLs above can resolve from object storage without runtime rewrites.
 
 Set repository variable:
 
-- `ALIYUN_DEPLOY_ENABLED = true`
-- `ALIYUN_SITE_URL` = your public Aliyun origin (example: `https://www.example.com`)
+- `ALIYUN_SITE_URL` = your public Aliyun origin (example: `https://china-altec.com`)
 
 Set repository secrets:
 

@@ -1,6 +1,6 @@
 # ALTEC Website Preflight Checklist
 
-Use this checklist before pushing, manually deploying, or telling the user a production issue is fixed.
+Use this checklist before pushing, deploying, or telling the user a production issue is fixed.
 
 ## 1. Protect The Working Tree
 
@@ -26,20 +26,20 @@ Static export rules:
 
 - Do not add dynamic routes without `generateStaticParams()`.
 - Do not rely on runtime server behavior.
-- Do not add server-only deployment assumptions unless the Netlify setup changes intentionally.
+- Keep Aliyun routing compatible with exported static files and extensionless aliases.
 
 ## 3. Check Legacy URL Leakage
 
 The old site is a source archive, not a runtime dependency.
 
 ```bash
-rg -n "china-altec\\.com" src public .github netlify.toml
+rg -n "china-altec\\.com" src public .github
 ```
 
 Allowed:
 
-- Migration scripts.
-- Documentation explaining source provenance.
+- Migration/audit documentation.
+- Source provenance notes.
 
 Not allowed:
 
@@ -55,18 +55,11 @@ For every product touched:
 find public/altec -iname '*MODEL*' -print
 ```
 
-Replace `MODEL` with the actual model, for example:
-
-```bash
-find public/altec -iname '*PC900*' -print
-```
-
 Required:
 
 - Product card image exists.
-- Product card image comes from the old product page image path, such as `http://www.china-altec.com/images/AL810/AL810.jpg`.
+- Product card image comes from the old product page image path, not the old gallery thumbnail.
 - Do not use AI-enhanced product photos for production.
-- Do not use `images_eng/gallery` thumbnails as the primary product image.
 - Detail page images exist under `public/altec/details/<MODEL>/`.
 - Downloads are local if shown as downloadable resources.
 - Browser-visible image URLs return `200`.
@@ -100,27 +93,14 @@ For every new knowledge or application page:
 - Do not render runtime links or redirects to old `china-altec.com` pages.
 - Confirm the list page links to the detail page and the language switch preserves the slug.
 
-## 7. Deploy Safely
+## 7. Aliyun Deploy Preflight
 
-For manual deploys:
+Production deployment uses Aliyun only.
 
-```bash
-rm -rf .netlify
-npm run verify
-npx netlify deploy --prod --no-build --dir out --site 0a7fa9b6-ec81-4f21-ad30-1c14265bd68f
-```
-
-Deploy must report:
-
-- No functions deployed.
-- No edge functions deployed.
-
-### 7.1 Aliyun OSS Preflight
-
-If `ALIYUN_DEPLOY_ENABLED=true`, verify Aliyun configuration:
+Verify repository configuration:
 
 ```bash
-gh variable list | rg -i "ALIYUN"
+gh variable list | rg -i "ALIYUN|NEXT_PUBLIC_SITE_URL|NEXT_PUBLIC_CDN_BASE_URL"
 gh secret list | rg -i "ALIYUN"
 ```
 
@@ -130,74 +110,42 @@ Required:
 - `ALIYUN_ACCESS_KEY_SECRET`
 - `ALIYUN_OSS_BUCKET`
 - `ALIYUN_OSS_ENDPOINT`
+- `NEXT_PUBLIC_SITE_URL=https://china-altec.com`
 
 Recommended:
 
 - `ALIYUN_OSS_PREFIX`
 - `ALIYUN_OSS_REGION`
-- `ALIYUN_SITE_URL`
+- `ALIYUN_SITE_URL=https://china-altec.com`
 - `ALIYUN_OSSUTIL_VERSION`
+- `NEXT_PUBLIC_CDN_BASE_URL` if a dedicated Aliyun CDN asset domain is used
 
 ## 8. Verify Production URL
 
 The production URL is:
 
 ```text
-https://altec.daichuqi.com
+https://china-altec.com
 ```
-
-Do not use the default `*.netlify.app` domain as the user-facing production URL.
 
 Smoke test:
 
 ```bash
-curl -fsS https://altec.daichuqi.com/ >/tmp/altec-home.html
-curl -fsS https://altec.daichuqi.com/products/th136 >/tmp/altec-th136.html
-curl -fsS https://altec.daichuqi.com/applications/control-basics >/tmp/altec-app-control.html
-curl -fsS https://altec.daichuqi.com/en/applications/tc950-tension-control-applications >/tmp/altec-app-tc950-en.html
-curl -fsS https://altec.daichuqi.com/altec/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
-curl -fsS https://altec.daichuqi.com/altec/applications/details/TC950/TC950_Wind.gif >/tmp/altec-tc950-application.gif
+curl -fsS https://china-altec.com/ >/tmp/altec-home.html
+curl -fsS https://china-altec.com/products/th136 >/tmp/altec-th136.html
+curl -fsS https://china-altec.com/applications/control-basics >/tmp/altec-app-control.html
+curl -fsS https://china-altec.com/en/applications/tc950-tension-control-applications >/tmp/altec-app-tc950-en.html
+curl -fsS https://china-altec.com/altec/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
+curl -fsS https://china-altec.com/altec/applications/details/TC950/TC950_Wind.gif >/tmp/altec-tc950-application.gif
 grep -q "ALTEC" /tmp/altec-home.html
 grep -q "完整技术资料" /tmp/altec-th136.html
 grep -q "工业过程控制常用名词解释" /tmp/altec-app-control.html
 grep -q "TC950 Tension Controller Applications" /tmp/altec-app-tc950-en.html
 ```
 
-DNS check:
+If a clean path fails, confirm OSS/CDN contains extensionless HTML alias objects such as `products/th136`.
 
-```bash
-curl -s 'https://dns.google/resolve?name=altec.daichuqi.com&type=A'
-curl -s 'https://dns.google/resolve?name=altec.daichuqi.com&type=AAAA'
-```
-
-If Aliyun origin is enabled, add an additional smoke check:
-
-```bash
-curl -fsS "${ALIYUN_SITE_URL}/" >/tmp/aliyun-home.html
-curl -fsS "${ALIYUN_SITE_URL}/products/th136" >/tmp/aliyun-th136.html
-curl -fsS "${ALIYUN_SITE_URL}/en/products/pc900" >/tmp/aliyun-pc900-en.html
-curl -fsS "${ALIYUN_SITE_URL}/altec/details/TH136/TH136_Panel.gif" >/tmp/aliyun-th136.gif
-grep -q "ALTEC" /tmp/aliyun-home.html
-grep -q "完整技术资料" /tmp/aliyun-th136.html
-```
-
-If a clean path still fails on Aliyun, confirm OSS/CNAME/CDN routing supports extensionless HTML aliases.
-
-## 9. Verify Netlify State
-
-```bash
-npx netlify api getSite --data '{"site_id":"0a7fa9b6-ec81-4f21-ad30-1c14265bd68f"}'
-```
-
-Required:
-
-- `custom_domain` is `altec.daichuqi.com`.
-- Site `state` is `current`.
-- Published deploy state is `ready`.
-- No functions are deployed.
-- No edge functions are deployed.
-
-## 10. Wait For CI
+## 9. Wait For CI
 
 After pushing to `main`:
 

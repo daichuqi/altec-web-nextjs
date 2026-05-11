@@ -13,9 +13,6 @@ Last updated: 2026-05-11
 - Removed bundled Geist web fonts and switched to system fonts to avoid extra font requests.
 - Added `loading="lazy"` and `decoding="async"` to migrated rich-detail HTML images at render time.
 - Disabled product-card prefetching on the product browser to avoid fetching many detail routes at once.
-- Added Netlify cache headers:
-  - `/_next/static/*`: one year, immutable
-  - `/altec/products/*`, `/altec/details/*`, `/altec/applications/*`, `/altec/downloads/*`: 30 days plus stale revalidation
 - Updated Aliyun OSS deployment to set Cache-Control metadata on `_next/static` and `/altec` asset prefixes.
 - Updated Aliyun OSS deployment to mark HTML and extensionless route objects as `no-cache`.
 
@@ -23,7 +20,7 @@ Last updated: 2026-05-11
 
 - Generate WebP/AVIF variants for product and detail images during build.
 - Add responsive image metadata for product cards and hero images.
-- Move production China delivery fully to OSS + CDN rather than the 1Mbps virtual host.
+- Move production delivery fully to OSS + CDN rather than the 1Mbps virtual host.
 - Add a post-deploy smoke check for representative cache headers:
   - `/`
   - `/_next/static/...js`

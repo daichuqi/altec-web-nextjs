@@ -16,42 +16,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Aliyun deploy gate
-        id: gate
-        run: |
-          if [[ "${ALIYUN_DEPLOY_ENABLED:-false}" == "true" ]]; then
-            echo "enabled=true" >> "$GITHUB_OUTPUT"
-            echo "Aliyun deploy is enabled."
-          else
-            echo "enabled=false" >> "$GITHUB_OUTPUT"
-            echo "Aliyun deploy is disabled. Set repository variable ALIYUN_DEPLOY_ENABLED=true to enable."
-          fi
-        env:
-          ALIYUN_DEPLOY_ENABLED: ${{ vars.ALIYUN_DEPLOY_ENABLED }}
-
       - name: Setup Node
-        if: steps.gate.outputs.enabled == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
       - name: Install dependencies
-        if: steps.gate.outputs.enabled == 'true'
         run: npm ci
 
       - name: Build
-        if: steps.gate.outputs.enabled == 'true'
         run: npm run build
 
       - name: Guard static deploy
-        if: steps.gate.outputs.enabled == 'true'
         run: |
           test -d out
           test -f out/index.html
 
       - name: Install ossutil
-        if: steps.gate.outputs.enabled == 'true'
         env:
           ALIYUN_OSSUTIL_VERSION: ${{ vars.ALIYUN_OSSUTIL_VERSION }}
         run: |
@@ -64,7 +46,6 @@ jobs:
           /tmp/ossutil64 --version
 
       - name: Sync exported site to OSS
-        if: steps.gate.outputs.enabled == 'true'
         env:
           ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
           ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
@@ -157,7 +138,6 @@ jobs:
           done < <(find out -type f -name "*.html")
 
       - name: Smoke test Aliyun host
-        if: steps.gate.outputs.enabled == 'true'
         env:
           ALIYUN_SITE_URL: ${{ vars.ALIYUN_SITE_URL }}
         run: |

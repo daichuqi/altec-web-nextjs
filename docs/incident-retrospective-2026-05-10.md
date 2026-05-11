@@ -2,6 +2,8 @@
 
 This document records the concrete mistakes, failure modes, and fixes from the ALTEC website rebuild and deployment work on May 10, 2026. Keep it factual and use it before future changes.
 
+Status: historical record only. Netlify deployment has been retired for this project; production deployment now uses Aliyun only. Do not use the Netlify commands below as an active runbook.
+
 ## What Went Wrong
 
 ### 1. Pushed code without enough local verification

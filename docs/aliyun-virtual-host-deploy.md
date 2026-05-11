@@ -20,7 +20,7 @@ Do not commit FTP credentials to this repository.
 
 ## Why This Path Exists
 
-The Netlify deployment is still useful, but mainland China access can be slow or unreliable. The Aliyun virtual host gives China users a faster origin for the static site.
+ALTEC web now uses Aliyun only. This virtual host runbook is the fallback path when OSS/CDN publishing is not available.
 
 This host is not OSS and is not controlled by the Aliyun CLI. Treat it as a plain static FTP host. The fastest reliable deployment method found on May 10, 2026 was:
 

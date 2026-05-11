@@ -12,7 +12,7 @@ This project is the bilingual company website for Shenzhen ALTEC Electronics Co.
 
 - Framework: Next.js App Router, version pinned in `package.json`.
 - Styling: Tailwind CSS.
-- Deployment target: Netlify, configured by `netlify.toml`.
+- Deployment target: Aliyun OSS/CDN, configured by `.github/workflows/aliyun-oss.yml`.
 - Node runtime for deploy: Node 22.
 - Main content source: `src/lib/site-data.ts`.
 - Shared page UI: `src/components/pages.tsx` and `src/components/site-layout.tsx`.
@@ -71,35 +71,30 @@ Do not publish changes that fail lint or build.
 
 ## Publishing
 
-Preferred platform: Netlify.
-
-Optional domestic edge publish path: Aliyun OSS.
+Preferred and only production platform: Aliyun.
 
 Before the first production deploy:
 
 1. Confirm the final production domain.
-2. In Netlify, set `NEXT_PUBLIC_SITE_URL` to the exact production origin, for example `https://www.example.com`.
-3. Confirm DNS points to Netlify.
+2. Set `NEXT_PUBLIC_SITE_URL` to the exact Aliyun production origin, for example `https://china-altec.com`.
+3. Confirm DNS points to the Aliyun OSS/CDN or Aliyun virtual host origin.
 4. Run `npm run lint` and `npm run build` locally.
-5. Deploy through Netlify using the project settings in `netlify.toml`.
+5. Deploy through the Aliyun workflow.
 
-### Optional Aliyun OSS publishing
+### Aliyun OSS publishing
 
-If using Aliyun for mainland performance:
-
-1. Set repository variable `ALIYUN_DEPLOY_ENABLED=true`.
-2. Set required Aliyun secrets:
+1. Set required Aliyun secrets:
    - `ALIYUN_ACCESS_KEY_ID`
    - `ALIYUN_ACCESS_KEY_SECRET`
    - `ALIYUN_OSS_BUCKET`
    - `ALIYUN_OSS_ENDPOINT`
-3. Optionally set:
+2. Optionally set:
    - `ALIYUN_OSS_PREFIX`
    - `ALIYUN_OSS_REGION`
    - `ALIYUN_SITE_URL`
-4. Ensure OSS/CDN routing serves clean paths correctly for routes like `/products/th136`, `/en/products/th136`, `/applications/...`.
-5. Run `npm run verify` before pushing.
-6. Follow `docs/aliyun-oss-setup.md` for domain/CDN/OSS one-time setup.
+3. Ensure OSS/CDN routing serves clean paths correctly for routes like `/products/th136`, `/en/products/th136`, `/applications/...`.
+4. Run `npm run verify` before pushing.
+5. Follow `docs/aliyun-oss-setup.md` for domain/CDN/OSS one-time setup.
 
 After publishing:
 
