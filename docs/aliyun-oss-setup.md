@@ -40,6 +40,7 @@ so the URLs above can resolve from object storage without runtime rewrites.
 Set repository variable:
 
 - `ALIYUN_SITE_URL` = your public Aliyun origin (example: `https://china-altec.com`)
+- `NEXT_PUBLIC_SITE_URL` = canonical production origin (example: `https://china-altec.com`)
 
 Set repository secrets:
 
@@ -50,9 +51,12 @@ Set repository secrets:
 
 Optional:
 
+- `NEXT_PUBLIC_CDN_BASE_URL` or `ALIYUN_CDN_BASE_URL` = dedicated Aliyun CDN asset origin, if using one
 - `ALIYUN_OSS_PREFIX`
 - `ALIYUN_OSS_REGION`
 - `ALIYUN_OSSUTIL_VERSION` (defaults to `1.7.18`)
+
+The workflow sets `NEXT_PUBLIC_ASSET_VERSION` to the Git commit SHA. Optimized image assets are generated under `/altec/optimized/<sha>/` and cached as immutable.
 
 ## 4) Enable and Verify
 
@@ -65,6 +69,7 @@ Optional:
    - `${ALIYUN_SITE_URL}/`
    - `${ALIYUN_SITE_URL}/products/al808`
    - `${ALIYUN_SITE_URL}/en/products/pc900`
+   - `${ALIYUN_SITE_URL}/altec/optimized/<commit-sha>/products/AL808-640.avif`
 
 ## 5) Common Pitfall
 

@@ -69,6 +69,8 @@ npm run build
 
 Do not publish changes that fail lint or build.
 
+Image optimization is part of `npm run build`: the `prebuild` script generates versioned AVIF/WebP variants under `public/altec/optimized/`, which is intentionally gitignored.
+
 ## Publishing
 
 Preferred and only production platform: Aliyun.
@@ -89,6 +91,7 @@ Before the first production deploy:
    - `ALIYUN_OSS_BUCKET`
    - `ALIYUN_OSS_ENDPOINT`
 2. Optionally set:
+   - `NEXT_PUBLIC_CDN_BASE_URL` or `ALIYUN_CDN_BASE_URL`
    - `ALIYUN_OSS_PREFIX`
    - `ALIYUN_OSS_REGION`
    - `ALIYUN_SITE_URL`

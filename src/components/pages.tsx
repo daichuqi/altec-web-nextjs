@@ -1,10 +1,10 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Download, FileText, Layers, Wrench, type LucideIcon } from "lucide-react";
 import { applicationArticles, applicationCategories, getApplicationBySlug } from "@/lib/application-data";
 import { productRichDetails } from "@/lib/product-rich-details";
 import { aboutContent, contactEmail, downloads, productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
 import { ProductBrowser } from "@/components/product-browser";
+import { OptimizedImage } from "@/components/optimized-image";
 import { assetUrl, rewriteHtmlAssetLinks } from "@/lib/cdn-assets";
 import {
   absoluteUrl,
@@ -73,7 +73,7 @@ export function HomePage({ lang }: { lang: Lang }) {
                   className="group bg-panel p-4 ring-1 ring-line hover:ring-accent"
                 >
                   <div className="relative aspect-[1.28] bg-canvas">
-                    <Image src={assetUrl(item.image)} alt={`${item.model} ${item[lang]}`} fill className="object-contain p-3" sizes="(min-width: 1024px) 250px, 45vw" />
+                    <OptimizedImage src={item.image} alt={`${item.model} ${item[lang]}`} fill className="object-contain p-3" sizes="(min-width: 1024px) 250px, 45vw" />
                   </div>
                   <div className="mt-3 flex items-start justify-between gap-3">
                     <div>
@@ -214,7 +214,7 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
       <section className="border-b border-line bg-panel">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="relative aspect-[1.15] border border-line bg-panel-muted">
-            <Image src={assetUrl(product.image)} alt={`${product.model} ${product[lang]}`} fill className="object-contain p-10" sizes="(min-width: 1024px) 48vw, 100vw" priority />
+            <OptimizedImage src={product.image} alt={`${product.model} ${product[lang]}`} fill className="object-contain p-10" sizes="(min-width: 1024px) 48vw, 100vw" priority />
           </div>
           <div>
             <Link href={path(lang, "/products")} className="text-sm font-bold text-accent hover:text-accent-strong">
@@ -300,7 +300,7 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
             {relatedProducts.map((item) => (
               <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-line p-3 hover:border-accent">
                 <div className="relative h-16 w-16 shrink-0 bg-panel-muted">
-                  <Image src={assetUrl(item.image)} alt={item.model} fill className="object-contain p-2" sizes="64px" />
+                  <OptimizedImage src={item.image} alt={item.model} fill className="object-contain p-2" sizes="64px" />
                 </div>
                 <div>
                   <p className="font-bold text-heading group-hover:text-accent">{item.model}</p>
@@ -351,7 +351,7 @@ export function ApplicationsPage({ lang }: { lang: Lang }) {
                     className="group grid gap-5 border border-line bg-panel p-5 hover:border-accent sm:grid-cols-[210px_1fr]"
                   >
                     <div className="relative aspect-[1.25] bg-panel-muted">
-                      <Image src={assetUrl(article.image)} alt={article.title[lang]} fill className="object-contain p-4" sizes="220px" />
+                      <OptimizedImage src={article.image} alt={article.title[lang]} fill className="object-contain p-4" sizes="220px" />
                     </div>
                     <div>
                       <div className="flex flex-wrap gap-2">
@@ -426,7 +426,7 @@ export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string
             </div>
           </div>
           <div className="relative aspect-[1.2] border border-line bg-panel-muted">
-            <Image src={assetUrl(article.image)} alt={article.title[lang]} fill className="object-contain p-6" sizes="(min-width: 1024px) 42vw, 100vw" priority />
+            <OptimizedImage src={article.image} alt={article.title[lang]} fill className="object-contain p-6" sizes="(min-width: 1024px) 42vw, 100vw" priority />
           </div>
         </div>
       </section>
@@ -448,7 +448,7 @@ export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string
                 {relatedProducts.map((item) => (
                     <Link key={item.model} href={path(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-line p-3 hover:border-accent">
                       <div className="relative h-16 w-16 shrink-0 bg-panel-muted">
-                        <Image src={assetUrl(item.image)} alt={item.model} fill className="object-contain p-2" sizes="64px" />
+                        <OptimizedImage src={item.image} alt={item.model} fill className="object-contain p-2" sizes="64px" />
                       </div>
                       <div>
                         <p className="font-bold text-heading group-hover:text-accent">{item.model}</p>

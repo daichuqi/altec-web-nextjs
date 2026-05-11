@@ -1,11 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Search, X } from "lucide-react";
 import { productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
-import { assetUrl } from "@/lib/cdn-assets";
+import { OptimizedImage } from "@/components/optimized-image";
 
 type Product = (typeof products)[number];
 type ProductCategory = (typeof productCategories)[number];
@@ -257,8 +256,8 @@ function ProductResultCard({ lang, product }: { lang: Lang; product: Product }) 
       className="group grid min-h-full border border-line bg-panel hover:border-accent sm:grid-cols-[210px_1fr]"
     >
       <div className="relative min-h-[180px] bg-panel-muted">
-        <Image
-          src={assetUrl(product.image)}
+        <OptimizedImage
+          src={product.image}
           alt={`${product.model} ${product[lang]}`}
           fill
           className="object-contain p-1 sm:p-2"

@@ -1,4 +1,7 @@
 const cdnBaseUrl = (process.env.NEXT_PUBLIC_CDN_BASE_URL || "").replace(/\/$/, "");
+const optimizedAssetVersion = (process.env.NEXT_PUBLIC_ASSET_VERSION || "local").replace(/[^a-zA-Z0-9._-]/g, "-");
+const optimizedWidths = [160, 320, 480, 640, 960, 1280, 1600] as const;
+const optimizableImagePattern = /^\/altec\/(.+)\.(?:jpe?g|png)$/i;
 
 function shouldUseCdn(path: string) {
   return /^(\/(altec|_next|downloads))\//.test(path);
@@ -20,6 +23,38 @@ export function assetUrl(path: string) {
   return `${cdnBaseUrl}${path}`;
 }
 
+function optimizedImagePath(path: string, width: number, format: "avif" | "webp") {
+  const match = path.match(optimizableImagePattern);
+
+  if (!match) {
+    return null;
+  }
+
+  return `/altec/optimized/${optimizedAssetVersion}/${match[1]}-${width}.${format}`;
+}
+
+function optimizedSrcSet(path: string, format: "avif" | "webp") {
+  const entries = optimizedWidths
+    .map((width) => {
+      const optimizedPath = optimizedImagePath(path, width, format);
+      return optimizedPath ? `${assetUrl(optimizedPath)} ${width}w` : null;
+    })
+    .filter(Boolean);
+
+  return entries.length > 0 ? entries.join(", ") : null;
+}
+
+export function optimizedImageSources(path: string) {
+  const avif = optimizedSrcSet(path, "avif");
+  const webp = optimizedSrcSet(path, "webp");
+
+  if (!avif || !webp) {
+    return null;
+  }
+
+  return { avif, webp };
+}
+
 const assetSrcPattern = /\b(?:href|src)=(["'])(\/(?:altec|_next|downloads)\/[^"']+)\1/g;
 const imgTagPattern = /<img\b[^>]*>/g;
 
@@ -33,14 +68,21 @@ function addAttributeIfMissing(tag: string, attribute: string, value: string) {
 
 function optimizeHtmlImages(html: string) {
   return html.replace(imgTagPattern, (tag) => {
-    return addAttributeIfMissing(addAttributeIfMissing(tag, "loading", "lazy"), "decoding", "async");
+    const optimizedTag = addAttributeIfMissing(addAttributeIfMissing(tag, "loading", "lazy"), "decoding", "async");
+    const src = optimizedTag.match(/\ssrc=(["'])(\/altec\/[^"']+)\1/)?.[2];
+    const sources = src ? optimizedImageSources(src) : null;
+
+    if (!src || !sources) {
+      return optimizedTag;
+    }
+
+    return `<picture><source type="image/avif" srcset="${sources.avif}" sizes="100vw"><source type="image/webp" srcset="${sources.webp}" sizes="100vw">${optimizedTag}</picture>`;
   });
 }
 
 export function rewriteHtmlAssetLinks(html: string) {
-  const htmlWithCdnLinks = html.replace(assetSrcPattern, (match) => {
+  const htmlWithOptimizedImages = optimizeHtmlImages(html);
+  return htmlWithOptimizedImages.replace(assetSrcPattern, (match) => {
     return match.replace(/\/(?:altec|_next|downloads)\/[^"']+/, (url) => assetUrl(url));
   });
-
-  return optimizeHtmlImages(htmlWithCdnLinks);
 }

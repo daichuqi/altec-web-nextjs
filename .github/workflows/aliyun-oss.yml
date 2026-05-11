@@ -26,6 +26,10 @@ jobs:
         run: npm ci
 
       - name: Build
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || vars.ALIYUN_SITE_URL || 'https://china-altec.com' }}
+          NEXT_PUBLIC_CDN_BASE_URL: ${{ vars.NEXT_PUBLIC_CDN_BASE_URL || vars.ALIYUN_CDN_BASE_URL }}
+          NEXT_PUBLIC_ASSET_VERSION: ${{ github.sha }}
         run: npm run build
 
       - name: Guard static deploy
@@ -113,6 +117,7 @@ jobs:
           }
 
           set_oss_meta "${OSS_DEST}/_next/static/" "public,max-age=31536000,immutable"
+          set_oss_meta "${OSS_DEST}/altec/optimized/" "public,max-age=31536000,immutable"
           set_oss_meta "${OSS_DEST}/altec/products/" "public,max-age=2592000,stale-while-revalidate=604800"
           set_oss_meta "${OSS_DEST}/altec/details/" "public,max-age=2592000,stale-while-revalidate=604800"
           set_oss_meta "${OSS_DEST}/altec/applications/" "public,max-age=2592000,stale-while-revalidate=604800"
@@ -140,6 +145,7 @@ jobs:
       - name: Smoke test Aliyun host
         env:
           ALIYUN_SITE_URL: ${{ vars.ALIYUN_SITE_URL }}
+          ALIYUN_CDN_BASE_URL: ${{ vars.NEXT_PUBLIC_CDN_BASE_URL || vars.ALIYUN_CDN_BASE_URL }}
         run: |
           if [[ -z "${ALIYUN_SITE_URL:-}" ]]; then
             echo "Skip smoke test: missing ALIYUN_SITE_URL repository variable."
@@ -166,3 +172,7 @@ jobs:
           grep -q "ALTEC" /tmp/alitech-home.html
           grep -q "工业过程控制" /tmp/alitech-al808.html
           grep -q "Tension Controller" /tmp/alitech-pc900-en.html
+
+          ASSET_HOST="${ALIYUN_CDN_BASE_URL:-$ALIYUN_SITE_URL}"
+          curl -fsSI "${ASSET_HOST}/altec/optimized/${GITHUB_SHA}/products/AL808-640.avif" | tee /tmp/alitech-image-headers.txt
+          grep -qi "cache-control:.*max-age=31536000" /tmp/alitech-image-headers.txt
