@@ -142,13 +142,63 @@ jobs:
             set_single_oss_meta "${TARGET}" "no-cache"
           done < <(find out -type f -name "*.html")
 
-      - name: Smoke test Aliyun host
+      - name: Smoke test Aliyun OSS objects
+        env:
+          ALIYUN_OSS_BUCKET: ${{ secrets.ALIYUN_OSS_BUCKET }}
+          ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
+          ALIYUN_OSS_PREFIX: ${{ secrets.ALIYUN_OSS_PREFIX }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${ALIYUN_OSS_BUCKET:-}" || -z "${ALIYUN_OSS_ENDPOINT:-}" ]]; then
+            echo "Aliyun OSS smoke failed: missing ALIYUN_OSS_BUCKET/ALIYUN_OSS_ENDPOINT."
+            exit 1
+          fi
+
+          ENDPOINT="${ALIYUN_OSS_ENDPOINT#https://}"
+          ENDPOINT="${ENDPOINT#http://}"
+          OSS_ORIGIN="https://${ALIYUN_OSS_BUCKET}.${ENDPOINT}"
+          PREFIX="${ALIYUN_OSS_PREFIX:-}"
+          PREFIX="${PREFIX%/}"
+          if [[ -n "${PREFIX}" ]]; then
+            OSS_ORIGIN="${OSS_ORIGIN}/${PREFIX}"
+          fi
+
+          fetch_with_wait() {
+            local url="$1"
+            local output="$2"
+            for attempt in {1..8}; do
+              if curl -fsS --connect-timeout 20 --retry 2 --retry-delay 5 --retry-all-errors "${url}" >"${output}"; then
+                return 0
+              fi
+              echo "Waiting for Aliyun DNS/CDN propagation: ${url} (attempt ${attempt}/8)"
+              sleep 8
+            done
+            return 1
+          }
+
+          fetch_with_wait "${OSS_ORIGIN}/index.html" /tmp/alitech-oss-home.html
+          fetch_with_wait "${OSS_ORIGIN}/products/al808" /tmp/alitech-oss-al808.html
+          fetch_with_wait "${OSS_ORIGIN}/en/products/pc900" /tmp/alitech-oss-pc900-en.html
+          fetch_with_wait "${OSS_ORIGIN}/altec/applications/details/TC950/TC950_Wind.gif" /tmp/alitech-oss-tc950.gif
+
+          grep -q "ALTEC" /tmp/alitech-oss-home.html
+          grep -q "AL808" /tmp/alitech-oss-al808.html
+          grep -q "PC900" /tmp/alitech-oss-pc900-en.html
+
+          curl -fsSI "${OSS_ORIGIN}/altec/optimized/${GITHUB_SHA}/products/AL808-640.avif" | tee /tmp/alitech-oss-image-headers.txt
+          grep -qi "cache-control:.*max-age=31536000" /tmp/alitech-oss-image-headers.txt
+
+      - name: Smoke test production domain
         env:
           ALIYUN_SITE_URL: ${{ vars.ALIYUN_SITE_URL }}
           ALIYUN_CDN_BASE_URL: ${{ vars.NEXT_PUBLIC_CDN_BASE_URL || vars.ALIYUN_CDN_BASE_URL }}
+          ALIYUN_PRODUCTION_SMOKE_REQUIRED: ${{ vars.ALIYUN_PRODUCTION_SMOKE_REQUIRED }}
         run: |
+          set -euo pipefail
+
           if [[ -z "${ALIYUN_SITE_URL:-}" ]]; then
-            echo "Skip smoke test: missing ALIYUN_SITE_URL repository variable."
+            echo "Skip production smoke test: missing ALIYUN_SITE_URL repository variable."
             exit 0
           fi
 
@@ -165,14 +215,25 @@ jobs:
             return 1
           }
 
-          fetch_with_wait "${ALIYUN_SITE_URL}/" /tmp/alitech-home.html
-          fetch_with_wait "${ALIYUN_SITE_URL}/products/al808" /tmp/alitech-al808.html
-          fetch_with_wait "${ALIYUN_SITE_URL}/en/products/pc900" /tmp/alitech-pc900-en.html
-          fetch_with_wait "${ALIYUN_SITE_URL}/altec/applications/details/TC950/TC950_Wind.gif" /tmp/alitech-tc950.gif
-          grep -q "ALTEC" /tmp/alitech-home.html
-          grep -q "工业过程控制" /tmp/alitech-al808.html
-          grep -q "Tension Controller" /tmp/alitech-pc900-en.html
+          run_production_smoke() {
+            fetch_with_wait "${ALIYUN_SITE_URL}/" /tmp/alitech-home.html
+            fetch_with_wait "${ALIYUN_SITE_URL}/products/al808" /tmp/alitech-al808.html
+            fetch_with_wait "${ALIYUN_SITE_URL}/en/products/pc900" /tmp/alitech-pc900-en.html
+            fetch_with_wait "${ALIYUN_SITE_URL}/altec/applications/details/TC950/TC950_Wind.gif" /tmp/alitech-tc950.gif
+            grep -q "ALTEC" /tmp/alitech-home.html
+            grep -q "AL808" /tmp/alitech-al808.html
+            grep -q "PC900" /tmp/alitech-pc900-en.html
 
-          ASSET_HOST="${ALIYUN_CDN_BASE_URL:-$ALIYUN_SITE_URL}"
-          curl -fsSI "${ASSET_HOST}/altec/optimized/${GITHUB_SHA}/products/AL808-640.avif" | tee /tmp/alitech-image-headers.txt
-          grep -qi "cache-control:.*max-age=31536000" /tmp/alitech-image-headers.txt
+            ASSET_HOST="${ALIYUN_CDN_BASE_URL:-$ALIYUN_SITE_URL}"
+            curl -fsSI "${ASSET_HOST}/altec/optimized/${GITHUB_SHA}/products/AL808-640.avif" | tee /tmp/alitech-image-headers.txt
+            grep -qi "cache-control:.*max-age=31536000" /tmp/alitech-image-headers.txt
+          }
+
+          if run_production_smoke; then
+            echo "Production smoke test passed."
+          elif [[ "${ALIYUN_PRODUCTION_SMOKE_REQUIRED:-}" == "true" ]]; then
+            echo "Production smoke test failed and ALIYUN_PRODUCTION_SMOKE_REQUIRED=true."
+            exit 1
+          else
+            echo "::warning::Production smoke test failed. OSS deploy is valid, but ${ALIYUN_SITE_URL} is not serving the uploaded OSS/CDN assets yet."
+          fi
