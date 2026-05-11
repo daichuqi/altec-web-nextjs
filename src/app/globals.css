@@ -68,8 +68,8 @@ html.dark {
   --color-action: var(--action);
   --color-action-strong: var(--action-strong);
   --color-action-contrast: var(--action-contrast);
-  --font-sans: "Geist", "Geist Fallback", "PingFang SC", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+  --font-sans: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
 }
 
 body {

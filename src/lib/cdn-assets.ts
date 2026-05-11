@@ -21,9 +21,26 @@ export function assetUrl(path: string) {
 }
 
 const assetSrcPattern = /\b(?:href|src)=(["'])(\/(?:altec|_next|downloads)\/[^"']+)\1/g;
+const imgTagPattern = /<img\b[^>]*>/g;
+
+function addAttributeIfMissing(tag: string, attribute: string, value: string) {
+  if (new RegExp(`\\s${attribute}=`).test(tag)) {
+    return tag;
+  }
+
+  return tag.replace(/>$/, ` ${attribute}="${value}">`);
+}
+
+function optimizeHtmlImages(html: string) {
+  return html.replace(imgTagPattern, (tag) => {
+    return addAttributeIfMissing(addAttributeIfMissing(tag, "loading", "lazy"), "decoding", "async");
+  });
+}
 
 export function rewriteHtmlAssetLinks(html: string) {
-  return html.replace(assetSrcPattern, (match) => {
+  const htmlWithCdnLinks = html.replace(assetSrcPattern, (match) => {
     return match.replace(/\/(?:altec|_next|downloads)\/[^"']+/, (url) => assetUrl(url));
   });
+
+  return optimizeHtmlImages(htmlWithCdnLinks);
 }

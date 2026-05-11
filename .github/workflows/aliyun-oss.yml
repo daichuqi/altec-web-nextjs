@@ -106,11 +106,44 @@ jobs:
               cp -r --force out "${OSS_DEST}"
           fi
 
+          set_oss_meta() {
+            local target="$1"
+            local cache_control="$2"
+
+            /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
+              -k "${ALIYUN_ACCESS_KEY_SECRET}" \
+              -e "${ALIYUN_OSS_ENDPOINT}" \
+              set-meta "${target}" "Cache-Control:${cache_control}" \
+              --update \
+              -r \
+              -f || echo "Warning: failed to set Cache-Control on ${target}"
+          }
+
+          set_single_oss_meta() {
+            local target="$1"
+            local cache_control="$2"
+
+            /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
+              -k "${ALIYUN_ACCESS_KEY_SECRET}" \
+              -e "${ALIYUN_OSS_ENDPOINT}" \
+              set-meta "${target}" "Cache-Control:${cache_control}" \
+              --update \
+              -f || echo "Warning: failed to set Cache-Control on ${target}"
+          }
+
+          set_oss_meta "${OSS_DEST}/_next/static/" "public,max-age=31536000,immutable"
+          set_oss_meta "${OSS_DEST}/altec/products/" "public,max-age=2592000,stale-while-revalidate=604800"
+          set_oss_meta "${OSS_DEST}/altec/details/" "public,max-age=2592000,stale-while-revalidate=604800"
+          set_oss_meta "${OSS_DEST}/altec/applications/" "public,max-age=2592000,stale-while-revalidate=604800"
+          set_oss_meta "${OSS_DEST}/altec/downloads/" "public,max-age=2592000,stale-while-revalidate=604800"
+
           while IFS= read -r HTML_FILE; do
             RELATIVE="${HTML_FILE#out/}"
             ROUTE="${RELATIVE%.html}"
 
-            if [[ "$ROUTE" == "index.html" ]]; then
+            set_single_oss_meta "${OSS_DEST}/${RELATIVE}" "no-cache"
+
+            if [[ "$RELATIVE" == "index.html" ]]; then
               continue
             fi
 
@@ -120,6 +153,7 @@ jobs:
               -e "${ALIYUN_OSS_ENDPOINT}" \
               cp "${HTML_FILE}" "${TARGET}" \
               --force
+            set_single_oss_meta "${TARGET}" "no-cache"
           done < <(find out -type f -name "*.html")
 
       - name: Smoke test Aliyun host

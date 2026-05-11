@@ -65,7 +65,7 @@ jobs:
           fi
 
           aws s3 sync out/_next/static "${DEST_PREFIX}/_next/static" --delete --cache-control "public,max-age=31536000,immutable"
-          aws s3 sync out/altec "${DEST_PREFIX}/altec" --delete --cache-control "public,max-age=604800"
+          aws s3 sync out/altec "${DEST_PREFIX}/altec" --delete --cache-control "public,max-age=2592000,stale-while-revalidate=604800"
 
           if [[ -n "${CDN_CLOUDFRONT_DISTRIBUTION_ID:-}" ]]; then
             aws cloudfront create-invalidation --distribution-id "${CDN_CLOUDFRONT_DISTRIBUTION_ID}" --paths "/_next/*" "/altec/*" >/tmp/cf-invalidation.json

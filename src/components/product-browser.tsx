@@ -227,6 +227,7 @@ function ProductCategorySection({
             <Link
               key={product.model}
               href={path(lang, `/products/${productSlug(product.model)}`)}
+              prefetch={false}
               className="border border-line-strong bg-panel px-3 py-1.5 text-xs font-bold text-copy hover:border-accent hover:text-accent"
             >
               {product.model}
@@ -252,6 +253,7 @@ function ProductResultCard({ lang, product }: { lang: Lang; product: Product }) 
   return (
     <Link
       href={path(lang, `/products/${productSlug(product.model)}`)}
+      prefetch={false}
       className="group grid min-h-full border border-line bg-panel hover:border-accent sm:grid-cols-[210px_1fr]"
     >
       <div className="relative min-h-[180px] bg-panel-muted">
