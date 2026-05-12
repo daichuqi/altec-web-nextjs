@@ -238,6 +238,7 @@ jobs:
               --meta "Cache-Control:no-cache"
           done < <(find .oss-upload/site-shell -maxdepth 1 -type f -print0)
 
+          rm -rf .oss-upload/html-aliases-depth-*
           while IFS= read -r HTML_FILE; do
             RELATIVE="${HTML_FILE#out/}"
             ROUTE="${RELATIVE%.html}"
@@ -246,11 +247,30 @@ jobs:
               continue
             fi
 
-            ossutil cp "${HTML_FILE}" "${OSS_DEST}/${ROUTE}" \
-              --update \
-              --force \
-              --meta "Cache-Control:no-cache"
+            DEPTH="$(awk -F/ '{ print NF }' <<< "${ROUTE}")"
+            ALIAS_FILE=".oss-upload/html-aliases-depth-${DEPTH}/${ROUTE}"
+            mkdir -p "$(dirname "${ALIAS_FILE}")"
+            cp "${HTML_FILE}" "${ALIAS_FILE}"
           done < <(find out -type f -name "*.html")
+
+          for ALIAS_ROOT in .oss-upload/html-aliases-depth-*; do
+            if [[ ! -d "${ALIAS_ROOT}" ]]; then
+              continue
+            fi
+
+            while IFS= read -r -d '' ALIAS_DIR; do
+              RELATIVE="${ALIAS_DIR#${ALIAS_ROOT}/}"
+              sync_dir "${ALIAS_DIR}" "${OSS_DEST}/${RELATIVE}" "no-cache"
+            done < <(find "${ALIAS_ROOT}" -mindepth 1 -maxdepth 1 -type d -print0)
+
+            while IFS= read -r -d '' ALIAS_FILE; do
+              RELATIVE="${ALIAS_FILE#${ALIAS_ROOT}/}"
+              ossutil cp "${ALIAS_FILE}" "${OSS_DEST}/${RELATIVE}" \
+                --update \
+                --force \
+                --meta "Cache-Control:no-cache"
+            done < <(find "${ALIAS_ROOT}" -maxdepth 1 -type f -print0)
+          done
 
       - name: Prune deleted OSS objects
         if: ${{ steps.oss-plan.outputs.prune_remote == 'true' }}
