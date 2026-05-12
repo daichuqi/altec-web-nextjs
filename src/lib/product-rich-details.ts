@@ -337,6 +337,46 @@ const al808EnHtml = `
 <ul><li><a href="/altec/downloads/AL808_V67.pdf" download>AL808 Series Temperature Controller Manual V6.7 (Chinese PDF)</a></li><li><a href="/altec/downloads/AL808_V64_EN.pdf" download>AL808 Series Temperature Controller Manual V6.4 (English PDF)</a></li><li><a href="/altec/downloads/AL808CommsProtocol.pdf" download>AL808 Communication Protocol (PDF)</a></li></ul>
 `;
 
+const al830EnHtml = `
+<div class="product-detail-intro">
+  <p>The AL830 uses an advanced PID control algorithm with PID auto-tuning and segmented output power limiting, providing stable control with minimal overshoot or undershoot.</p>
+  <p>It is designed for three-phase SCR phase-angle control circuits. The controller provides simple wiring, high phase-angle accuracy and high reliability for star or delta connected SCR power circuits used in high-power three-phase voltage regulation.</p>
+  <ul class="contents">
+    <li><a href="#code">Model Coding</a></li>
+    <li><a href="#panel">Panel Description</a></li>
+    <li><a href="#dim">Dimensions and Mounting</a></li>
+    <li><a href="#wire">Wiring</a></li>
+    <li><a href="#spec">Specifications</a></li>
+    <li><a href="#doc">Documents</a></li>
+  </ul>
+</div>
+<span id="code"></span>
+<h2>Model Coding</h2>
+<table class="coding"><tbody><tr><td class="box">AL830</td><td class="nobox">/</td><td class="box">Option</td></tr><tr><td></td><td></td><td class="sn">(1)</td></tr></tbody></table>
+<table class="code_table"><caption>(1) Options</caption><tbody><tr><th scope="row">0</th><td>No additional option</td></tr><tr><th scope="row">QP4</th><td>4-step program control</td></tr><tr><th scope="row">QP8</th><td>8-step program control</td></tr><tr><th scope="row">QP16</th><td>16-step program control</td></tr><tr><th scope="row">QP30</th><td>30-step program control</td></tr><tr><th scope="row">So</th><td>Output signal soft-start / slow-change function</td></tr><tr><th scope="row">Svtr</th><td>Setpoint transmission</td></tr><tr><th scope="row">Pvtr</th><td>Process-value transmission</td></tr><tr><th scope="row">Rem</th><td>Remote analog setpoint</td></tr><tr><th scope="row">Prt</th><td>Print recording function</td></tr></tbody></table>
+<p>Example: AL830/QP8 is a three-phase phase-angle controller with 8-step program control.</p>
+<span id="panel"></span>
+<h2>Panel Description</h2>
+<img class="illustration" src="/altec/images/details/AL830/AL830_Panel.gif" alt="AL830 panel description">
+<span id="dim"></span>
+<h2>Dimensions and Mounting</h2>
+<img class="illustration" src="/altec/images/details/AL830/AL830_Dim.gif" alt="AL830 dimensions">
+<img class="illustration" src="/altec/images/details/AL830/AL830_Mounting.gif" alt="AL830 mounting dimensions">
+<span id="wire"></span>
+<h2>Wiring</h2>
+<img class="illustration" src="/altec/images/details/AL830/AL830_Wiring.gif" alt="AL830 electrical wiring">
+<img class="illustration" src="/altec/images/details/AL830/AL830_Diode.gif" alt="AL830 three-phase rectifier voltage control wiring">
+<img class="illustration" src="/altec/images/details/AL830/AL830_Single_Phase.gif" alt="AL830 single-phase SCR circuit">
+<img class="illustration" src="/altec/images/details/AL830/AL830_Double_Phase.gif" alt="AL830 two-phase SCR circuit">
+<img class="illustration" src="/altec/images/details/AL830/AL830_Bridge.gif" alt="AL830 bridge rectifier control circuit">
+<span id="spec"></span>
+<h2>Specifications</h2>
+<table class="spec_table"><tbody><tr><th scope="row">Input</th><td>Programmable thermocouple, RTD, mV and standard signal inputs; expandable input signals are supported.</td></tr><tr><th scope="row">Accuracy</th><td>+/-0.2% FS +/-1 digit</td></tr><tr><th scope="row">Sample rate</th><td>125 ms</td></tr><tr><th scope="row">Control algorithm</th><td>PID control with PID auto-tuning</td></tr><tr><th scope="row">Output mode</th><td>Three-phase SCR phase-angle control output</td></tr><tr><th scope="row">Alarm modes</th><td>High limit, low limit, high deviation, low deviation and power-on alarm suppression modes</td></tr><tr><th scope="row">Digital communication</th><td>RS232, 3-wire<br>RS485, 2-wire</td></tr><tr><th scope="row">Program control</th><td>1 program profile with segmented output power limiting<br>Optional 4, 8, 16 or 30 steps<br>1-200 loop cycles or continuous operation</td></tr><tr><th scope="row">Panel size</th><td>96 x 96 mm panel format</td></tr><tr><th scope="row">Power supply</th><td>100-240VAC, 50/60Hz; 24VAC/DC, 50/60Hz</td></tr><tr><th scope="row">Environment</th><td>Ambient temperature 0-50°C, relative humidity <=85%</td></tr></tbody></table>
+<span id="doc"></span>
+<h2>Documents</h2>
+<p>No dedicated AL830 document is currently available. See the related AL808/AL809/AL810/AL830 manuals below.</p>
+`;
+
 const tc818EnHtml = `
 <div class="product-detail-intro">
   <p>The TC818 tension controller is used for roll-diameter and automatic constant-tension control systems. It supports magnetic powder clutch or brake drive outputs, auxiliary analog outputs and optional RS232/RS485 communication.</p>
@@ -492,5 +532,6 @@ export const productRichDetails: Record<string, ProductRichDetail> = {
 
 productRichDetails.PC900.htmlEn = pc900EnHtml;
 productRichDetails.AL808.htmlEn = al808EnHtml;
+productRichDetails.AL830.htmlEn = al830EnHtml;
 productRichDetails.TC818.htmlEn = tc818EnHtml;
 productRichDetails.CPC316.htmlEn = cpc316EnHtml;
