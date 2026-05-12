@@ -11,6 +11,11 @@ on:
         required: false
         type: boolean
         default: false
+      sync_images:
+        description: "Force sync /altec/images/ even when image files did not change"
+        required: false
+        type: boolean
+        default: false
       prune_remote:
         description: "Delete OSS objects that no longer exist in out/ (manual cleanup only)"
         required: false
@@ -45,18 +50,34 @@ jobs:
           BEFORE_SHA: ${{ github.event.before }}
           CURRENT_SHA: ${{ github.sha }}
           FORCE_DOWNLOADS_SYNC: ${{ inputs.sync_downloads || false }}
+          FORCE_IMAGES_SYNC: ${{ inputs.sync_images || false }}
           PRUNE_REMOTE: ${{ inputs.prune_remote || false }}
         run: |
           set -euo pipefail
 
           downloads_changed="false"
+          images_changed="false"
           if [[ "${FORCE_DOWNLOADS_SYNC}" == "true" ]]; then
             downloads_changed="true"
-          elif [[ "${EVENT_NAME}" == "push" ]]; then
+          fi
+          if [[ "${FORCE_IMAGES_SYNC}" == "true" ]]; then
+            images_changed="true"
+          fi
+
+          if [[ "${EVENT_NAME}" == "push" ]]; then
             if [[ -z "${BEFORE_SHA:-}" || "${BEFORE_SHA}" == "0000000000000000000000000000000000000000" ]]; then
               downloads_changed="true"
-            elif git diff --name-only "${BEFORE_SHA}" "${CURRENT_SHA}" | grep -qE '^public/altec/downloads/'; then
-              downloads_changed="true"
+              images_changed="true"
+            else
+              changed_files="$(mktemp)"
+              git diff --name-only "${BEFORE_SHA}" "${CURRENT_SHA}" > "${changed_files}"
+              if grep -qE '^public/altec/downloads/' "${changed_files}"; then
+                downloads_changed="true"
+              fi
+              if grep -qE '^public/altec/images/' "${changed_files}"; then
+                images_changed="true"
+              fi
+              rm -f "${changed_files}"
             fi
           fi
 
@@ -74,11 +95,13 @@ jobs:
 
           {
             echo "downloads_changed=${downloads_changed}"
+            echo "images_changed=${images_changed}"
             echo "prune_remote=${PRUNE_REMOTE}"
             echo "optimized_asset_version=${optimized_asset_version}"
           } >> "${GITHUB_OUTPUT}"
 
           echo "Downloads changed: ${downloads_changed}"
+          echo "Images changed: ${images_changed}"
           echo "Prune remote: ${PRUNE_REMOTE}"
           echo "Optimized asset version: ${optimized_asset_version}"
 
@@ -123,6 +146,7 @@ jobs:
           ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
           ALIYUN_OSS_REGION: ${{ secrets.ALIYUN_OSS_REGION }}
           DOWNLOADS_CHANGED: ${{ steps.oss-plan.outputs.downloads_changed }}
+          IMAGES_CHANGED: ${{ steps.oss-plan.outputs.images_changed }}
         run: |
           set -euo pipefail
 
@@ -173,11 +197,17 @@ jobs:
           }
 
           sync_dir "out/_next/static" "${OSS_DEST}/_next/static" "public,max-age=31536000,immutable"
-          sync_dir "out/altec/images/optimized" "${OSS_DEST}/altec/images/optimized" "public,max-age=31536000,immutable"
-          sync_dir "out/altec/images/products" "${OSS_DEST}/altec/images/products" "public,max-age=2592000,stale-while-revalidate=604800"
-          sync_dir "out/altec/images/details" "${OSS_DEST}/altec/images/details" "public,max-age=2592000,stale-while-revalidate=604800"
-          sync_dir "out/altec/images/applications" "${OSS_DEST}/altec/images/applications" "public,max-age=2592000,stale-while-revalidate=604800"
-          sync_dir "out/altec/images/brand" "${OSS_DEST}/altec/images/brand" "public,max-age=2592000,stale-while-revalidate=604800"
+
+          if [[ "${IMAGES_CHANGED}" == "true" ]]; then
+            echo "Image files changed or forced; syncing /altec/images/."
+            sync_dir "out/altec/images/optimized" "${OSS_DEST}/altec/images/optimized" "public,max-age=31536000,immutable"
+            sync_dir "out/altec/images/products" "${OSS_DEST}/altec/images/products" "public,max-age=2592000,stale-while-revalidate=604800"
+            sync_dir "out/altec/images/details" "${OSS_DEST}/altec/images/details" "public,max-age=2592000,stale-while-revalidate=604800"
+            sync_dir "out/altec/images/applications" "${OSS_DEST}/altec/images/applications" "public,max-age=2592000,stale-while-revalidate=604800"
+            sync_dir "out/altec/images/brand" "${OSS_DEST}/altec/images/brand" "public,max-age=2592000,stale-while-revalidate=604800"
+          else
+            echo "Image files unchanged; skipping /altec/images/ OSS sync."
+          fi
 
           if [[ "${DOWNLOADS_CHANGED}" == "true" ]]; then
             echo "Download files changed or forced; syncing /altec/downloads/."
