@@ -186,14 +186,17 @@ jobs:
             echo "Download files unchanged; skipping /altec/downloads/ OSS sync."
           fi
 
-          ossutil sync out "${OSS_DEST}" \
-            --exclude "_next/static/*" \
-            --exclude "altec/images/*" \
-            --exclude "altec/downloads/*" \
-            --update \
-            --force \
-            --snapshot-path ".ossutil-snapshot/site-shell" \
-            --meta "Cache-Control:no-cache"
+          while IFS= read -r -d '' SITE_FILE; do
+            RELATIVE="${SITE_FILE#out/}"
+            ossutil cp "${SITE_FILE}" "${OSS_DEST}/${RELATIVE}" \
+              --update \
+              --force \
+              --meta "Cache-Control:no-cache"
+          done < <(find out -type f \
+            ! -path "out/_next/static/*" \
+            ! -path "out/altec/images/*" \
+            ! -path "out/altec/downloads/*" \
+            -print0)
 
           while IFS= read -r HTML_FILE; do
             RELATIVE="${HTML_FILE#out/}"
