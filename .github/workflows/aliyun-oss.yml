@@ -125,14 +125,6 @@ jobs:
           restore-keys: |
             ossutil-snapshot-${{ github.ref_name }}-
 
-      - name: Restore deploy output manifest
-        uses: actions/cache@v4
-        with:
-          path: .deploy-manifest-cache
-          key: deploy-manifest-${{ github.ref_name }}-${{ github.run_id }}
-          restore-keys: |
-            deploy-manifest-${{ github.ref_name }}-
-
       - name: Install ossutil
         env:
           ALIYUN_OSSUTIL_VERSION: ${{ vars.ALIYUN_OSSUTIL_VERSION }}
@@ -183,44 +175,6 @@ jobs:
               "$@"
           }
 
-          cache_control_for_path() {
-            local relative="$1"
-
-            case "${relative}" in
-              _next/static/*|altec/images/optimized/*)
-                echo "public,max-age=31536000,immutable"
-                ;;
-              altec/images/*|altec/downloads/*)
-                echo "public,max-age=2592000,stale-while-revalidate=604800"
-                ;;
-              *)
-                echo "no-cache"
-                ;;
-            esac
-          }
-
-          upload_file() {
-            local relative="$1"
-            local cache_control
-            cache_control="$(cache_control_for_path "${relative}")"
-
-            ossutil cp "out/${relative}" "${OSS_DEST}/${relative}" \
-              --force \
-              --meta "Cache-Control:${cache_control}"
-          }
-
-          upload_html_alias() {
-            local relative="$1"
-
-            if [[ "${relative}" != *.html || "${relative}" == "index.html" ]]; then
-              return 0
-            fi
-
-            ossutil cp "out/${relative}" "${OSS_DEST}/${relative%.html}" \
-              --force \
-              --meta "Cache-Control:no-cache"
-          }
-
           sync_dir() {
             local source="$1"
             local target="$2"
@@ -242,44 +196,7 @@ jobs:
               "$@"
           }
 
-          mkdir -p .deploy-manifest
-          (
-            cd out
-            find . -type f -print0 | sort -z | xargs -0 sha256sum
-          ) > .deploy-manifest/current.sha256
-
-          if [[ -f .deploy-manifest-cache/current.sha256 ]]; then
-            echo "Previous deploy manifest found; uploading only changed or new files."
-            grep -Fvx -f .deploy-manifest-cache/current.sha256 .deploy-manifest/current.sha256 \
-              | sed -E 's/^[[:xdigit:]]{64}  \.\///' \
-              > .deploy-manifest/changed-files.txt || true
-
-            if [[ ! -s .deploy-manifest/changed-files.txt ]]; then
-              echo "No changed exported files detected."
-            fi
-
-            while IFS= read -r RELATIVE; do
-              if [[ -z "${RELATIVE}" ]]; then
-                continue
-              fi
-
-              if [[ "${RELATIVE}" == altec/downloads/* && "${DOWNLOADS_CHANGED}" != "true" ]]; then
-                echo "Skip unchanged download output: ${RELATIVE}"
-                continue
-              fi
-
-              if [[ "${RELATIVE}" == altec/images/* && "${IMAGES_CHANGED}" != "true" ]]; then
-                echo "Skip unchanged image output: ${RELATIVE}"
-                continue
-              fi
-
-              upload_file "${RELATIVE}"
-              upload_html_alias "${RELATIVE}"
-            done < .deploy-manifest/changed-files.txt
-          else
-            echo "No previous deploy manifest found; falling back to scoped OSS sync."
-
-            sync_dir "out/_next/static" "${OSS_DEST}/_next/static" "public,max-age=31536000,immutable"
+          sync_dir "out/_next/static" "${OSS_DEST}/_next/static" "public,max-age=31536000,immutable"
 
           if [[ "${IMAGES_CHANGED}" == "true" ]]; then
             echo "Image files changed or forced; syncing /altec/images/."
@@ -354,7 +271,6 @@ jobs:
                 --meta "Cache-Control:no-cache"
             done < <(find "${ALIAS_ROOT}" -maxdepth 1 -type f -print0)
           done
-          fi
 
       - name: Prune deleted OSS objects
         if: ${{ steps.oss-plan.outputs.prune_remote == 'true' }}
@@ -494,11 +410,3 @@ jobs:
           else
             echo "::warning::Production smoke test failed. OSS deploy is valid, but ${ALIYUN_SITE_URL} is not serving the uploaded OSS/CDN assets yet."
           fi
-
-      - name: Save deploy output manifest baseline
-        run: |
-          set -euo pipefail
-
-          test -f .deploy-manifest/current.sha256
-          mkdir -p .deploy-manifest-cache
-          cp .deploy-manifest/current.sha256 .deploy-manifest-cache/current.sha256
