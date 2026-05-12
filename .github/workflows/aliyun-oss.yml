@@ -5,6 +5,17 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      sync_downloads:
+        description: "Force sync /altec/downloads/ even when download files did not change"
+        required: false
+        type: boolean
+        default: false
+      prune_remote:
+        description: "Delete OSS objects that no longer exist in out/ (manual cleanup only)"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -15,6 +26,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -25,17 +38,69 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Plan OSS sync
+        id: oss-plan
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BEFORE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+          FORCE_DOWNLOADS_SYNC: ${{ inputs.sync_downloads || false }}
+          PRUNE_REMOTE: ${{ inputs.prune_remote || false }}
+        run: |
+          set -euo pipefail
+
+          downloads_changed="false"
+          if [[ "${FORCE_DOWNLOADS_SYNC}" == "true" ]]; then
+            downloads_changed="true"
+          elif [[ "${EVENT_NAME}" == "push" ]]; then
+            if [[ -z "${BEFORE_SHA:-}" || "${BEFORE_SHA}" == "0000000000000000000000000000000000000000" ]]; then
+              downloads_changed="true"
+            elif git diff --name-only "${BEFORE_SHA}" "${CURRENT_SHA}" | grep -qE '^public/altec/downloads/'; then
+              downloads_changed="true"
+            fi
+          fi
+
+          image_hashes="$(mktemp)"
+          git ls-files -z public/altec/images \
+            | grep -zEi '\.(jpe?g|png)$' \
+            | sort -z \
+            | xargs -0 --no-run-if-empty sha256sum > "${image_hashes}"
+          if [[ ! -s "${image_hashes}" ]]; then
+            optimized_asset_version="images-none"
+          else
+            optimized_asset_version="images-$(sha256sum "${image_hashes}" | cut -c1-16)"
+          fi
+          rm -f "${image_hashes}"
+
+          {
+            echo "downloads_changed=${downloads_changed}"
+            echo "prune_remote=${PRUNE_REMOTE}"
+            echo "optimized_asset_version=${optimized_asset_version}"
+          } >> "${GITHUB_OUTPUT}"
+
+          echo "Downloads changed: ${downloads_changed}"
+          echo "Prune remote: ${PRUNE_REMOTE}"
+          echo "Optimized asset version: ${optimized_asset_version}"
+
       - name: Build
         env:
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || vars.ALIYUN_SITE_URL || 'https://china-altec.com' }}
           NEXT_PUBLIC_CDN_BASE_URL: ${{ vars.NEXT_PUBLIC_CDN_BASE_URL || vars.ALIYUN_CDN_BASE_URL }}
-          NEXT_PUBLIC_ASSET_VERSION: ${{ github.sha }}
+          NEXT_PUBLIC_ASSET_VERSION: ${{ steps.oss-plan.outputs.optimized_asset_version }}
         run: npm run build
 
       - name: Guard static deploy
         run: |
           test -d out
           test -f out/index.html
+
+      - name: Restore ossutil sync snapshots
+        uses: actions/cache@v4
+        with:
+          path: .ossutil-snapshot
+          key: ossutil-snapshot-${{ github.ref_name }}-${{ github.run_id }}
+          restore-keys: |
+            ossutil-snapshot-${{ github.ref_name }}-
 
       - name: Install ossutil
         env:
@@ -57,6 +122,7 @@ jobs:
           ALIYUN_OSS_PREFIX: ${{ secrets.ALIYUN_OSS_PREFIX }}
           ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
           ALIYUN_OSS_REGION: ${{ secrets.ALIYUN_OSS_REGION }}
+          DOWNLOADS_CHANGED: ${{ steps.oss-plan.outputs.downloads_changed }}
         run: |
           set -euo pipefail
 
@@ -72,81 +138,114 @@ jobs:
             OSS_DEST="oss://${ALIYUN_OSS_BUCKET}"
           fi
 
-          # Keep route requests like /products/th136 working by creating extensionless objects in OSS.
-          # This mirrors Next.js export output while avoiding function/server-side rewrites.
           if [[ -n "${ALIYUN_OSS_REGION:-}" ]]; then
             export OSS_REGION="${ALIYUN_OSS_REGION}"
           fi
 
-          if ! /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
-            -k "${ALIYUN_ACCESS_KEY_SECRET}" \
-            -e "${ALIYUN_OSS_ENDPOINT}" \
-            sync out "${OSS_DEST}" \
-            --delete \
-            --force; then
-            echo "sync not available; fallback to recursive copy without delete."
+          mkdir -p .ossutil-snapshot
+
+          ossutil() {
             /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
               -k "${ALIYUN_ACCESS_KEY_SECRET}" \
               -e "${ALIYUN_OSS_ENDPOINT}" \
-              cp -r --force out "${OSS_DEST}"
+              "$@"
+          }
+
+          sync_dir() {
+            local source="$1"
+            local target="$2"
+            local cache_control="$3"
+            shift 3
+
+            if [[ ! -d "${source}" ]]; then
+              echo "Skip missing directory: ${source}"
+              return 0
+            fi
+
+            local snapshot_name
+            snapshot_name="$(echo "${source}" | tr '/.' '__')"
+            ossutil sync "${source}" "${target}" \
+              --update \
+              --force \
+              --snapshot-path ".ossutil-snapshot/${snapshot_name}" \
+              --meta "Cache-Control:${cache_control}" \
+              "$@"
+          }
+
+          sync_dir "out/_next/static" "${OSS_DEST}/_next/static" "public,max-age=31536000,immutable"
+          sync_dir "out/altec/images/optimized" "${OSS_DEST}/altec/images/optimized" "public,max-age=31536000,immutable"
+          sync_dir "out/altec/images/products" "${OSS_DEST}/altec/images/products" "public,max-age=2592000,stale-while-revalidate=604800"
+          sync_dir "out/altec/images/details" "${OSS_DEST}/altec/images/details" "public,max-age=2592000,stale-while-revalidate=604800"
+          sync_dir "out/altec/images/applications" "${OSS_DEST}/altec/images/applications" "public,max-age=2592000,stale-while-revalidate=604800"
+          sync_dir "out/altec/images/brand" "${OSS_DEST}/altec/images/brand" "public,max-age=2592000,stale-while-revalidate=604800"
+
+          if [[ "${DOWNLOADS_CHANGED}" == "true" ]]; then
+            echo "Download files changed or forced; syncing /altec/downloads/."
+            sync_dir "out/altec/downloads" "${OSS_DEST}/altec/downloads" "public,max-age=2592000,stale-while-revalidate=604800"
+          else
+            echo "Download files unchanged; skipping /altec/downloads/ OSS sync."
           fi
 
-          set_oss_meta() {
-            local target="$1"
-            local cache_control="$2"
-
-            /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
-              -k "${ALIYUN_ACCESS_KEY_SECRET}" \
-              -e "${ALIYUN_OSS_ENDPOINT}" \
-              set-meta "${target}" "Cache-Control:${cache_control}" \
-              --update \
-              -r \
-              -f || echo "Warning: failed to set Cache-Control on ${target}"
-          }
-
-          set_single_oss_meta() {
-            local target="$1"
-            local cache_control="$2"
-
-            /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
-              -k "${ALIYUN_ACCESS_KEY_SECRET}" \
-              -e "${ALIYUN_OSS_ENDPOINT}" \
-              set-meta "${target}" "Cache-Control:${cache_control}" \
-              --update \
-              -f || echo "Warning: failed to set Cache-Control on ${target}"
-          }
-
-          set_oss_meta "${OSS_DEST}/_next/static/" "public,max-age=31536000,immutable"
-          set_oss_meta "${OSS_DEST}/altec/images/optimized/" "public,max-age=31536000,immutable"
-          set_oss_meta "${OSS_DEST}/altec/images/products/" "public,max-age=2592000,stale-while-revalidate=604800"
-          set_oss_meta "${OSS_DEST}/altec/images/details/" "public,max-age=2592000,stale-while-revalidate=604800"
-          set_oss_meta "${OSS_DEST}/altec/images/applications/" "public,max-age=2592000,stale-while-revalidate=604800"
-          set_oss_meta "${OSS_DEST}/altec/downloads/" "public,max-age=2592000,stale-while-revalidate=604800"
+          ossutil sync out "${OSS_DEST}" \
+            --exclude "_next/static/*" \
+            --exclude "altec/images/*" \
+            --exclude "altec/downloads/*" \
+            --update \
+            --force \
+            --snapshot-path ".ossutil-snapshot/site-shell" \
+            --meta "Cache-Control:no-cache"
 
           while IFS= read -r HTML_FILE; do
             RELATIVE="${HTML_FILE#out/}"
             ROUTE="${RELATIVE%.html}"
 
-            set_single_oss_meta "${OSS_DEST}/${RELATIVE}" "no-cache"
-
             if [[ "$RELATIVE" == "index.html" ]]; then
               continue
             fi
 
-            TARGET="${OSS_DEST}/${ROUTE}"
-            /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
-              -k "${ALIYUN_ACCESS_KEY_SECRET}" \
-              -e "${ALIYUN_OSS_ENDPOINT}" \
-              cp "${HTML_FILE}" "${TARGET}" \
-              --force
-            set_single_oss_meta "${TARGET}" "no-cache"
+            ossutil cp "${HTML_FILE}" "${OSS_DEST}/${ROUTE}" \
+              --update \
+              --force \
+              --meta "Cache-Control:no-cache"
           done < <(find out -type f -name "*.html")
+
+      - name: Prune deleted OSS objects
+        if: ${{ steps.oss-plan.outputs.prune_remote == 'true' }}
+        env:
+          ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
+          ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
+          ALIYUN_OSS_BUCKET: ${{ secrets.ALIYUN_OSS_BUCKET }}
+          ALIYUN_OSS_PREFIX: ${{ secrets.ALIYUN_OSS_PREFIX }}
+          ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
+          ALIYUN_OSS_REGION: ${{ secrets.ALIYUN_OSS_REGION }}
+        run: |
+          set -euo pipefail
+
+          BUCKET_PREFIX="${ALIYUN_OSS_PREFIX%/}"
+          if [[ -n "${BUCKET_PREFIX}" ]]; then
+            OSS_DEST="oss://${ALIYUN_OSS_BUCKET}/${BUCKET_PREFIX}"
+          else
+            OSS_DEST="oss://${ALIYUN_OSS_BUCKET}"
+          fi
+
+          if [[ -n "${ALIYUN_OSS_REGION:-}" ]]; then
+            export OSS_REGION="${ALIYUN_OSS_REGION}"
+          fi
+
+          echo "Manual prune enabled. Deleting remote OSS objects that are absent from out/."
+          /tmp/ossutil64 -i "${ALIYUN_ACCESS_KEY_ID}" \
+            -k "${ALIYUN_ACCESS_KEY_SECRET}" \
+            -e "${ALIYUN_OSS_ENDPOINT}" \
+            sync out "${OSS_DEST}" \
+            --delete \
+            --force
 
       - name: Smoke test Aliyun OSS objects
         env:
           ALIYUN_OSS_BUCKET: ${{ secrets.ALIYUN_OSS_BUCKET }}
           ALIYUN_OSS_ENDPOINT: ${{ secrets.ALIYUN_OSS_ENDPOINT }}
           ALIYUN_OSS_PREFIX: ${{ secrets.ALIYUN_OSS_PREFIX }}
+          OPTIMIZED_ASSET_VERSION: ${{ steps.oss-plan.outputs.optimized_asset_version }}
         run: |
           set -euo pipefail
 
@@ -187,7 +286,7 @@ jobs:
           grep -q "AL808" /tmp/alitech-oss-al808.html
           grep -q "PC900" /tmp/alitech-oss-pc900-en.html
 
-          curl -fsSI "${OSS_ORIGIN}/altec/images/optimized/${GITHUB_SHA}/products/AL808-640.avif" | tee /tmp/alitech-oss-image-headers.txt
+          curl -fsSI "${OSS_ORIGIN}/altec/images/optimized/${OPTIMIZED_ASSET_VERSION}/products/AL808-640.avif" | tee /tmp/alitech-oss-image-headers.txt
           grep -qi "cache-control:.*max-age=31536000" /tmp/alitech-oss-image-headers.txt
 
           curl -fsSI "${OSS_ORIGIN}/altec/downloads/TC950.pdf" | tee /tmp/alitech-oss-download-headers.txt
@@ -199,6 +298,7 @@ jobs:
           ALIYUN_SITE_URL: ${{ vars.ALIYUN_SITE_URL }}
           ALIYUN_CDN_BASE_URL: ${{ vars.NEXT_PUBLIC_CDN_BASE_URL || vars.ALIYUN_CDN_BASE_URL }}
           ALIYUN_PRODUCTION_SMOKE_REQUIRED: ${{ vars.ALIYUN_PRODUCTION_SMOKE_REQUIRED }}
+          OPTIMIZED_ASSET_VERSION: ${{ steps.oss-plan.outputs.optimized_asset_version }}
         run: |
           set -euo pipefail
 
@@ -231,7 +331,7 @@ jobs:
             grep -q "PC900" /tmp/alitech-pc900-en.html
 
             ASSET_HOST="${ALIYUN_CDN_BASE_URL:-$ALIYUN_SITE_URL}"
-            curl -fsSI "${ASSET_HOST}/altec/images/optimized/${GITHUB_SHA}/products/AL808-640.avif" | tee /tmp/alitech-image-headers.txt
+            curl -fsSI "${ASSET_HOST}/altec/images/optimized/${OPTIMIZED_ASSET_VERSION}/products/AL808-640.avif" | tee /tmp/alitech-image-headers.txt
             grep -qi "cache-control:.*max-age=31536000" /tmp/alitech-image-headers.txt
 
             curl -fsSI "${ASSET_HOST}/altec/downloads/TC950.pdf" | tee /tmp/alitech-download-headers.txt
