@@ -117,10 +117,10 @@ jobs:
           }
 
           set_oss_meta "${OSS_DEST}/_next/static/" "public,max-age=31536000,immutable"
-          set_oss_meta "${OSS_DEST}/altec/optimized/" "public,max-age=31536000,immutable"
-          set_oss_meta "${OSS_DEST}/altec/products/" "public,max-age=2592000,stale-while-revalidate=604800"
-          set_oss_meta "${OSS_DEST}/altec/details/" "public,max-age=2592000,stale-while-revalidate=604800"
-          set_oss_meta "${OSS_DEST}/altec/applications/" "public,max-age=2592000,stale-while-revalidate=604800"
+          set_oss_meta "${OSS_DEST}/altec/images/optimized/" "public,max-age=31536000,immutable"
+          set_oss_meta "${OSS_DEST}/altec/images/products/" "public,max-age=2592000,stale-while-revalidate=604800"
+          set_oss_meta "${OSS_DEST}/altec/images/details/" "public,max-age=2592000,stale-while-revalidate=604800"
+          set_oss_meta "${OSS_DEST}/altec/images/applications/" "public,max-age=2592000,stale-while-revalidate=604800"
           set_oss_meta "${OSS_DEST}/altec/downloads/" "public,max-age=2592000,stale-while-revalidate=604800"
 
           while IFS= read -r HTML_FILE; do
@@ -180,14 +180,19 @@ jobs:
           fetch_with_wait "${OSS_ORIGIN}/index.html" /tmp/alitech-oss-home.html
           fetch_with_wait "${OSS_ORIGIN}/products/al808" /tmp/alitech-oss-al808.html
           fetch_with_wait "${OSS_ORIGIN}/en/products/pc900" /tmp/alitech-oss-pc900-en.html
-          fetch_with_wait "${OSS_ORIGIN}/altec/applications/details/TC950/TC950_Wind.gif" /tmp/alitech-oss-tc950.gif
+          fetch_with_wait "${OSS_ORIGIN}/altec/images/applications/details/TC950/TC950_Wind.gif" /tmp/alitech-oss-tc950.gif
+          fetch_with_wait "${OSS_ORIGIN}/altec/downloads/TC950.pdf" /tmp/alitech-oss-tc950.pdf
 
           grep -q "ALTEC" /tmp/alitech-oss-home.html
           grep -q "AL808" /tmp/alitech-oss-al808.html
           grep -q "PC900" /tmp/alitech-oss-pc900-en.html
 
-          curl -fsSI "${OSS_ORIGIN}/altec/optimized/${GITHUB_SHA}/products/AL808-640.avif" | tee /tmp/alitech-oss-image-headers.txt
+          curl -fsSI "${OSS_ORIGIN}/altec/images/optimized/${GITHUB_SHA}/products/AL808-640.avif" | tee /tmp/alitech-oss-image-headers.txt
           grep -qi "cache-control:.*max-age=31536000" /tmp/alitech-oss-image-headers.txt
+
+          curl -fsSI "${OSS_ORIGIN}/altec/downloads/TC950.pdf" | tee /tmp/alitech-oss-download-headers.txt
+          grep -qi "cache-control:.*max-age=2592000" /tmp/alitech-oss-download-headers.txt
+          grep -qi "content-length:" /tmp/alitech-oss-download-headers.txt
 
       - name: Smoke test production domain
         env:
@@ -219,14 +224,19 @@ jobs:
             fetch_with_wait "${ALIYUN_SITE_URL}/" /tmp/alitech-home.html
             fetch_with_wait "${ALIYUN_SITE_URL}/products/al808" /tmp/alitech-al808.html
             fetch_with_wait "${ALIYUN_SITE_URL}/en/products/pc900" /tmp/alitech-pc900-en.html
-            fetch_with_wait "${ALIYUN_SITE_URL}/altec/applications/details/TC950/TC950_Wind.gif" /tmp/alitech-tc950.gif
+            fetch_with_wait "${ALIYUN_SITE_URL}/altec/images/applications/details/TC950/TC950_Wind.gif" /tmp/alitech-tc950.gif
+            fetch_with_wait "${ALIYUN_SITE_URL}/altec/downloads/TC950.pdf" /tmp/alitech-tc950.pdf
             grep -q "ALTEC" /tmp/alitech-home.html
             grep -q "AL808" /tmp/alitech-al808.html
             grep -q "PC900" /tmp/alitech-pc900-en.html
 
             ASSET_HOST="${ALIYUN_CDN_BASE_URL:-$ALIYUN_SITE_URL}"
-            curl -fsSI "${ASSET_HOST}/altec/optimized/${GITHUB_SHA}/products/AL808-640.avif" | tee /tmp/alitech-image-headers.txt
+            curl -fsSI "${ASSET_HOST}/altec/images/optimized/${GITHUB_SHA}/products/AL808-640.avif" | tee /tmp/alitech-image-headers.txt
             grep -qi "cache-control:.*max-age=31536000" /tmp/alitech-image-headers.txt
+
+            curl -fsSI "${ASSET_HOST}/altec/downloads/TC950.pdf" | tee /tmp/alitech-download-headers.txt
+            grep -qi "cache-control:.*max-age=2592000" /tmp/alitech-download-headers.txt
+            grep -qi "content-length:" /tmp/alitech-download-headers.txt
           }
 
           if run_production_smoke; then

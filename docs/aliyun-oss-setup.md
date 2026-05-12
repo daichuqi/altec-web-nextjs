@@ -58,7 +58,7 @@ Optional:
 - `ALIYUN_OSS_REGION`
 - `ALIYUN_OSSUTIL_VERSION` (defaults to `1.7.18`)
 
-The workflow sets `NEXT_PUBLIC_ASSET_VERSION` to the Git commit SHA. Optimized image assets are generated under `/altec/optimized/<sha>/` and cached as immutable.
+The workflow sets `NEXT_PUBLIC_ASSET_VERSION` to the Git commit SHA. Optimized image assets are generated under `/altec/images/optimized/<sha>/` and cached as immutable.
 
 ## 4) Enable and Verify
 
@@ -75,7 +75,7 @@ The workflow sets `NEXT_PUBLIC_ASSET_VERSION` to the Git commit SHA. Optimized i
    - Production: `${ALIYUN_SITE_URL}/`
    - Production: `${ALIYUN_SITE_URL}/products/al808`
    - Production: `${ALIYUN_SITE_URL}/en/products/pc900`
-   - Production: `${ALIYUN_SITE_URL}/altec/optimized/<commit-sha>/products/AL808-640.avif`
+   - Production: `${ALIYUN_SITE_URL}/altec/images/optimized/<commit-sha>/products/AL808-640.avif`
 
 ## 5) Common Pitfall
 
@@ -91,7 +91,7 @@ If GitHub Actions reports that OSS smoke passed but production smoke failed:
 - The build and upload are good.
 - The public domain probably still points to the old host, DNS has not propagated, or CDN has not refreshed.
 - Check that `china-altec.com` and `www.china-altec.com` resolve to the Aliyun CDN/OSS route instead of the legacy Apache virtual host.
-- The optimized image URL under `/altec/optimized/<commit-sha>/...` is a useful canary because the old host will not have that versioned object.
+- The optimized image URL under `/altec/images/optimized/<commit-sha>/...` is a useful canary because the old host will not have that versioned object.
 
 Current DNS note:
 

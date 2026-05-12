@@ -1,19 +1,8 @@
-export type Lang = "zh" | "en";
-
-export const languages: Record<Lang, { label: string; base: string; other: Lang }> = {
-  zh: { label: "中文", base: "", other: "en" },
-  en: { label: "English", base: "/en", other: "zh" },
-};
+import type { Lang, LocalizedText } from "@/lib/i18n";
+import { applicationCoverImage, downloadAsset, productImage } from "@/lib/assets";
+export type { Lang, LocalizedText } from "@/lib/i18n";
 
 export const contactEmail = "daiweiyi.altec@gmail.com";
-
-export const navItems = [
-  { key: "about", href: "/about", zh: "公司简介", en: "About" },
-  { key: "products", href: "/products", zh: "产品中心", en: "Products" },
-  { key: "applications", href: "/applications", zh: "应用方案", en: "Applications" },
-  { key: "downloads", href: "/downloads", zh: "下载中心", en: "Downloads" },
-  { key: "contact", href: "/contact", zh: "联系我们", en: "Contact" },
-];
 
 export const aboutContent = {
   zh: {
@@ -24,7 +13,7 @@ export const aboutContent = {
       "公司始终坚持“质量第一，服务至上”的质量方针，为广大用户提供可靠的产品及满意的服务，根据客户的特殊需求，承接订制了许多行业的专用仪表。",
     ],
     productSummary:
-      "公司主要产品有：AL807/AL808/AL809/AL810/AL830 系列工业调节器、PC900 系列温度控制器、AL808 压力控制器、TC818/TC808 张力控制器、TC930/TC950 系列张力控制器、MC320 速度同步控制器、pH/ORP 控制器、AL210 绕线机控制器、MTC35 系列小型温湿度控制器和工控软件。",
+      "公司主要产品有：AL807/AL808/AL809/AL810/AL830 系列工业调节器、PC900 系列温度控制器、AL808 压力控制器、TC818/TC930/TC950 系列张力控制器、MC320 速度同步控制器、pH/ORP 控制器、AL210 绕线机控制器、MTC35 系列小型温湿度控制器和工控软件。",
     highlights: ["工业自动化过程控制", "自主研发产品", "特型仪表开发生产", "质量第一，服务至上"],
   },
   en: {
@@ -35,7 +24,7 @@ export const aboutContent = {
       "The company follows the quality policy of quality first and service foremost, providing reliable products and responsive service while supporting customized instruments for specific industry needs.",
     ],
     productSummary:
-      "Main products include AL807/AL808/AL809/AL810/AL830 industrial controllers, PC900 temperature controllers, AL808 pressure controllers, TC818/TC808/TC930/TC950 tension controllers, MC320 speed synchronization controllers, pH/ORP controllers, AL210 winding controllers, MTC35 compact temperature-humidity controllers and industrial control software.",
+      "Main products include AL807/AL808/AL809/AL810/AL830 industrial controllers, PC900 temperature controllers, AL808 pressure controllers, TC818/TC930/TC950 tension controllers, MC320 speed synchronization controllers, pH/ORP controllers, AL210 winding controllers, MTC35 compact temperature-humidity controllers and industrial control software.",
     highlights: ["Industrial process control", "Self-developed products", "Custom instrument development", "Quality first, service foremost"],
   },
 };
@@ -44,49 +33,63 @@ export const productCategories = [
   {
     zh: "温度与过程控制",
     en: "Temperature & Process Control",
-    items: ["AL807", "AL808", "AL810", "AL830", "PC900", "D4", "DC220"],
+    items: ["AL807", "AL808", "AL810", "AL830", "PC900", "DC220"],
   },
   {
     zh: "张力与卷绕控制",
     en: "Tension & Winding Control",
-    items: ["TC808", "TC818", "TC930", "TC950", "AL210"],
-  },
-  {
-    zh: "张力传感器",
-    en: "Tension Sensors",
-    items: ["CTS", "HTS", "LX", "SUP"],
+    items: ["TC818", "TC930", "TC950", "AL210"],
   },
   {
     zh: "环境、压力与水处理",
     en: "Environment, Pressure & Water Treatment",
-    items: ["TH135", "TH136", "MTC35", "pH/ORP800", "PCP310", "CPC316"],
+    items: ["TH135", "TH136", "MTC35", "pH/ORP800", "CPC316"],
+  },
+  {
+    zh: "张力传感器",
+    en: "Tension Sensors",
+    items: ["CTS", "HTS", "LXA", "SUP"],
   },
 ];
 
-export const products = [
-  { model: "AL807", zh: "温度控制器", en: "Temperature Controller", image: "/altec/products/AL807.jpg", category: "Temperature & Process Control" },
-  { model: "AL808", zh: "工业调节器", en: "Process Controller", image: "/altec/products/AL808.jpg", category: "Temperature & Process Control" },
-  { model: "AL810", zh: "温度控制器", en: "Temperature Controller", image: "/altec/products/AL810.jpg", category: "Temperature & Process Control" },
-  { model: "AL830", zh: "温度控制器", en: "Temperature Controller", image: "/altec/products/AL830.jpg", category: "Temperature & Process Control" },
-  { model: "PC900", zh: "可编程控制器", en: "Programmable Controller", image: "/altec/products/PC900.jpg", category: "Temperature & Process Control" },
-  { model: "D4", zh: "四通道温度控制器", en: "4-Channel Temperature Controller", image: "/altec/products/D4.jpg", category: "Temperature & Process Control" },
-  { model: "DC220", zh: "温差控制器", en: "Temperature Differential Controller", image: "/altec/products/DC220.jpg", category: "Temperature & Process Control" },
-  { model: "TC818", zh: "张力控制器", en: "Tension Controller", image: "/altec/products/TC818.jpg", category: "Tension & Winding Control" },
-  { model: "TC808", zh: "张力控制器", en: "Tension Controller", image: "/altec/products/TC808.jpg", category: "Tension & Winding Control" },
-  { model: "TC930", zh: "卷径张力控制器", en: "Radius Tension Controller", image: "/altec/products/TC930.jpg", category: "Tension & Winding Control" },
-  { model: "TC950", zh: "张力控制器", en: "Tension Controller", image: "/altec/products/TC950.jpg", category: "Tension & Winding Control" },
-  { model: "AL210", zh: "绕线机控制器", en: "Winding Controller", image: "/altec/products/AL210.jpg", category: "Tension & Winding Control" },
-  { model: "CTS", zh: "张力传感器", en: "Tension Sensor", image: "/altec/products/CTS.jpg", category: "Tension Sensors" },
-  { model: "HTS", zh: "张力传感器", en: "Tension Sensor", image: "/altec/products/HTS.jpg", category: "Tension Sensors" },
-  { model: "LX", zh: "微位移张力传感器", en: "Micro-displacement Tension Sensor", image: "/altec/products/LX.jpg", category: "Tension Sensors" },
-  { model: "SUP", zh: "应变片式张力传感器", en: "Strain-gauge Tension Sensor", image: "/altec/products/SUP.jpg", category: "Tension Sensors" },
-  { model: "TH135", zh: "干湿球式湿度控制器", en: "Humidity Controller", image: "/altec/products/TH135.jpg", category: "Environment, Pressure & Water Treatment" },
-  { model: "TH136", zh: "湿度控制器", en: "Humidity Controller", image: "/altec/products/TH136.jpg", category: "Environment, Pressure & Water Treatment" },
-  { model: "MTC35", zh: "温湿度控制器", en: "Temperature-Humidity Controller", image: "/altec/products/MTC35.jpg", category: "Environment, Pressure & Water Treatment" },
-  { model: "pH/ORP800", zh: "酸碱度控制器", en: "pH/ORP Controller", image: "/altec/products/PH800.jpg", category: "Environment, Pressure & Water Treatment" },
-  { model: "PCP310", zh: "压力控制器", en: "Pressure Controller", image: "/altec/products/CPC316.jpg", category: "Environment, Pressure & Water Treatment" },
-  { model: "CPC316", zh: "变频恒压供水控制器", en: "Constant Pressure Controller", image: "/altec/products/CPC316.jpg", category: "Environment, Pressure & Water Treatment" },
+export type ProductStatus = "active" | "archived";
+
+export type Product = {
+  model: string;
+  zh: string;
+  en: string;
+  image: string;
+  category: string;
+  status?: ProductStatus;
+};
+
+export const products: Product[] = [
+  { model: "AL807", zh: "温度控制器", en: "Temperature Controller", image: productImage("AL807"), category: "Temperature & Process Control" },
+  { model: "AL808", zh: "工业调节器", en: "Process Controller", image: productImage("AL808"), category: "Temperature & Process Control" },
+  { model: "AL810", zh: "温度控制器", en: "Temperature Controller", image: productImage("AL810"), category: "Temperature & Process Control" },
+  { model: "AL830", zh: "温度控制器", en: "Temperature Controller", image: productImage("AL830"), category: "Temperature & Process Control" },
+  { model: "PC900", zh: "可编程控制器", en: "Programmable Controller", image: productImage("PC900"), category: "Temperature & Process Control" },
+  { model: "D4", zh: "四通道温度控制器", en: "4-Channel Temperature Controller", image: productImage("D4"), category: "Temperature & Process Control", status: "archived" },
+  { model: "DC220", zh: "温差控制器", en: "Temperature Differential Controller", image: productImage("DC220"), category: "Temperature & Process Control" },
+  { model: "TC818", zh: "张力控制器", en: "Tension Controller", image: productImage("TC818"), category: "Tension & Winding Control" },
+  { model: "TC808", zh: "张力控制器", en: "Tension Controller", image: productImage("TC808"), category: "Tension & Winding Control", status: "archived" },
+  { model: "TC930", zh: "卷径张力控制器", en: "Radius Tension Controller", image: productImage("TC930"), category: "Tension & Winding Control" },
+  { model: "TC950", zh: "张力控制器", en: "Tension Controller", image: productImage("TC950"), category: "Tension & Winding Control" },
+  { model: "AL210", zh: "绕线机控制器", en: "Winding Controller", image: productImage("AL210"), category: "Tension & Winding Control" },
+  { model: "CTS", zh: "张力传感器", en: "Tension Sensor", image: productImage("CTS"), category: "Tension Sensors" },
+  { model: "HTS", zh: "张力传感器", en: "Tension Sensor", image: productImage("HTS"), category: "Tension Sensors" },
+  { model: "LXA", zh: "微位移张力传感器", en: "Micro-displacement Tension Sensor", image: productImage("LXA"), category: "Tension Sensors" },
+  { model: "SUP", zh: "应变片式张力传感器", en: "Strain-gauge Tension Sensor", image: productImage("SUP"), category: "Tension Sensors" },
+  { model: "TH135", zh: "干湿球式湿度控制器", en: "Humidity Controller", image: productImage("TH135"), category: "Environment, Pressure & Water Treatment" },
+  { model: "TH136", zh: "湿度控制器", en: "Humidity Controller", image: productImage("TH136"), category: "Environment, Pressure & Water Treatment" },
+  { model: "MTC35", zh: "温湿度控制器", en: "Temperature-Humidity Controller", image: productImage("MTC35"), category: "Environment, Pressure & Water Treatment" },
+  { model: "pH/ORP800", zh: "酸碱度控制器", en: "pH/ORP Controller", image: productImage("pH/ORP800"), category: "Environment, Pressure & Water Treatment" },
+  { model: "CPC316", zh: "变频恒压供水控制器", en: "Constant Pressure Controller", image: productImage("CPC316"), category: "Environment, Pressure & Water Treatment" },
 ];
+
+export const activeProducts = products.filter((product) => product.status !== "archived");
+
+export const archivedProducts = products.filter((product) => product.status === "archived");
 
 export function productSlug(model: string) {
   return model.toLowerCase().replace("ph/orp", "ph-orp").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -95,8 +98,6 @@ export function productSlug(model: string) {
 export function getProductBySlug(slug: string) {
   return products.find((product) => productSlug(product.model) === slug);
 }
-
-type LocalizedText = Record<Lang, string>;
 
 export type ProductDetail = {
   overview: LocalizedText;
@@ -331,10 +332,10 @@ export const productDetails: Record<string, ProductDetail> = {
       { label: { zh: "插头", en: "Connector" }, value: { zh: "X14K4P / X14J4A", en: "X14K4P / X14J4A" } },
     ],
   },
-  LX: {
+  LXA: {
     overview: {
-      zh: "LX 系列微位移张力传感器通过滚轮施加负载，使板簧产生微位移并转换为张力信号，支持 5V 或 24V 供电版本。",
-      en: "The LX micro-displacement tension sensor converts roller load into a displacement-based tension signal, with 5V and 24V supply versions.",
+      zh: "LXA 系列微位移张力传感器通过滚轮施加负载，使板簧产生微位移并转换为张力信号，支持 5V 或 24V 供电版本。",
+      en: "The LXA micro-displacement tension sensor converts roller load into a displacement-based tension signal, with 5V and 24V supply versions.",
     },
     highlights: {
       zh: ["150N 至 1000N 额定载荷", "微位移检测原理", "5V/0-200mV 或 24V/0-10V 输出", "基座、悬挂、侧壁安装"],
@@ -427,22 +428,6 @@ export const productDetails: Record<string, ProductDetail> = {
       { label: { zh: "电源", en: "Power" }, value: { zh: "85-264VAC，45/60Hz", en: "85-264VAC, 45/60Hz" } },
     ],
   },
-  PCP310: {
-    overview: {
-      zh: "PCP310 压力控制器面向恒压供水、补水和过程压力控制应用，可配套变频器实现稳定压力控制。",
-      en: "The PCP310 pressure controller is intended for constant-pressure water supply, replenishment and process pressure control with VFD systems.",
-    },
-    highlights: {
-      zh: ["压力闭环控制", "适合恒压供水与补水系统", "模拟量主输出", "可配套变频器使用"],
-      en: ["Closed-loop pressure control", "For constant-pressure water and replenishment systems", "Analog main output", "Works with VFD systems"],
-    },
-    specs: [
-      { label: { zh: "典型应用", en: "Typical applications" }, value: { zh: "恒压供水、锅炉补水、换热系统补水、过程压力控制", en: "Constant-pressure water supply, boiler replenishment, heat-exchange replenishment and process pressure control" } },
-      { label: { zh: "输入信号", en: "Input signals" }, value: { zh: "压力变送器及标准模拟信号", en: "Pressure transmitter and standard analog signals" } },
-      { label: { zh: "主输出", en: "Main output" }, value: { zh: "模拟量输出，可用于变频器控制", en: "Analog output for VFD control" } },
-      { label: { zh: "系统能力", en: "System capability" }, value: { zh: "适合单泵或多泵压力控制方案", en: "Suitable for single-pump or multi-pump pressure control" } },
-    ],
-  },
   CPC316: {
     overview: {
       zh: "CPC316 变频恒压供水控制器用于单泵或多泵恒压供水控制，支持模拟主输出、实时时钟和通讯接口。",
@@ -465,7 +450,7 @@ export const applications = [
   {
     zh: "TC808 张力控制应用",
     en: "TC808 Applications",
-    image: "/altec/applications/TC808_Unwind.gif",
+    image: applicationCoverImage("TC808_Unwind.gif"),
     zhText: "用于放卷和卷材生产线的恒张力控制。",
     enText: "Unwinding and constant tension control for converting lines.",
     related: "TC808",
@@ -473,7 +458,7 @@ export const applications = [
   {
     zh: "TC930 卷径张力应用",
     en: "TC930 Applications",
-    image: "/altec/applications/cut.gif",
+    image: applicationCoverImage("cut.gif"),
     zhText: "用于分切、裁切工艺的卷径张力控制。",
     enText: "Radius tension control for slitting and cutting processes.",
     related: "TC930",
@@ -481,7 +466,7 @@ export const applications = [
   {
     zh: "TC950 收卷张力应用",
     en: "TC950 Applications",
-    image: "/altec/applications/TC950_Wind.gif",
+    image: applicationCoverImage("TC950_Wind.gif"),
     zhText: "用于稳定收卷和材料输送的张力控制。",
     enText: "Winding tension control for stable material handling.",
     related: "TC950",
@@ -489,7 +474,7 @@ export const applications = [
   {
     zh: "TH135 干湿球湿度应用",
     en: "TH135 Applications",
-    image: "/altec/applications/TimberDrying.gif",
+    image: applicationCoverImage("TimberDrying.gif"),
     zhText: "用于木材干燥和环境试验设备的湿度控制。",
     enText: "Humidity control for timber drying and environmental chambers.",
     related: "TH135",
@@ -497,7 +482,7 @@ export const applications = [
   {
     zh: "pH/ORP800 水处理应用",
     en: "pH/ORP800 Applications",
-    image: "/altec/applications/pH_Mix.gif",
+    image: applicationCoverImage("pH_Mix.gif"),
     zhText: "用于混合、水处理系统的酸碱度和氧化还原监测。",
     enText: "pH and ORP monitoring for mixing and water treatment systems.",
     related: "pH/ORP800",
@@ -532,8 +517,8 @@ export const downloads = [
   ["HTS Series Tension Sensor Manual", "185K", "06/18/2007", "HTS_Tension_Sensor.pdf"],
   ["CTS Series Tension Sensor Manual", "173K", "10/20/2005", "CTS_Tension_Sensor_EN.pdf"],
   ["CTS 系列张力传感器说明书", "173K", "10/20/2005", "CTS_Tension_Sensor.pdf"],
-  ["LX Series Tension Sensor Manual", "222K", "07/26/2007", "LX_Tension_Sensor_EN.pdf"],
-  ["LX 系列张力传感器说明书", "222K", "07/26/2007", "LX_Tension_Sensor.pdf"],
+  ["LXA Series Tension Sensor Manual", "222K", "07/26/2007", "LXA_Tension_Sensor_EN.pdf"],
+  ["LXA 系列张力传感器说明书", "222K", "07/26/2007", "LXA_Tension_Sensor.pdf"],
   ["TH135 Humidity Controller Manual", "375K", "06/14/2005", "TH135.pdf"],
   ["TH136 Humidity Controller Manual", "348K", "01/03/2005", "TH136_EN.pdf"],
   ["TH136 中文说明书", "348K", "01/03/2005", "TH136.pdf"],
@@ -565,6 +550,6 @@ export const downloads = [
   size,
   date,
   file,
-  href: `/altec/downloads/${file}`,
+  href: downloadAsset(file),
   type: String(file).endsWith(".rar") ? "Software" : "PDF",
 }));

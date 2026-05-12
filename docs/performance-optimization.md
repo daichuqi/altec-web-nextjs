@@ -24,16 +24,16 @@ Last updated: 2026-05-11
 ## Current Production Asset Flow
 
 1. `npm run build` runs `npm run optimize:images` first.
-2. `scripts/generate-optimized-images.mjs` writes generated assets to `public/altec/optimized/<asset-version>/`.
-3. Next static export copies those generated assets into `out/altec/optimized/<asset-version>/`.
+2. `scripts/generate-optimized-images.mjs` writes generated assets to `public/altec/images/optimized/<asset-version>/`.
+3. Next static export copies those generated assets into `out/altec/images/optimized/<asset-version>/`.
 4. GitHub Actions syncs `out/` to OSS.
 5. CDN/browser cache policy:
    - HTML and extensionless route objects: `no-cache`
    - `_next/static`: `public,max-age=31536000,immutable`
-   - `/altec/optimized`: `public,max-age=31536000,immutable`
-   - original `/altec/products`, `/altec/details`, `/altec/applications`, `/altec/downloads`: one month plus stale-while-revalidate
+   - `/altec/images/optimized`: `public,max-age=31536000,immutable`
+   - original `/altec/images/products`, `/altec/images/details`, `/altec/images/applications`, `/altec/downloads`: one month plus stale-while-revalidate
 
-Set `NEXT_PUBLIC_CDN_BASE_URL` or `ALIYUN_CDN_BASE_URL` as a GitHub repository variable when a dedicated Aliyun CDN asset domain is available. If it is not set, assets use the same host as the page; this is still fast when `china-altec.com` itself is served by Aliyun CDN.
+Set `NEXT_PUBLIC_CDN_BASE_URL` or `ALIYUN_CDN_BASE_URL` as a GitHub repository variable when a dedicated Aliyun CDN asset domain is available for images and downloads. Do not use this variable for Next.js core bundles. `_next/static` JavaScript and CSS should stay same-origin unless `NEXT_PUBLIC_NEXT_ASSET_PREFIX` is deliberately configured and the deploy pipeline verifies every referenced chunk on that origin.
 
 ## Remaining Optimization Ideas
 
@@ -45,6 +45,6 @@ Set `NEXT_PUBLIC_CDN_BASE_URL` or `ALIYUN_CDN_BASE_URL` as a GitHub repository v
 
 - Do not cache HTML aggressively; product pages must be able to update on deploy.
 - Hash-named `_next/static` assets can be immutable.
-- Versioned `/altec/optimized/<asset-version>` assets can be immutable.
+- Versioned `/altec/images/optimized/<asset-version>` assets can be immutable.
 - Non-versioned `/altec` originals should use long but not permanent cache unless filenames are versioned.
 - Keep `npm run verify` as the required pre-push gate.

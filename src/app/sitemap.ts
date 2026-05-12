@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
-import { absoluteUrl, localizedPath, sitemapEntries, sitemapImages } from "@/lib/seo";
-import type { Lang } from "@/lib/site-data";
+import { absoluteAssetUrl, absoluteUrl, localizedPath, sitemapEntries, sitemapImagesForPath } from "@/lib/seo";
+import { locales, type Lang } from "@/lib/i18n";
 
 export const dynamic = "force-static";
 
-const languages: Lang[] = ["zh", "en"];
-const lastModified = new Date("2026-05-10");
+const languages: Lang[] = [...locales];
+const lastModified = new Date("2026-05-12");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return sitemapEntries.flatMap((path) =>
@@ -21,10 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
           "x-default": absoluteUrl(localizedPath("zh", path)),
         },
       },
-      images:
-        path === "/" || path === "/products"
-          ? sitemapImages.map((image) => absoluteUrl(image))
-          : undefined,
+      images: sitemapImagesForPath(path).map((image) => absoluteAssetUrl(image)),
     })),
   );
 }

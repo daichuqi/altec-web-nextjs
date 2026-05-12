@@ -3,34 +3,11 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Search, X } from "lucide-react";
-import { productCategories, productDetails, productSlug, products, type Lang } from "@/lib/site-data";
+import { activeProducts, productCategories, productDetails, productSlug, type Product } from "@/lib/site-data";
 import { OptimizedImage } from "@/components/optimized-image";
+import { categoryDescriptions, localizedPath, pick, ui, type Lang } from "@/lib/i18n";
 
-type Product = (typeof products)[number];
 type ProductCategory = (typeof productCategories)[number];
-
-const categoryDescriptions: Record<string, Record<Lang, string>> = {
-  "Temperature & Process Control": {
-    zh: "用于温度、压力、流量、液位和中央空调节能等工业过程测控场景。",
-    en: "For temperature, pressure, flow, level and central air-conditioning process control.",
-  },
-  "Tension & Winding Control": {
-    zh: "面向纸品、印刷、包装、复合和卷绕设备的张力与同步控制。",
-    en: "For tension, synchronization and winding control in paper, printing, packaging and laminating lines.",
-  },
-  "Tension Sensors": {
-    zh: "配套张力控制系统使用的轴承式、微位移和应变片式张力检测元件。",
-    en: "Bearing-type, micro-displacement and strain-gauge sensors for tension control systems.",
-  },
-  "Environment, Pressure & Water Treatment": {
-    zh: "覆盖温湿度、pH/ORP、恒压供水、传感器和水处理相关控制。",
-    en: "Covers humidity, pH/ORP, constant-pressure water supply, sensors and water treatment control.",
-  },
-};
-
-function path(lang: Lang, href: string) {
-  return `${lang === "en" ? "/en" : ""}${href === "/" ? "" : href}` || "/";
-}
 
 function normalizeSearch(value: string) {
   return value.toLocaleLowerCase().trim();
@@ -63,12 +40,12 @@ function categorySlug(category: ProductCategory) {
 
 function productsForCategory(category: ProductCategory) {
   return category.items
-    .map((model) => products.find((product) => product.model === model))
+    .map((model) => activeProducts.find((product) => product.model === model))
     .filter((product): product is Product => Boolean(product));
 }
 
 export function ProductBrowser({ lang }: { lang: Lang }) {
-  const zh = lang === "zh";
+  const copy = ui.productBrowser;
   const searchId = `product-search-${lang}`;
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
@@ -98,9 +75,7 @@ export function ProductBrowser({ lang }: { lang: Lang }) {
   const visibleCount = sections.reduce((count, section) => count + section.products.length, 0);
   const activeCategoryLabel =
     activeCategory === "all"
-      ? zh
-        ? "全部分类"
-        : "All categories"
+      ? pick(copy.allCategories, lang)
       : productCategories.find((category) => category.en === activeCategory)?.[lang];
 
   return (
@@ -109,14 +84,14 @@ export function ProductBrowser({ lang }: { lang: Lang }) {
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="relative">
             <label htmlFor={searchId} className="sr-only">
-              {zh ? "搜索产品" : "Search products"}
+              {pick(copy.searchLabel, lang)}
             </label>
             <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-copy-subtle" />
             <input
               id={searchId}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={zh ? "搜索型号、产品名称或规格关键词，例如 AL808、张力、RS485" : "Search model, product name or spec, e.g. AL808, tension, RS485"}
+              placeholder={pick(copy.searchPlaceholder, lang)}
               className="h-12 w-full border border-line-strong bg-panel pl-11 pr-11 text-sm font-semibold text-heading outline-none placeholder:font-normal placeholder:text-copy-subtle focus:border-accent"
             />
             {query ? (
@@ -124,15 +99,15 @@ export function ProductBrowser({ lang }: { lang: Lang }) {
                 type="button"
                 onClick={() => setQuery("")}
                 className="absolute right-3 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center text-copy-subtle hover:text-heading"
-                aria-label={zh ? "清除搜索" : "Clear search"}
+                aria-label={pick(copy.clearSearch, lang)}
               >
                 <X size={16} />
               </button>
             ) : null}
           </div>
 
-          <p className="text-sm font-semibold text-copy-muted">
-            {zh ? `${activeCategoryLabel} · ${visibleCount} 个型号` : `${activeCategoryLabel} · ${visibleCount} models`}
+        <p className="text-sm font-semibold text-copy-muted">
+            {`${activeCategoryLabel} · ${visibleCount} ${pick(copy.modelsSuffix, lang)}`}
           </p>
         </div>
 
@@ -147,7 +122,7 @@ export function ProductBrowser({ lang }: { lang: Lang }) {
                 : "border-line-strong bg-panel text-copy hover:border-line-strong"
             }`}
           >
-            {zh ? `全部产品 ${products.length}` : `All ${products.length}`}
+            {`${pick(copy.allProducts, lang)} ${activeProducts.length}`}
           </button>
           {productCategories.map((category) => {
             const count = productsForCategory(category).length;
@@ -184,12 +159,12 @@ export function ProductBrowser({ lang }: { lang: Lang }) {
         </div>
       ) : (
         <div className="mt-8 border border-line bg-panel p-8 text-center">
-          <h2 className="text-xl font-bold text-heading">{zh ? "没有找到匹配产品" : "No matching products"}</h2>
+          <h2 className="text-xl font-bold text-heading">{pick(copy.noResultsTitle, lang)}</h2>
           <p className="mt-3 text-sm leading-6 text-copy-muted">
-            {zh ? "可以换一个型号、应用词或规格关键词再试。" : "Try another model, application term or specification keyword."}
+            {pick(copy.noResultsText, lang)}
           </p>
           <button type="button" onClick={() => setQuery("")} className="mt-5 bg-action px-5 py-3 text-sm font-bold text-action-contrast hover:bg-action-strong">
-            {zh ? "清除搜索" : "Clear search"}
+            {pick(copy.clearSearch, lang)}
           </button>
         </div>
       )}
@@ -208,15 +183,15 @@ function ProductCategorySection({
   category: ProductCategory;
   products: Product[];
 }) {
-  const zh = lang === "zh";
   const description = categoryDescriptions[category.en]?.[lang];
+  const copy = ui.productBrowser;
 
   return (
     <section id={categorySlug(category)} className="scroll-mt-24 border-t border-line pt-8">
       <div className="flex flex-col justify-between gap-5 pb-6 lg:flex-row lg:items-end">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">
-            {zh ? `分类 ${String(index + 1).padStart(2, "0")}` : `Category ${String(index + 1).padStart(2, "0")}`}
+            {`${pick(copy.categoryPrefix, lang)} ${String(index + 1).padStart(2, "0")}`}
           </p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight text-heading sm:text-3xl">{category[lang]}</h2>
           {description ? <p className="mt-3 max-w-3xl text-sm leading-6 text-copy-muted">{description}</p> : null}
@@ -225,7 +200,7 @@ function ProductCategorySection({
           {categoryProducts.map((product) => (
             <Link
               key={product.model}
-              href={path(lang, `/products/${productSlug(product.model)}`)}
+              href={localizedPath(lang, `/products/${productSlug(product.model)}`)}
               prefetch={false}
               className="border border-line-strong bg-panel px-3 py-1.5 text-xs font-bold text-copy hover:border-accent hover:text-accent"
             >
@@ -245,13 +220,13 @@ function ProductCategorySection({
 }
 
 function ProductResultCard({ lang, product }: { lang: Lang; product: Product }) {
-  const zh = lang === "zh";
+  const copy = ui.productBrowser;
   const detail = productDetails[product.model];
   const highlights = detail?.highlights[lang].slice(0, 2) ?? [];
 
   return (
     <Link
-      href={path(lang, `/products/${productSlug(product.model)}`)}
+      href={localizedPath(lang, `/products/${productSlug(product.model)}`)}
       prefetch={false}
       className="group grid min-h-full border border-line bg-panel hover:border-accent sm:grid-cols-[210px_1fr]"
     >
@@ -285,7 +260,7 @@ function ProductResultCard({ lang, product }: { lang: Lang; product: Product }) 
         ) : null}
 
         <span className="mt-auto pt-5 text-sm font-bold text-accent">
-          {zh ? "查看产品详情" : "View details"}
+          {pick(copy.viewDetails, lang)}
         </span>
       </div>
     </Link>

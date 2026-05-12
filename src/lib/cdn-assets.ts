@@ -1,10 +1,12 @@
+import { assetRoots } from "@/lib/assets";
+
 const cdnBaseUrl = (process.env.NEXT_PUBLIC_CDN_BASE_URL || "").replace(/\/$/, "");
 const optimizedAssetVersion = (process.env.NEXT_PUBLIC_ASSET_VERSION || "local").replace(/[^a-zA-Z0-9._-]/g, "-");
 const optimizedWidths = [160, 320, 480, 640, 960, 1280, 1600] as const;
-const optimizableImagePattern = /^\/altec\/(.+)\.(?:jpe?g|png)$/i;
+const optimizableImagePattern = /^\/altec\/images\/(?!optimized\/)(.+)\.(?:jpe?g|png)$/i;
 
 function shouldUseCdn(path: string) {
-  return /^(\/(altec|_next|downloads))\//.test(path);
+  return /^(\/(altec|downloads))\//.test(path);
 }
 
 export function assetUrl(path: string) {
@@ -30,7 +32,7 @@ function optimizedImagePath(path: string, width: number, format: "avif" | "webp"
     return null;
   }
 
-  return `/altec/optimized/${optimizedAssetVersion}/${match[1]}-${width}.${format}`;
+  return `${assetRoots.optimized}/${optimizedAssetVersion}/${match[1]}-${width}.${format}`;
 }
 
 function optimizedSrcSet(path: string, format: "avif" | "webp") {
@@ -55,7 +57,7 @@ export function optimizedImageSources(path: string) {
   return { avif, webp };
 }
 
-const assetSrcPattern = /\b(?:href|src)=(["'])(\/(?:altec|_next|downloads)\/[^"']+)\1/g;
+const assetSrcPattern = /\b(?:href|src)=(["'])(\/(?:altec|downloads)\/[^"']+)\1/g;
 const imgTagPattern = /<img\b[^>]*>/g;
 
 function addAttributeIfMissing(tag: string, attribute: string, value: string) {

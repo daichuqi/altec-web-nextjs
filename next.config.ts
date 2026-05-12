@@ -1,10 +1,10 @@
 import type { NextConfig } from "next";
 
-const cdnBaseUrl = (process.env.NEXT_PUBLIC_CDN_BASE_URL || "").replace(/\/$/, "");
+const nextAssetPrefix = (process.env.NEXT_PUBLIC_NEXT_ASSET_PREFIX || "").replace(/\/$/, "");
 
 const nextConfig: NextConfig = {
   output: "export",
-  assetPrefix: cdnBaseUrl || undefined,
+  assetPrefix: nextAssetPrefix || undefined,
   images: {
     unoptimized: true,
   },

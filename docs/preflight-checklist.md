@@ -60,7 +60,7 @@ Required:
 - Product card image exists.
 - Product card image comes from the old product page image path, not the old gallery thumbnail.
 - Do not use AI-enhanced product photos for production.
-- Detail page images exist under `public/altec/details/<MODEL>/`.
+- Detail page images exist under `public/altec/images/details/<MODEL>/`.
 - Downloads are local if shown as downloadable resources.
 - Browser-visible image URLs return `200`.
 
@@ -88,8 +88,8 @@ For every new knowledge or application page:
 
 - Add both Chinese and English routes.
 - Add `generateStaticParams()` for both dynamic route trees.
-- Copy all source diagrams into `public/altec/applications/details/`.
-- Rewrite rendered image paths to local `/altec/applications/details/...` URLs.
+- Copy all source diagrams into `public/altec/images/applications/details/`.
+- Rewrite rendered image paths to local `/altec/images/applications/details/...` URLs.
 - Do not render runtime links or redirects to old `china-altec.com` pages.
 - Confirm the list page links to the detail page and the language switch preserves the slug.
 
@@ -120,6 +120,14 @@ Recommended:
 - `ALIYUN_OSSUTIL_VERSION`
 - `NEXT_PUBLIC_CDN_BASE_URL` if a dedicated Aliyun CDN asset domain is used
 
+Virtual host fallback rules:
+
+- Upload the prepared deploy zip by FTP.
+- Use the Aliyun control panel only to extract the uploaded zip.
+- Do not upload production zip files through the browser UI.
+- Do not use recursive FTP mirroring for normal deploys.
+- Do not use 1Password for FTP credentials; use local env vars only.
+
 ## 8. Verify Production URL
 
 The production URL is:
@@ -135,8 +143,8 @@ curl -fsS https://china-altec.com/ >/tmp/altec-home.html
 curl -fsS https://china-altec.com/products/th136 >/tmp/altec-th136.html
 curl -fsS https://china-altec.com/applications/control-basics >/tmp/altec-app-control.html
 curl -fsS https://china-altec.com/en/applications/tc950-tension-control-applications >/tmp/altec-app-tc950-en.html
-curl -fsS https://china-altec.com/altec/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
-curl -fsS https://china-altec.com/altec/applications/details/TC950/TC950_Wind.gif >/tmp/altec-tc950-application.gif
+curl -fsS https://china-altec.com/altec/images/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
+curl -fsS https://china-altec.com/altec/images/applications/details/TC950/TC950_Wind.gif >/tmp/altec-tc950-application.gif
 grep -q "ALTEC" /tmp/altec-home.html
 grep -q "完整技术资料" /tmp/altec-th136.html
 grep -q "工业过程控制常用名词解释" /tmp/altec-app-control.html

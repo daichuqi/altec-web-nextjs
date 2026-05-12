@@ -21,7 +21,7 @@ Static build facts:
 - Build command: `npm run build`
 - Publish directory: `out`
 - Next.js mode: static export via `output: "export"`
-- Images: generated at build time into versioned AVIF/WebP variants under `/altec/optimized/<asset-version>/`
+- Images: generated at build time into versioned AVIF/WebP variants under `/altec/images/optimized/<asset-version>/`
 
 ## GitHub Actions Deploy
 
@@ -51,7 +51,8 @@ Recommended variables/secrets:
 
 - `ALIYUN_SITE_URL=https://china-altec.com`
 - `NEXT_PUBLIC_SITE_URL=https://china-altec.com`
-- `NEXT_PUBLIC_CDN_BASE_URL` or `ALIYUN_CDN_BASE_URL` if a dedicated Aliyun CDN asset domain is used
+- `NEXT_PUBLIC_CDN_BASE_URL` or `ALIYUN_CDN_BASE_URL` if a dedicated Aliyun CDN asset domain is used for images/downloads
+- `NEXT_PUBLIC_NEXT_ASSET_PREFIX` only if Next.js core `_next/static` files are deployed and smoke-tested on that exact asset origin
 - `ALIYUN_PRODUCTION_SMOKE_REQUIRED=true` after DNS/CDN cutover is complete
 - `ALIYUN_OSS_PREFIX`
 - `ALIYUN_OSS_REGION`
@@ -89,12 +90,12 @@ SHA=$(git rev-parse HEAD)
 curl -fsS https://altec-web-prod-30330238.oss-cn-hangzhou.aliyuncs.com/index.html >/tmp/altec-oss-home.html
 curl -fsS https://altec-web-prod-30330238.oss-cn-hangzhou.aliyuncs.com/products/al808 >/tmp/altec-oss-al808.html
 curl -fsS https://altec-web-prod-30330238.oss-cn-hangzhou.aliyuncs.com/en/products/pc900 >/tmp/altec-oss-pc900-en.html
-curl -fsSI https://altec-web-prod-30330238.oss-cn-hangzhou.aliyuncs.com/altec/optimized/$SHA/products/AL808-640.avif
+curl -fsSI https://altec-web-prod-30330238.oss-cn-hangzhou.aliyuncs.com/altec/images/optimized/$SHA/products/AL808-640.avif
 
 curl -fsS https://china-altec.com/ >/tmp/altec-home.html
 curl -fsS https://china-altec.com/products/al808 >/tmp/altec-al808.html
 curl -fsS https://china-altec.com/en/products/pc900 >/tmp/altec-pc900-en.html
-curl -fsSI https://china-altec.com/altec/optimized/$SHA/products/AL808-640.avif
+curl -fsSI https://china-altec.com/altec/images/optimized/$SHA/products/AL808-640.avif
 
 grep -q "ALTEC" /tmp/altec-home.html
 grep -q "AL808" /tmp/altec-al808.html
@@ -103,10 +104,23 @@ grep -q "PC900" /tmp/altec-pc900-en.html
 
 If the direct OSS checks pass but `china-altec.com` fails, do not rebuild first. Fix DNS/CDN/domain binding or purge CDN cache. A production domain that still returns `Server: Apache` is still on the legacy virtual host, not the OSS/CDN path.
 
+If `china-altec.com` is still served by the Apache virtual host, do not build HTML that points `_next/static` JavaScript to the OSS bucket. The virtual host fallback must ship HTML and `_next/static` in the same zip package so one missing OSS chunk cannot crash the page.
+
 As of the initial OSS migration, `china-altec.com` is delegated to `ce1.xincache.com` and `ce2.xincache.com`, not Aliyun DNS. Domain verification TXT records and the final CNAME/A record cutover must be made at that DNS provider, or the domain name servers must first be migrated to Aliyun DNS.
 
 ## Fallback: Aliyun Virtual Host
 
 If OSS/CDN is not available, use the FTP-based Aliyun virtual host process in `docs/aliyun-virtual-host-deploy.md`.
 
+Virtual host fallback deploys must use this sequence:
+
+1. `npm run verify`
+2. Package `out/` as one zip with clean-route aliases.
+3. Upload that zip by FTP.
+4. Use the Aliyun control panel only to extract the uploaded zip.
+5. Delete the uploaded zip by FTP.
+6. Smoke test production URLs.
+
 Do not use recursive FTP mirroring as the normal deploy path. It is too slow for this site and has already produced retry failures.
+
+Do not upload production zip files through the Aliyun web UI. Browser upload is not the deploy mechanism; FTP upload is.

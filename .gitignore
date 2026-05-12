@@ -16,7 +16,8 @@
 # next.js
 /.next/
 /out/
-/public/altec/optimized/
+/public/altec/images/optimized/
+/asset-archive/
 
 # production
 /build

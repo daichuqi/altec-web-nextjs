@@ -2,7 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
-import type { Lang } from "@/lib/site-data";
+import { pick, ui, type Lang } from "@/lib/i18n";
 
 type Theme = "light" | "dark";
 
@@ -74,7 +74,7 @@ export function ThemeToggle({ lang }: { lang: Lang }) {
   return (
     <button
       type="button"
-      aria-label={lang === "zh" ? "切换深色或浅色模式" : "Toggle dark or light mode"}
+      aria-label={pick(ui.themeToggle.ariaLabel, lang)}
       aria-pressed={isDark}
       onClick={toggleTheme}
       className="relative inline-grid h-9 w-[4.5rem] grid-cols-2 items-center border border-line-strong bg-panel p-0.5 text-copy-muted transition hover:border-line-strong"

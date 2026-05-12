@@ -16,9 +16,10 @@ npm run dev
 ## Verification
 
 ```bash
-npm run lint
-npm run build
+npm run verify
 ```
+
+`npm run verify` runs linting, image asset auditing and the production build.
 
 ## SEO
 

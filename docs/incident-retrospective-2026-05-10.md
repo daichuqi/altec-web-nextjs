@@ -95,8 +95,8 @@ Prevention:
 - After adding or changing product images, verify the rendered URL and the file type:
 
   ```bash
-  test -f public/altec/products/AL808.jpg
-  curl -fsS https://altec.daichuqi.com/altec/products/AL808.jpg >/tmp/altec-image.jpg
+  test -f public/altec/images/products/AL808.jpg
+  curl -fsS https://altec.daichuqi.com/altec/images/products/AL808.jpg >/tmp/altec-image.jpg
   file /tmp/altec-image.jpg
   ```
 
@@ -119,7 +119,7 @@ Prevention:
   - Mounting/opening size images.
   - Terminal/wiring diagrams.
   - Any operation notes or model-specific warnings.
-- Download all detail assets into `public/altec/details/<MODEL>/`.
+- Download all detail assets into `public/altec/images/details/<MODEL>/`.
 - Do not mark a product detail page complete until source image counts and content sections have been checked.
 
 ### 6. Left download behavior tied to the old website
@@ -232,7 +232,7 @@ After deployment, verify production:
 ```bash
 curl -fsS https://altec.daichuqi.com/ >/tmp/altec-home.html
 curl -fsS https://altec.daichuqi.com/products/th136 >/tmp/altec-th136.html
-curl -fsS https://altec.daichuqi.com/altec/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
+curl -fsS https://altec.daichuqi.com/altec/images/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
 grep -q "ALTEC" /tmp/altec-home.html
 grep -Eq "complete technical details|完整技术资料" /tmp/altec-th136.html
 ```
@@ -243,7 +243,7 @@ After Aliyun virtual host deployment, verify China production:
 curl -fsS -L http://china-altec.com/ >/tmp/altec-aliyun-home.html
 curl -fsS -L http://china-altec.com/products/al808 >/tmp/altec-aliyun-al808.html
 curl -fsS -L http://china-altec.com/en/products/pc900 >/tmp/altec-aliyun-pc900-en.html
-curl -fsS -L http://china-altec.com/altec/products/AL808.jpg >/tmp/altec-aliyun-al808.jpg
+curl -fsS -L http://china-altec.com/altec/images/products/AL808.jpg >/tmp/altec-aliyun-al808.jpg
 grep -q "ALTEC" /tmp/altec-aliyun-home.html
 grep -q "AL808" /tmp/altec-aliyun-al808.html
 grep -q "PC900" /tmp/altec-aliyun-pc900-en.html

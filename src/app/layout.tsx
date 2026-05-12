@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { brandFavicon } from "@/lib/assets";
 import { company, siteUrl } from "@/lib/seo";
 import "./globals.css";
 
@@ -42,6 +43,10 @@ export const metadata: Metadata = {
   creator: company.name,
   publisher: company.name,
   category: "industrial automation",
+  icons: {
+    icon: [{ url: brandFavicon, sizes: "any" }],
+    shortcut: [brandFavicon],
+  },
   robots: {
     index: true,
     follow: true,
