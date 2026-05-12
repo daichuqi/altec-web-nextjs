@@ -224,7 +224,19 @@ jobs:
             --exclude="./altec/downloads" \
             -cf - . \
             | tar -C .oss-upload/site-shell -xf -
-          sync_dir ".oss-upload/site-shell" "${OSS_DEST}" "no-cache"
+
+          while IFS= read -r -d '' SITE_DIR; do
+            RELATIVE="${SITE_DIR#.oss-upload/site-shell/}"
+            sync_dir "${SITE_DIR}" "${OSS_DEST}/${RELATIVE}" "no-cache"
+          done < <(find .oss-upload/site-shell -mindepth 1 -maxdepth 1 -type d -print0)
+
+          while IFS= read -r -d '' SITE_FILE; do
+            RELATIVE="${SITE_FILE#.oss-upload/site-shell/}"
+            ossutil cp "${SITE_FILE}" "${OSS_DEST}/${RELATIVE}" \
+              --update \
+              --force \
+              --meta "Cache-Control:no-cache"
+          done < <(find .oss-upload/site-shell -maxdepth 1 -type f -print0)
 
           while IFS= read -r HTML_FILE; do
             RELATIVE="${HTML_FILE#out/}"
