@@ -44,8 +44,11 @@ export const metadata: Metadata = {
   publisher: company.name,
   category: "industrial automation",
   icons: {
-    icon: [{ url: brandFavicon, sizes: "any" }],
-    shortcut: [brandFavicon],
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: brandFavicon, sizes: "any" },
+    ],
+    shortcut: ["/favicon.ico", brandFavicon],
   },
   robots: {
     index: true,
