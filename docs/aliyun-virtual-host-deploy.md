@@ -1,6 +1,6 @@
 # ALTEC Aliyun Virtual Host Deploy Runbook
 
-This project can be published to the Aliyun Cloud Virtual Host bound to:
+This is the legacy fallback runbook for publishing to the Aliyun Cloud Virtual Host bound to:
 
 - `china-altec.com`
 - `www.china-altec.com`
@@ -20,15 +20,16 @@ Do not commit FTP credentials to this repository.
 
 ## Why This Path Exists
 
-ALTEC web now uses Aliyun only. This virtual host runbook is the fallback path when OSS/CDN publishing is not available.
+ALTEC web now uses Aliyun only. The normal publish path is the OSS bucket/CDN workflow for `https://www.altec-sz.com`. Use this virtual host runbook only while a domain is still served by the Aliyun Cloud Virtual Host.
 
 This host is not OSS and is not controlled by the Aliyun CLI. Treat it as a plain static FTP host. The reliable deployment method is:
 
-1. Build locally.
+1. Verify/build locally once.
 2. Prepare static route aliases for clean URLs.
-3. Zip the prepared output.
+3. Zip the current export output.
 4. Upload exactly one zip file by FTP.
-5. Use the Aliyun file manager only to extract the uploaded zip into `htdocs` with overwrite enabled.
+5. Tell the user the zip has been uploaded, then open the Aliyun file manager for `hyu1283370001`.
+6. The user normally extracts the uploaded zip into `htdocs` with overwrite enabled. Codex only performs this manual extraction when the user explicitly asks Codex to do it.
 
 Avoid recursive FTP mirroring for normal deploys. Uploading thousands of individual `_next`, image, and page files was very slow and produced retry failures.
 
@@ -36,33 +37,29 @@ Do not upload the zip through the Aliyun web UI. Browser uploads are slower, eas
 
 ## Build And Package
 
-Run the normal verification first:
+For production publishes, use the single preparation command:
 
 ```bash
-npm run verify
+npm run prepare:aliyun
 ```
 
-For virtual-host deploys, build without `NEXT_PUBLIC_CDN_BASE_URL` and without `NEXT_PUBLIC_NEXT_ASSET_PREFIX`. The HTML, `_next/static` JavaScript, CSS, images and downloads must be extracted from the same zip package. Do not point Next.js core bundles at OSS while the HTML is still served by the FTP virtual host; a partial OSS sync can make one missing chunk crash the whole site.
+This runs `npm run verify` once, then packages the current `out/`. Do not run `npm run build` again after `npm run verify` during the same publish.
 
-Create a deploy folder from `out/` and add directory `index.html` aliases for every exported page. The aliases are required because the virtual host does not automatically map `/products/al808` to `/products/al808.html`.
+For virtual-host deploys, build without `NEXT_PUBLIC_CDN_BASE_URL` and without `NEXT_PUBLIC_NEXT_ASSET_PREFIX`. The HTML, `_next/static` JavaScript, CSS and images must be extracted from the same zip package. Do not point Next.js core bundles at OSS while the HTML is still served by the FTP virtual host; a partial OSS sync can make one missing chunk crash the whole site. Downloads are the only allowed exception: `NEXT_PUBLIC_DOWNLOADS_CDN_BASE_URL` may point `/altec/downloads/*` at OSS/CDN after the manual files have been uploaded and smoke-tested there.
+
+To update only manuals/software on OSS/CDN without touching the rest of the site, run:
 
 ```bash
-rm -rf /tmp/altec-aliyun-deploy /tmp/altec-aliyun-deploy.zip
-cp -R out /tmp/altec-aliyun-deploy
-
-find /tmp/altec-aliyun-deploy -name '*.html' -type f | while read -r file; do
-  rel="${file#/tmp/altec-aliyun-deploy/}"
-  case "$rel" in
-    index.html|404.html) continue ;;
-  esac
-  route="${rel%.html}"
-  mkdir -p "/tmp/altec-aliyun-deploy/$route"
-  cp "$file" "/tmp/altec-aliyun-deploy/$route/index.html"
-done
-
-cd /tmp/altec-aliyun-deploy
-zip -qr /tmp/altec-aliyun-deploy.zip .
+npm run sync:downloads:oss
 ```
+
+If `npm run verify` already passed in the same working tree and you only need to regenerate the deploy zip from the existing `out/`, use:
+
+```bash
+npm run package:aliyun
+```
+
+The package script does not build. It copies the current `out/`, adds directory `index.html` aliases for clean routes, excludes `altec/downloads/`, and refuses to package if the exported HTML still contains local `/altec/downloads/` links. Downloads must be served by `NEXT_PUBLIC_DOWNLOADS_CDN_BASE_URL` before they are excluded from the zip.
 
 ## Upload By FTP
 
@@ -106,7 +103,15 @@ curl --user "$ALIYUN_FTP_USER:$ALIYUN_FTP_PASSWORD" \
 
 ## Extract In Aliyun Control Panel
 
-Then open the Aliyun virtual host control panel:
+After FTP upload and confirmation, tell the user that `altec-aliyun-deploy.zip` is uploaded and open the Aliyun virtual host file manager:
+
+```text
+https://cp.aliyun.com/?siteid=hyu1283370001&url=index&ticket=9623-30330238-4201207252020176-daae13ed8c67&saleID=4201207252020176&userID=30330238&user_platform=OBP&data=&nickname=a*c#/fileManage
+```
+
+By default, stop there and wait for the user to extract the zip. The user owns the manual `解压缩` action unless they explicitly say Codex should do it.
+
+If the user explicitly asks Codex to extract, use the Aliyun virtual host control panel:
 
 1. Use Codex Chrome Extension / Chrome automation for the authenticated Aliyun session whenever possible.
 2. Go to file manager for `hyu1283370001`.
@@ -130,24 +135,24 @@ curl --user "$ALIYUN_FTP_USER:$ALIYUN_FTP_PASSWORD" \
 
 ## Smoke Test
 
-Use `http` unless HTTPS has been separately configured for this virtual host.
+Use `https` for the production domain. If certificate or binding changes break HTTPS, test `http` only as a temporary diagnosis path.
 
 ```bash
 curl -fsS -L --max-time 20 -o /tmp/altec-home.html \
   -w "home %{http_code} %{time_total} %{size_download}\n" \
-  http://china-altec.com/
+  https://www.altec-sz.com/
 
 curl -fsS -L --max-time 20 -o /tmp/altec-al808.html \
   -w "al808 %{http_code} %{time_total} %{size_download}\n" \
-  http://china-altec.com/products/al808
+  https://www.altec-sz.com/products/al808
 
 curl -fsS -L --max-time 20 -o /tmp/altec-en-pc900.html \
   -w "en-pc900 %{http_code} %{time_total} %{size_download}\n" \
-  http://china-altec.com/en/products/pc900
+  https://www.altec-sz.com/en/products/pc900
 
 curl -fsS -L --max-time 20 -o /tmp/altec-al808.jpg \
   -w "image %{http_code} %{content_type} %{size_download}\n" \
-  http://china-altec.com/altec/images/products/AL808.jpg
+  https://www.altec-sz.com/altec/images/products/AL808.jpg
 
 grep -q "ALTEC" /tmp/altec-home.html
 grep -q "AL808" /tmp/altec-al808.html

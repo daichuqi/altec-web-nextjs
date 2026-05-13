@@ -3,6 +3,12 @@ import { applicationCoverImage, downloadAsset, productImage } from "@/lib/assets
 export type { Lang, LocalizedText } from "@/lib/i18n";
 
 export const contactEmail = "daiweiyi.altec@gmail.com";
+export const contactPhone = "+86 755 26409070 / 26416767";
+export const contactMobile = "+86 138 0258 0359";
+export const contactBusinessHours = {
+  zh: "周一至周五 09:00-18:00（中国时间）",
+  en: "Monday-Friday, 09:00-18:00 China time",
+} satisfies LocalizedText;
 
 export const aboutContent = {
   zh: {
@@ -18,14 +24,14 @@ export const aboutContent = {
   },
   en: {
     paragraphs: [
-      "Shenzhen ALTEC Electronics Co., Ltd. specializes in the research, development, production and application of intelligent industrial process control instruments, with extensive practical experience in industrial automation.",
-      "Its products and application areas include temperature controllers for electric furnace industries, humidity controllers for environmental test equipment, tension and speed synchronization controllers for paper, printing and gravure printing industries, pH/ORP controllers for environmental protection, weighing and batching controllers for construction machinery, temperature differential controllers for central air-conditioning energy saving, and variable-frequency constant-pressure water supply controllers.",
-      "ALTEC has strong independent product development capability. Its products are self-developed high-technology instruments with competitive performance and value, and the company can undertake the development and production of special-purpose instruments.",
-      "The company follows the quality policy of quality first and service foremost, providing reliable products and responsive service while supporting customized instruments for specific industry needs.",
+      "Shenzhen ALTEC Electronics Co., Ltd. develops and manufactures industrial process-control instruments for automation equipment, production lines and utility systems.",
+      "The product range includes temperature controllers for electric furnaces, humidity controllers for environmental test equipment, tension and speed-synchronization controllers for paper, printing and gravure lines, pH/ORP controllers for water treatment, weighing and batching controllers for construction machinery, temperature-differential controllers for HVAC energy saving, and VFD constant-pressure water-supply controllers.",
+      "ALTEC designs its own controller platforms and supports special-purpose instrument development when standard models do not match the required input, output, panel size or control function.",
+      "The company focuses on reliable products, maintainable documentation and responsive support for model selection, replacement and custom controller requirements.",
     ],
     productSummary:
-      "Main products include AL807/AL808/AL809/AL810/AL830 industrial controllers, PC900 temperature controllers, AL808 pressure controllers, TC818/TC930/TC950 tension controllers, MC320 speed synchronization controllers, pH/ORP controllers, AL210 winding controllers, MTC35 compact temperature-humidity controllers and industrial control software.",
-    highlights: ["Industrial process control", "Self-developed products", "Custom instrument development", "Quality first, service foremost"],
+      "Main product lines include AL807/AL808/AL809/AL810/AL830 PID and SCR controllers, PC900 programmable temperature controllers, TC818/TC930/TC950 tension controllers, MC320 speed-synchronization controllers, pH/ORP controllers, AL210 winding controllers, MTC35 compact temperature-humidity controllers and industrial control software.",
+    highlights: ["Industrial process control", "Temperature, tension and pH/ORP controllers", "Custom instrument development", "Selection support and documentation"],
   },
 };
 
@@ -33,7 +39,7 @@ export const productCategories = [
   {
     zh: "温度与过程控制",
     en: "Temperature & Process Control",
-    items: ["AL807", "AL808", "AL810", "AL830", "PC900", "DC220"],
+    items: ["AL808", "AL810", "AL830", "AL807", "PC900", "DC220"],
   },
   {
     zh: "张力与卷绕控制",
@@ -56,6 +62,7 @@ export type ProductStatus = "active" | "archived";
 
 export type Product = {
   model: string;
+  displayModel?: string;
   zh: string;
   en: string;
   image: string;
@@ -64,16 +71,16 @@ export type Product = {
 };
 
 export const products: Product[] = [
-  { model: "AL807", zh: "温度控制器", en: "Temperature Controller", image: productImage("AL807"), category: "Temperature & Process Control" },
   { model: "AL808", zh: "工业调节器", en: "Process Controller", image: productImage("AL808"), category: "Temperature & Process Control" },
   { model: "AL810", zh: "温度控制器", en: "Temperature Controller", image: productImage("AL810"), category: "Temperature & Process Control" },
   { model: "AL830", zh: "温度控制器", en: "Temperature Controller", image: productImage("AL830"), category: "Temperature & Process Control" },
-  { model: "PC900", zh: "可编程控制器", en: "Programmable Controller", image: productImage("PC900"), category: "Temperature & Process Control" },
+  { model: "AL807", zh: "温度控制器", en: "Temperature Controller", image: productImage("AL807"), category: "Temperature & Process Control" },
+  { model: "PC900", displayModel: "PC900/PC410/PC400", zh: "可编程控制器", en: "Programmable Controller", image: productImage("PC900"), category: "Temperature & Process Control" },
   { model: "D4", zh: "四通道温度控制器", en: "4-Channel Temperature Controller", image: productImage("D4"), category: "Temperature & Process Control", status: "archived" },
   { model: "DC220", zh: "温差控制器", en: "Temperature Differential Controller", image: productImage("DC220"), category: "Temperature & Process Control" },
   { model: "TC818", zh: "张力控制器", en: "Tension Controller", image: productImage("TC818"), category: "Tension & Winding Control" },
   { model: "TC808", zh: "张力控制器", en: "Tension Controller", image: productImage("TC808"), category: "Tension & Winding Control", status: "archived" },
-  { model: "TC930", zh: "卷径张力控制器", en: "Radius Tension Controller", image: productImage("TC930"), category: "Tension & Winding Control" },
+  { model: "TC930", zh: "卷径张力控制器", en: "Roll-Diameter Tension Controller", image: productImage("TC930"), category: "Tension & Winding Control" },
   { model: "TC950", zh: "张力控制器", en: "Tension Controller", image: productImage("TC950"), category: "Tension & Winding Control" },
   { model: "AL210", zh: "绕线机控制器", en: "Winding Controller", image: productImage("AL210"), category: "Tension & Winding Control" },
   { model: "CTS", zh: "张力传感器", en: "Tension Sensor", image: productImage("CTS"), category: "Tension Sensors" },
@@ -84,7 +91,7 @@ export const products: Product[] = [
   { model: "TH136", zh: "湿度控制器", en: "Humidity Controller", image: productImage("TH136"), category: "Environment, Pressure & Water Treatment" },
   { model: "MTC35", zh: "温湿度控制器", en: "Temperature-Humidity Controller", image: productImage("MTC35"), category: "Environment, Pressure & Water Treatment" },
   { model: "pH/ORP800", zh: "酸碱度控制器", en: "pH/ORP Controller", image: productImage("pH/ORP800"), category: "Environment, Pressure & Water Treatment" },
-  { model: "CPC316", zh: "变频恒压供水控制器", en: "Constant Pressure Controller", image: productImage("CPC316"), category: "Environment, Pressure & Water Treatment" },
+  { model: "CPC316", zh: "变频恒压供水控制器", en: "VFD Constant-Pressure Water-Supply Controller", image: productImage("CPC316"), category: "Environment, Pressure & Water Treatment" },
 ];
 
 export const activeProducts = products.filter((product) => product.status !== "archived");
@@ -93,6 +100,10 @@ export const archivedProducts = products.filter((product) => product.status === 
 
 export function productSlug(model: string) {
   return model.toLowerCase().replace("ph/orp", "ph-orp").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+export function productDisplayName(product: Pick<Product, "model" | "displayModel">) {
+  return product.displayModel ?? product.model;
 }
 
 export function getProductBySlug(slug: string) {
@@ -105,15 +116,399 @@ export type ProductDetail = {
   specs: Array<{ label: LocalizedText; value: LocalizedText }>;
 };
 
+export type ProductSelectionGuide = {
+  productType: LocalizedText;
+  applications: LocalizedText[];
+  input: LocalizedText;
+  output: LocalizedText;
+  control: LocalizedText;
+  modelSeries: string;
+  filters: {
+    signalControl: LocalizedText[];
+    applications: LocalizedText[];
+  };
+};
+
+const temperatureApplications = [
+  { zh: "电炉与热处理设备", en: "Electric furnaces and heat-treatment equipment" },
+  { zh: "环境试验与恒温设备", en: "Environmental test and constant-temperature equipment" },
+];
+
+const tensionApplications = [
+  { zh: "印刷、复合与包装生产线", en: "Printing, laminating and packaging lines" },
+  { zh: "放卷、收卷与分切设备", en: "Unwinding, winding and slitting equipment" },
+];
+
+export const productSelectionGuides: Record<string, ProductSelectionGuide> = {
+  AL807: {
+    productType: { zh: "温度控制器", en: "Temperature controller" },
+    applications: temperatureApplications,
+    input: { zh: "热电偶、Pt100 热电阻", en: "Thermocouple and Pt100 RTD" },
+    output: { zh: "继电器、SSR 逻辑电平、可控硅过零输出", en: "Relay, SSR logic and SCR zero-crossing output" },
+    control: { zh: "PID 加热/冷却控制，报警输出", en: "PID heating/cooling control with alarm output" },
+    modelSeries: "AL807",
+    filters: {
+      signalControl: [
+        { zh: "热电偶 / RTD", en: "Thermocouple / RTD" },
+        { zh: "PID 控制", en: "PID control" },
+      ],
+      applications: temperatureApplications,
+    },
+  },
+  AL808: {
+    productType: { zh: "工业过程调节器", en: "Industrial process controller" },
+    applications: [
+      { zh: "温度、压力、流量、液位、湿度过程控制", en: "Temperature, pressure, flow, level and humidity loops" },
+      { zh: "设备面板与自动化控制柜", en: "Equipment panels and automation cabinets" },
+    ],
+    input: { zh: "热电偶、RTD、mV 及标准模拟信号", en: "Thermocouple, RTD, mV and standard analog signals" },
+    output: { zh: "继电器、逻辑、SCR、模拟量输出可选", en: "Relay, logic, SCR and analog output options" },
+    control: { zh: "PID 自整定，自动/手动与正/反作用切换", en: "PID auto-tuning with auto/manual and direct/reverse switching" },
+    modelSeries: "AL808 / AL809 / AL810 / AL830",
+    filters: {
+      signalControl: [
+        { zh: "通用模拟输入", en: "Universal analog input" },
+        { zh: "PID 控制", en: "PID control" },
+        { zh: "RS485 通讯", en: "RS485 communication" },
+      ],
+      applications: [
+        { zh: "过程控制", en: "Process control" },
+        { zh: "电炉与热处理设备", en: "Electric furnaces and heat-treatment equipment" },
+      ],
+    },
+  },
+  AL810: {
+    productType: { zh: "单相 SCR 移相调节器", en: "Single-phase SCR phase-angle controller" },
+    applications: [
+      { zh: "单相电压调节与电加热控制", en: "Single-phase voltage regulation and electric heating control" },
+      { zh: "变压器一次侧与整流调压装置", en: "Transformer primary-side and rectifier voltage regulation" },
+    ],
+    input: { zh: "热电偶、RTD、mV 及标准信号", en: "Thermocouple, RTD, mV and standard signals" },
+    output: { zh: "单相可控硅移相触发脉冲", en: "Single-phase SCR phase-angle trigger pulses" },
+    control: { zh: "PID 自整定，分段输出功率限制", en: "PID auto-tuning with segmented output-power limiting" },
+    modelSeries: "AL810",
+    filters: {
+      signalControl: [
+        { zh: "SCR 移相", en: "SCR phase-angle" },
+        { zh: "PID 控制", en: "PID control" },
+      ],
+      applications: temperatureApplications,
+    },
+  },
+  AL830: {
+    productType: { zh: "三相 SCR 移相调节器", en: "Three-phase SCR phase-angle controller" },
+    applications: [
+      { zh: "大功率三相电炉与工业加热", en: "High-power three-phase furnaces and industrial heating" },
+      { zh: "三相整流与调压系统", en: "Three-phase rectifier and voltage-regulation systems" },
+    ],
+    input: { zh: "热电偶、RTD、mV 及标准信号", en: "Thermocouple, RTD, mV and standard signals" },
+    output: { zh: "三相可控硅移相触发脉冲", en: "Three-phase SCR phase-angle trigger pulses" },
+    control: { zh: "PID 自整定，星形/三角形 SCR 电路支持", en: "PID auto-tuning with star/delta SCR circuit support" },
+    modelSeries: "AL830",
+    filters: {
+      signalControl: [
+        { zh: "SCR 移相", en: "SCR phase-angle" },
+        { zh: "三相控制", en: "Three-phase control" },
+      ],
+      applications: temperatureApplications,
+    },
+  },
+  PC900: {
+    productType: { zh: "可编程温度控制器", en: "Programmable temperature controller" },
+    applications: [
+      { zh: "实验电炉与多段升温曲线", en: "Laboratory furnaces and multi-segment temperature profiles" },
+      { zh: "环境试验设备", en: "Environmental test equipment" },
+    ],
+    input: { zh: "热电偶、RTD 及标准过程信号", en: "Thermocouple, RTD and standard process signals" },
+    output: { zh: "继电器、逻辑、模拟量、单/三相 SCR 输出", en: "Relay, logic, analog and single/three-phase SCR outputs" },
+    control: { zh: "10 条 × 16 段程序曲线，PID 自整定", en: "10 programs x 16 segments with PID auto-tuning" },
+    modelSeries: "PC900 / PC410 / PC400",
+    filters: {
+      signalControl: [
+        { zh: "程序控制", en: "Program control" },
+        { zh: "PID 控制", en: "PID control" },
+      ],
+      applications: temperatureApplications,
+    },
+  },
+  D4: {
+    productType: { zh: "四通道温度控制器", en: "4-channel temperature controller" },
+    applications: [
+      { zh: "塑料挤出机与包装机械", en: "Plastic extruders and packaging machinery" },
+      { zh: "多区恒温控制系统", en: "Multi-zone constant-temperature systems" },
+    ],
+    input: { zh: "K/E/J/S 热电偶、Pt100 及标准信号", en: "K/E/J/S thermocouples, Pt100 and standard signals" },
+    output: { zh: "SSR 电压与继电器输出", en: "SSR voltage and relay outputs" },
+    control: { zh: "四通道 PID 温度测控", en: "Four-channel PID temperature measurement and control" },
+    modelSeries: "D4",
+    filters: {
+      signalControl: [
+        { zh: "多通道控制", en: "Multi-channel control" },
+        { zh: "PID 控制", en: "PID control" },
+      ],
+      applications: temperatureApplications,
+    },
+  },
+  DC220: {
+    productType: { zh: "温差控制器", en: "Temperature differential controller" },
+    applications: [
+      { zh: "中央空调节能控制", en: "HVAC energy-saving control" },
+      { zh: "换热与双点温差测控", en: "Heat-exchange and two-point differential temperature control" },
+    ],
+    input: { zh: "双路温度测量输入", en: "Dual temperature measurement inputs" },
+    output: { zh: "继电器、逻辑、SCR、0-10mA、4-20mA、0-5V、0-10V", en: "Relay, logic, SCR, 0-10mA, 4-20mA, 0-5V and 0-10V" },
+    control: { zh: "温差控制、比值控制、测量值/温差值变送", en: "Differential control, ratio control and PV/differential transmission" },
+    modelSeries: "DC220",
+    filters: {
+      signalControl: [
+        { zh: "温差控制", en: "Differential temperature" },
+        { zh: "模拟量输出", en: "Analog output" },
+      ],
+      applications: [
+        { zh: "暖通空调", en: "HVAC" },
+        { zh: "过程控制", en: "Process control" },
+      ],
+    },
+  },
+  TC818: {
+    productType: { zh: "闭环张力控制器", en: "Closed-loop tension controller" },
+    applications: tensionApplications,
+    input: { zh: "张力传感器输入，通讯与辅助模拟量可选", en: "Tension sensor input with optional communication and auxiliary analog signals" },
+    output: { zh: "24V/4A 或 36V/3A，直接驱动磁粉离合器/制动器", en: "24V/4A or 36V/3A for direct magnetic powder clutch/brake drive" },
+    control: { zh: "恒张力闭环控制", en: "Closed-loop constant-tension control" },
+    modelSeries: "TC818",
+    filters: {
+      signalControl: [
+        { zh: "张力传感器", en: "Tension sensor" },
+        { zh: "磁粉制动/离合", en: "Magnetic powder brake/clutch" },
+      ],
+      applications: tensionApplications,
+    },
+  },
+  TC808: {
+    productType: { zh: "张力控制器", en: "Tension controller" },
+    applications: tensionApplications,
+    input: { zh: "微位移或应变片式张力传感器，接近开关/编码器卷径输入", en: "Micro-displacement or strain-gauge tension sensor, proximity switch/encoder diameter input" },
+    output: { zh: "24V/4A 主输出，张力变送可选", en: "24V/4A main output with optional tension transmission" },
+    control: { zh: "张力控制、卷径测量、通讯可选", en: "Tension control, roll-diameter measurement and optional communication" },
+    modelSeries: "TC808",
+    filters: {
+      signalControl: [
+        { zh: "张力传感器", en: "Tension sensor" },
+        { zh: "卷径测量", en: "Roll diameter" },
+      ],
+      applications: tensionApplications,
+    },
+  },
+  TC930: {
+    productType: { zh: "卷径张力控制器", en: "Roll-diameter tension controller" },
+    applications: [
+      { zh: "分切、裁切与放卷设备", en: "Slitting, cutting and unwinding equipment" },
+      { zh: "卷径变化补偿张力控制", en: "Tension compensation as roll diameter changes" },
+    ],
+    input: { zh: "卷径输入与张力设定信号", en: "Roll-diameter input and tension setting signals" },
+    output: { zh: "磁粉制动器/离合器控制输出", en: "Magnetic powder brake/clutch control output" },
+    control: { zh: "按卷径变化进行张力补偿", en: "Tension compensation based on roll diameter" },
+    modelSeries: "TC930",
+    filters: {
+      signalControl: [
+        { zh: "卷径测量", en: "Roll diameter" },
+        { zh: "磁粉制动/离合", en: "Magnetic powder brake/clutch" },
+      ],
+      applications: tensionApplications,
+    },
+  },
+  TC950: {
+    productType: { zh: "收卷张力控制器", en: "Winding tension controller" },
+    applications: [
+      { zh: "收卷张力与速度跟踪", en: "Winding tension and speed tracking" },
+      { zh: "材料输送与卷绕设备", en: "Material handling and winding equipment" },
+    ],
+    input: { zh: "张力、速度或控制设定相关信号", en: "Tension, speed or control setting signals" },
+    output: { zh: "磁粉制动/离合与 SCR 模块接线支持", en: "Magnetic powder brake/clutch output with SCR module wiring support" },
+    control: { zh: "收卷张力控制与速度同步", en: "Winding tension control and speed synchronization" },
+    modelSeries: "TC950",
+    filters: {
+      signalControl: [
+        { zh: "张力控制", en: "Tension control" },
+        { zh: "速度同步", en: "Speed synchronization" },
+      ],
+      applications: tensionApplications,
+    },
+  },
+  AL210: {
+    productType: { zh: "绕线机控制器", en: "Winding controller" },
+    applications: [
+      { zh: "绕线机控制", en: "Winding machine control" },
+      { zh: "计数与材料输送控制", en: "Counting and material handling control" },
+    ],
+    input: { zh: "设备启停、计数与控制信号", en: "Machine start/stop, count and control signals" },
+    output: { zh: "绕线设备控制输出", en: "Winding machine control outputs" },
+    control: { zh: "绕线过程控制", en: "Winding process control" },
+    modelSeries: "AL210",
+    filters: {
+      signalControl: [
+        { zh: "绕线控制", en: "Winding control" },
+        { zh: "计数控制", en: "Counting control" },
+      ],
+      applications: [
+        { zh: "绕线设备", en: "Winding equipment" },
+        { zh: "卷绕设备", en: "Winding and rewinding equipment" },
+      ],
+    },
+  },
+  CTS: {
+    productType: { zh: "轴承座式张力传感器", en: "Bearing-type tension sensor" },
+    applications: tensionApplications,
+    input: { zh: "卷材张力机械载荷", en: "Mechanical web-tension load" },
+    output: { zh: "张力检测信号，配套张力控制器使用", en: "Tension detection signal for tension controllers" },
+    control: { zh: "闭环张力检测", en: "Closed-loop tension measurement" },
+    modelSeries: "CTS",
+    filters: {
+      signalControl: [{ zh: "张力传感器", en: "Tension sensor" }],
+      applications: tensionApplications,
+    },
+  },
+  HTS: {
+    productType: { zh: "轴承座式张力传感器", en: "Bearing-type tension sensor" },
+    applications: tensionApplications,
+    input: { zh: "卷材张力机械载荷", en: "Mechanical web-tension load" },
+    output: { zh: "张力检测信号，配套张力控制器使用", en: "Tension detection signal for tension controllers" },
+    control: { zh: "闭环张力检测", en: "Closed-loop tension measurement" },
+    modelSeries: "HTS",
+    filters: {
+      signalControl: [{ zh: "张力传感器", en: "Tension sensor" }],
+      applications: tensionApplications,
+    },
+  },
+  LXA: {
+    productType: { zh: "微位移张力传感器", en: "Micro-displacement tension sensor" },
+    applications: tensionApplications,
+    input: { zh: "卷材张力引起的微位移", en: "Micro-displacement caused by web tension" },
+    output: { zh: "200mV 等张力检测信号", en: "Tension detection signal such as 200mV" },
+    control: { zh: "张力闭环反馈检测", en: "Closed-loop tension feedback measurement" },
+    modelSeries: "LXA",
+    filters: {
+      signalControl: [{ zh: "张力传感器", en: "Tension sensor" }],
+      applications: tensionApplications,
+    },
+  },
+  SUP: {
+    productType: { zh: "应变片式张力传感器", en: "Strain-gauge tension sensor" },
+    applications: tensionApplications,
+    input: { zh: "卷材张力机械载荷", en: "Mechanical web-tension load" },
+    output: { zh: "应变片张力检测信号", en: "Strain-gauge tension detection signal" },
+    control: { zh: "闭环张力反馈检测", en: "Closed-loop tension feedback measurement" },
+    modelSeries: "SUP",
+    filters: {
+      signalControl: [{ zh: "张力传感器", en: "Tension sensor" }],
+      applications: tensionApplications,
+    },
+  },
+  TH135: {
+    productType: { zh: "干湿球式湿度控制器", en: "Dry/wet bulb humidity controller" },
+    applications: [
+      { zh: "木材干燥设备", en: "Timber drying equipment" },
+      { zh: "环境试验与湿度控制", en: "Environmental test and humidity control" },
+    ],
+    input: { zh: "干湿球温度测量", en: "Dry/wet bulb temperature measurement" },
+    output: { zh: "湿度控制输出", en: "Humidity control output" },
+    control: { zh: "干湿球湿度测控", en: "Dry/wet bulb humidity measurement and control" },
+    modelSeries: "TH135",
+    filters: {
+      signalControl: [{ zh: "湿度控制", en: "Humidity control" }],
+      applications: [
+        { zh: "环境试验", en: "Environmental test" },
+        { zh: "干燥设备", en: "Drying equipment" },
+      ],
+    },
+  },
+  TH136: {
+    productType: { zh: "湿度控制器", en: "Humidity controller" },
+    applications: [
+      { zh: "环境试验设备", en: "Environmental test equipment" },
+      { zh: "工业湿度控制", en: "Industrial humidity control" },
+    ],
+    input: { zh: "湿度测量输入", en: "Humidity measurement input" },
+    output: { zh: "湿度控制输出", en: "Humidity control output" },
+    control: { zh: "湿度测量与控制", en: "Humidity measurement and control" },
+    modelSeries: "TH136",
+    filters: {
+      signalControl: [{ zh: "湿度控制", en: "Humidity control" }],
+      applications: [{ zh: "环境试验", en: "Environmental test" }],
+    },
+  },
+  MTC35: {
+    productType: { zh: "小型温湿度控制器", en: "Compact temperature-humidity controller" },
+    applications: [
+      { zh: "温湿度控制箱与环境设备", en: "Temperature-humidity cabinets and environmental equipment" },
+      { zh: "小型设备面板安装", en: "Compact equipment panel installation" },
+    ],
+    input: { zh: "温度/湿度测量输入", en: "Temperature and humidity measurement inputs" },
+    output: { zh: "温湿度控制输出", en: "Temperature and humidity control outputs" },
+    control: { zh: "温湿度测控", en: "Temperature-humidity measurement and control" },
+    modelSeries: "MTC35",
+    filters: {
+      signalControl: [
+        { zh: "温湿度控制", en: "Temperature-humidity control" },
+        { zh: "小型面板", en: "Compact panel" },
+      ],
+      applications: [{ zh: "环境试验", en: "Environmental test" }],
+    },
+  },
+  "pH/ORP800": {
+    productType: { zh: "pH/ORP 控制器", en: "pH/ORP controller" },
+    applications: [
+      { zh: "环保水处理与混合系统", en: "Water treatment and mixing systems" },
+      { zh: "酸碱度与氧化还原监测", en: "pH and oxidation-reduction monitoring" },
+    ],
+    input: { zh: "pH/ORP 电极信号", en: "pH/ORP electrode signal" },
+    output: { zh: "继电器、模拟量和通讯输出可选", en: "Relay, analog and communication output options" },
+    control: { zh: "pH/ORP 测量、报警与控制", en: "pH/ORP measurement, alarm and control" },
+    modelSeries: "pH/ORP800",
+    filters: {
+      signalControl: [
+        { zh: "pH/ORP", en: "pH/ORP" },
+        { zh: "模拟量输出", en: "Analog output" },
+      ],
+      applications: [
+        { zh: "水处理", en: "Water treatment" },
+        { zh: "过程控制", en: "Process control" },
+      ],
+    },
+  },
+  CPC316: {
+    productType: { zh: "变频恒压供水控制器", en: "VFD constant-pressure water-supply controller" },
+    applications: [
+      { zh: "楼宇供水与泵组控制", en: "Building water supply and pump group control" },
+      { zh: "变频恒压系统", en: "VFD constant-pressure systems" },
+    ],
+    input: { zh: "压力变送器与泵组控制信号", en: "Pressure transmitter and pump-control signals" },
+    output: { zh: "变频器与泵组控制输出", en: "VFD and pump group control outputs" },
+    control: { zh: "恒压供水控制", en: "Constant-pressure water-supply control" },
+    modelSeries: "CPC316",
+    filters: {
+      signalControl: [
+        { zh: "压力控制", en: "Pressure control" },
+        { zh: "VFD 控制", en: "VFD control" },
+      ],
+      applications: [
+        { zh: "供水系统", en: "Water supply" },
+        { zh: "楼宇设备", en: "Building services" },
+      ],
+    },
+  },
+};
+
 export const productDetails: Record<string, ProductDetail> = {
   AL807: {
     overview: {
       zh: "AL807 系列温度控制器支持多种热电偶和铂电阻温度传感器，具备加热/冷却控制和报警功能，适合工业现场的高精度恒温控制。",
-      en: "The AL807 temperature controller supports thermocouple and platinum resistance inputs, with heating/cooling control and alarm functions for precise industrial temperature control.",
+      en: "The AL807 temperature controller accepts thermocouple and Pt100 RTD inputs and provides heating/cooling control with alarm functions for industrial temperature loops.",
     },
     highlights: {
       zh: ["多种热电偶、Pt100 输入", "加热/冷却控制", "PID 控制，抗干扰能力强", "96×96、48×96、96×48、72×72 多种面板尺寸"],
-      en: ["Thermocouple and Pt100 inputs", "Heating/cooling control", "PID control with strong noise immunity", "Multiple panel sizes: 96×96, 48×96, 96×48 and 72×72"],
+      en: ["Thermocouple and Pt100 RTD inputs", "Heating/cooling control", "PID control with strong noise immunity", "Panel sizes: 96×96, 48×96, 96×48 and 72×72"],
     },
     specs: [
       { label: { zh: "测量精度", en: "Accuracy" }, value: { zh: "满量程 ±0.2% + 1 个数字位", en: "±0.2% FS + 1 digit" } },
@@ -125,11 +520,11 @@ export const productDetails: Record<string, ProductDetail> = {
   AL808: {
     overview: {
       zh: "AL808/AL809 系列工业调节器采用先进 PID 调节算法，支持自整定和分段输出功率限制，适合温度、压力、流量、液位、湿度等过程量精确控制。",
-      en: "The AL808/AL809 process controller uses advanced PID control with auto-tuning and segmented output power limiting for temperature, pressure, flow, level and humidity control.",
+      en: "The AL808/AL809 process controller provides PID auto-tuning, configurable input ranges and segmented output-power limiting for temperature, pressure, flow, level and humidity loops.",
     },
     highlights: {
       zh: ["PID 自整定", "自由输入与量程设置", "开关量或模拟量输出", "自动/手动切换和正/反作用切换"],
-      en: ["PID auto-tuning", "Free input and range setup", "Switching or analog output", "Auto/manual and direct/reverse control switching"],
+      en: ["PID auto-tuning", "Configurable input range", "Relay, logic, SCR or analog output options", "Auto/manual and direct/reverse control switching"],
     },
     specs: [
       { label: { zh: "系列型号", en: "Series models" }, value: { zh: "AL808、AL809、AL810、AL830", en: "AL808, AL809, AL810 and AL830" } },
@@ -141,7 +536,7 @@ export const productDetails: Record<string, ProductDetail> = {
   AL810: {
     overview: {
       zh: "AL810 是面向可控硅单相移相电路的工业调节器，可输出单相移相脉冲，适用于电阻性负载、电感性负载、变压器一次侧和整流调压装置。",
-      en: "The AL810 is a single-phase SCR phase-angle controller for voltage regulation on resistive loads, inductive loads, transformer primaries and rectifier control systems.",
+      en: "The AL810 outputs single-phase SCR phase-angle trigger pulses for voltage regulation on resistive loads, inductive loads, transformer primaries and rectifier systems.",
     },
     highlights: {
       zh: ["单相可控硅移相脉冲输出", "PID 自整定", "分段输出功率限制", "移相精度高，接线简洁"],
@@ -157,7 +552,7 @@ export const productDetails: Record<string, ProductDetail> = {
   AL830: {
     overview: {
       zh: "AL830 面向可控硅三相移相电路，适用于三相星形及三角形接法的大功率电炉、整流调压和工业电压调节应用。",
-      en: "The AL830 is a three-phase SCR phase-angle controller for high-power electric furnaces, rectifier regulation and industrial three-phase voltage control.",
+      en: "The AL830 is a three-phase SCR phase-angle controller for high-power electric furnaces, rectifier regulation and industrial three-phase voltage-control systems.",
     },
     highlights: {
       zh: ["三相移相脉冲输出", "适合星形/三角形接法", "PID 自整定", "大功率三相调压"],
@@ -172,8 +567,8 @@ export const productDetails: Record<string, ProductDetail> = {
   },
   PC900: {
     overview: {
-      zh: "PC900/PC410 系列具备 10 条 × 16 段温度曲线、分段输出功率限制和时间事件输出，特别适合实验电炉、环境实验设备等多曲线控温场合。",
-      en: "The PC900/PC410 series provides 10 programs with 16 segments each, output power limiting and timed event output for laboratory furnaces and environmental test equipment.",
+      zh: "PC900/PC410/PC400 系列具备 10 条 × 16 段温度曲线、分段输出功率限制和时间事件输出，特别适合实验电炉、环境实验设备等多曲线控温场合。",
+      en: "The PC900/PC410/PC400 series provides 10 programs with 16 segments per program, output-power limiting and timed event output for laboratory furnaces, environmental chambers and repeatable profile control.",
     },
     highlights: {
       zh: ["10 条 × 16 段温度曲线", "时间事件输出", "PID 自整定", "多种模拟量和可控硅输出"],
@@ -189,7 +584,7 @@ export const productDetails: Record<string, ProductDetail> = {
   D4: {
     overview: {
       zh: "D4 系列四通道温度控制器可同时测量和控制 4 路温度，适用于塑料挤出机、包装机械等多区恒温控制系统。",
-      en: "The D4 four-channel temperature controller measures and controls four temperature loops for multi-zone systems such as plastic extruders and packaging machinery.",
+      en: "The D4 four-channel temperature controller measures and controls four temperature loops in multi-zone systems such as plastic extruders and packaging machinery.",
     },
     highlights: {
       zh: ["4 路温度测控", "适合多区恒温系统", "PID 调节算法", "SSR 电压和继电器输出"],
@@ -205,7 +600,7 @@ export const productDetails: Record<string, ProductDetail> = {
   DC220: {
     overview: {
       zh: "DC220 温差控制器用于测量和控制两点温差，支持常规控制输出、通讯和测量/温差值变送，适合中央空调节能和换热系统。",
-      en: "The DC220 temperature differential controller controls two-point temperature difference with output, communication and PV/differential transmission options.",
+      en: "The DC220 temperature-differential controller measures and controls the temperature difference between two points, with relay, SCR, analog, communication and PV/differential transmission options.",
     },
     highlights: {
       zh: ["温差测控", "继电器、SSR、可控硅和模拟量输出", "RS232/RS485 通讯", "测量值或温差值变送"],
@@ -221,11 +616,11 @@ export const productDetails: Record<string, ProductDetail> = {
   TC818: {
     overview: {
       zh: "TC818 张力控制器用于卷材生产线的恒张力控制，主输出可直接驱动磁粉离合器或磁粉制动器，并提供辅助模拟输出与通讯接口。",
-      en: "The TC818 tension controller supports constant web tension control, directly driving magnetic powder clutches or brakes with auxiliary analog outputs and communication options.",
+      en: "The TC818 tension controller is used for constant web-tension control on unwinding and winding lines. The main output can drive magnetic powder clutches or brakes directly, with auxiliary analog outputs and communication options.",
     },
     highlights: {
       zh: ["24V/4A 或 36V/3A 主输出", "辅助模拟输出可选", "RS232/RS485 通讯", "适合放卷、收卷和恒张力系统"],
-      en: ["24V/4A or 36V/3A main output", "Optional auxiliary analog outputs", "RS232/RS485 communication", "For unwinding, winding and constant-tension systems"],
+      en: ["24V/4A or 36V/3A main output", "Auxiliary analog outputs available", "RS232/RS485 communication", "For unwinding, winding and constant-tension systems"],
     },
     specs: [
       { label: { zh: "主输出", en: "Main output" }, value: { zh: "24V/4A 或 36V/3A，驱动磁粉离合器/制动器", en: "24V/4A or 36V/3A for magnetic powder clutch/brake" } },
@@ -237,7 +632,7 @@ export const productDetails: Record<string, ProductDetail> = {
   TC808: {
     overview: {
       zh: "TC808 张力控制器支持微位移和应变片式张力传感器输入，可驱动磁粉离合器或制动器，并支持卷径测量和张力变送。",
-      en: "The TC808 tension controller accepts micro-displacement or strain-gauge tension sensors, drives magnetic powder clutches/brakes, and supports roll diameter measurement.",
+      en: "The TC808 tension controller accepts micro-displacement or strain-gauge tension sensor inputs, drives magnetic powder clutches or brakes, and supports roll-diameter measurement.",
     },
     highlights: {
       zh: ["张力传感器输入", "24V/4A 主输出", "卷径测量", "张力变送与通讯可选"],
@@ -253,7 +648,7 @@ export const productDetails: Record<string, ProductDetail> = {
   TC930: {
     overview: {
       zh: "TC930 是卷径张力控制器，通过卷径输入实现张力控制，适用于分切、裁切、放卷等需要随卷径变化补偿的场景。",
-      en: "The TC930 roll-diameter tension controller uses diameter input for compensation in slitting, cutting and unwinding applications.",
+      en: "The TC930 roll-diameter tension controller uses roll-diameter input to compensate tension during slitting, cutting and unwinding applications.",
     },
     highlights: {
       zh: ["卷径式张力控制", "4-20mA、0-5V、0-10V 输出", "零张力报警", "RS232/RS485 或变送输出可选"],
@@ -269,7 +664,7 @@ export const productDetails: Record<string, ProductDetail> = {
   TC950: {
     overview: {
       zh: "TC950 张力控制器接收 0-50mV 张力信号，提供模拟量、PWM、单相或三相移相输出，适用于高精度恒张力、速度同步、收放卷和功率单元驱动系统。",
-      en: "The TC950 tension controller accepts a 0-50mV tension signal and provides analog, PWM, single-phase or three-phase phase-shifting outputs for high-precision constant tension, speed tracking, winding/unwinding and power-unit control.",
+      en: "The TC950 tension controller accepts a 0-50mV tension signal and provides analog, PWM, single-phase and three-phase phase-angle outputs for high-precision constant tension, speed tracking, winding/unwinding and power-unit control.",
     },
     highlights: {
       zh: ["4-20mA、0-10V、0-5V、PWM、Y1/Y3 输出", "支持 RSP、SKCH、变频器和 AL33 力矩电机模块", "自动/手动切换与同步追踪", "零张力报警、张力变送与 RS232/RS485 通讯"],
@@ -279,7 +674,7 @@ export const productDetails: Record<string, ProductDetail> = {
       { label: { zh: "测量精度", en: "Accuracy" }, value: { zh: "满量程 ±0.2%FS ±1 个字", en: "±0.2% FS ±1 digit" } },
       { label: { zh: "采样周期", en: "Sampling period" }, value: { zh: "100 ms", en: "100 ms" } },
       { label: { zh: "张力输入", en: "Tension input" }, value: { zh: "0-50mV", en: "0-50mV" } },
-      { label: { zh: "主输出", en: "Main output" }, value: { zh: "4-20mA、0-20mA、0-10V、0-5V、PWM、单相/三相移相脉冲", en: "4-20mA, 0-20mA, 0-10V, 0-5V, PWM, single-phase and three-phase phase-shifting outputs" } },
+      { label: { zh: "主输出", en: "Main output" }, value: { zh: "4-20mA、0-20mA、0-10V、0-5V、PWM、单相/三相移相脉冲", en: "4-20mA, 0-20mA, 0-10V, 0-5V, PWM, single-phase and three-phase phase-angle outputs" } },
       { label: { zh: "显示与报警", en: "Display and alarm" }, value: { zh: "双 4 位 LED 显示，零张力报警，继电器常开触点 250VAC/3A", en: "Dual 4-digit LED displays, zero-tension alarm, NO relay contact 250VAC/3A" } },
       { label: { zh: "典型方案", en: "Typical solutions" }, value: { zh: "RSP 功率单元、SKCH 可控硅模块、变频器、AL33 三相力矩电机模块", en: "RSP power unit, SKCH SCR module, inverter and AL33 three-phase torque-motor module" } },
     ],
@@ -287,7 +682,7 @@ export const productDetails: Record<string, ProductDetail> = {
   AL210: {
     overview: {
       zh: "AL210 绕线计数控制器专为高速绕线机配套设计，适合变压器、微电机、中周、电感、吊扇、镇流器和马达线圈绕组。",
-      en: "The AL210 winding counter controller is designed for high-speed winding machines used for transformers, micro motors, inductors, fan coils, ballasts and motor windings.",
+      en: "The AL210 winding counter controller is designed for high-speed winding machines used in transformer, micro-motor, inductor, fan-coil, ballast and motor-coil production.",
     },
     highlights: {
       zh: ["正反转加减计数", "加速度、最高转速、预停减速圈数可设", "双刹车和紧急刹车", "可直接控制 300W 直流电机"],
@@ -303,7 +698,7 @@ export const productDetails: Record<string, ProductDetail> = {
   CTS: {
     overview: {
       zh: "CTS 系列张力传感器采用轴承式结构，适合卷材张力检测，可选不同外径、轴承内径和 250N 至 1000N 量程。",
-      en: "The CTS series bearing-type tension sensor is used for web tension measurement, with multiple outer diameters, bearing bores and 250N to 1000N ranges.",
+      en: "The CTS bearing-type tension sensor series is used for web-tension measurement, with multiple outer diameters, bearing bores and 250N to 1000N capacity ranges.",
     },
     highlights: {
       zh: ["轴承式张力检测", "250N、300N、500N、1000N 量程", "2mV/V 灵敏度", "航空插头接线"],
@@ -319,7 +714,7 @@ export const productDetails: Record<string, ProductDetail> = {
   HTS: {
     overview: {
       zh: "HTS 系列张力传感器提供 100N 至 500N 量程，适合卷材设备张力检测，配套尺寸图、安装图、接线图和受力分析。",
-      en: "The HTS tension sensor series covers 100N to 500N ranges for web tension measurement, with dimension, mounting, wiring and force-analysis drawings.",
+      en: "The HTS tension sensor series covers 100N to 500N ranges for web-tension measurement and includes dimension, mounting, wiring and force-analysis drawings.",
     },
     highlights: {
       zh: ["100N 至 500N 量程", "2mV/V 灵敏度", "6-12VDC 供桥", "结构紧凑，重量 1.8kg"],
@@ -335,7 +730,7 @@ export const productDetails: Record<string, ProductDetail> = {
   LXA: {
     overview: {
       zh: "LXA 系列微位移张力传感器通过滚轮施加负载，使板簧产生微位移并转换为张力信号，支持 5V 或 24V 供电版本。",
-      en: "The LXA micro-displacement tension sensor converts roller load into a displacement-based tension signal, with 5V and 24V supply versions.",
+      en: "The LXA micro-displacement tension sensor converts roller load into a displacement-based tension signal, with 5V and 24V supply versions for different controller inputs.",
     },
     highlights: {
       zh: ["150N 至 1000N 额定载荷", "微位移检测原理", "5V/0-200mV 或 24V/0-10V 输出", "基座、悬挂、侧壁安装"],
@@ -351,7 +746,7 @@ export const productDetails: Record<string, ProductDetail> = {
   SUP: {
     overview: {
       zh: "SUP 系列应变片式张力传感器覆盖 SUP1、SUP6、SUP62、SUP63、SUP91、SUP94 多种结构和量程，适合高精度张力检测。",
-      en: "The SUP strain-gauge tension sensor series covers SUP1, SUP6, SUP62, SUP63, SUP91 and SUP94 structures for precision tension measurement.",
+      en: "The SUP strain-gauge tension sensor series includes SUP1, SUP6, SUP62, SUP63, SUP91 and SUP94 structures for precision web-tension measurement.",
     },
     highlights: {
       zh: ["多结构、多量程选择", "2.0±10% mV/V 输出灵敏度", "0.02% F.S. 非线性", "支持现场标定"],
@@ -367,7 +762,7 @@ export const productDetails: Record<string, ProductDetail> = {
   TH135: {
     overview: {
       zh: "TH135 干湿球湿度控制器用于需要干湿球法测量湿度的工业和环境设备，支持控制输出、通讯和变送等扩展功能。",
-      en: "The TH135 dry/wet bulb humidity controller is used in industrial and environmental equipment requiring psychrometric humidity control with output, communication and transmission options.",
+      en: "The TH135 dry/wet bulb humidity controller is used in industrial and environmental equipment that requires psychrometric humidity measurement, with control, communication and transmission options.",
     },
     highlights: {
       zh: ["干湿球湿度控制", "继电器、SSR、可控硅和模拟量输出", "RS232/RS485 通讯", "适合木材干燥和环境试验设备"],
@@ -383,7 +778,7 @@ export const productDetails: Record<string, ProductDetail> = {
   TH136: {
     overview: {
       zh: "TH136 湿度控制器提供多种输出、报警、通讯和可选功能，适用于环境湿度测控及工业湿度控制场合。",
-      en: "The TH136 humidity controller provides flexible outputs, alarms, communication and options for environmental and industrial humidity control.",
+      en: "The TH136 humidity controller provides relay, logic, SCR or analog output options, alarm functions and communication for environmental and industrial humidity control.",
     },
     highlights: {
       zh: ["湿度测控", "96×96 与 72×72 面板尺寸", "多种控制输出", "通讯和报警可选"],
@@ -399,7 +794,7 @@ export const productDetails: Record<string, ProductDetail> = {
   MTC35: {
     overview: {
       zh: "MTC35 系列小型温湿度控制器包含单路温度、双回路温度、单路湿度、温湿度、节能空调和温差控制等软件功能。",
-      en: "The MTC35 compact controller series covers single-loop temperature, dual-loop temperature, humidity, temperature-humidity, energy-saving air-conditioning and differential temperature control.",
+      en: "The MTC35 compact controller series covers single-loop temperature, dual-loop temperature, humidity, temperature-humidity, energy-saving HVAC and differential-temperature control functions.",
     },
     highlights: {
       zh: ["F10/F20/F30/F40/C20/C21 多功能版本", "温度、湿度或温湿度组合输入", "1 路或 2 路继电器输出", "小型化安装"],
@@ -415,7 +810,7 @@ export const productDetails: Record<string, ProductDetail> = {
   "pH/ORP800": {
     overview: {
       zh: "pH/ORP800 酸碱度/氧化还原控制器用于水处理和混合系统，可接 pH/ORP 电极，支持两点标定、控制输出、通讯和测量值变送。",
-      en: "The pH/ORP800 controller is used for water treatment and mixing systems, accepting pH/ORP electrodes with two-point calibration, control output and communication options.",
+      en: "The pH/ORP800 controller is used in water-treatment and mixing systems. It accepts pH or ORP electrode inputs and supports two-point calibration, control output, communication and measured-value transmission.",
     },
     highlights: {
       zh: ["pH/ORP 电极输入", "LCD 或 LED 显示", "两点标定", "Hi/Lo 两组控制"],
@@ -431,7 +826,7 @@ export const productDetails: Record<string, ProductDetail> = {
   CPC316: {
     overview: {
       zh: "CPC316 变频恒压供水控制器用于单泵或多泵恒压供水控制，支持模拟主输出、实时时钟和通讯接口。",
-      en: "The CPC316 constant-pressure water-supply controller supports single-pump or multi-pump VFD control with analog output, real-time clock and communication options.",
+      en: "The CPC316 VFD constant-pressure water-supply controller supports single-pump and multi-pump systems, with analog main output, optional real-time clock and communication interfaces.",
     },
     highlights: {
       zh: ["单泵或多泵变频控制", "4-20mA 或 0-10V 主输出", "实时时钟可选", "RS232/RS485 通讯"],
@@ -448,19 +843,19 @@ export const productDetails: Record<string, ProductDetail> = {
 
 export const applications = [
   {
-    zh: "TC808 张力控制应用",
-    en: "TC808 Applications",
+    zh: "TC818 张力控制应用",
+    en: "TC818 Applications",
     image: applicationCoverImage("TC808_Unwind.gif"),
     zhText: "用于放卷和卷材生产线的恒张力控制。",
-    enText: "Unwinding and constant tension control for converting lines.",
-    related: "TC808",
+    enText: "Constant web-tension control for unwinding and converting lines.",
+    related: "TC818",
   },
   {
     zh: "TC930 卷径张力应用",
     en: "TC930 Applications",
     image: applicationCoverImage("cut.gif"),
     zhText: "用于分切、裁切工艺的卷径张力控制。",
-    enText: "Radius tension control for slitting and cutting processes.",
+    enText: "Roll-diameter tension compensation for slitting and cutting processes.",
     related: "TC930",
   },
   {
@@ -468,7 +863,7 @@ export const applications = [
     en: "TC950 Applications",
     image: applicationCoverImage("TC950_Wind.gif"),
     zhText: "用于稳定收卷和材料输送的张力控制。",
-    enText: "Winding tension control for stable material handling.",
+    enText: "Winding tension and speed-tracking control for stable material handling.",
     related: "TC950",
   },
   {
@@ -476,7 +871,7 @@ export const applications = [
     en: "TH135 Applications",
     image: applicationCoverImage("TimberDrying.gif"),
     zhText: "用于木材干燥和环境试验设备的湿度控制。",
-    enText: "Humidity control for timber drying and environmental chambers.",
+    enText: "Dry/wet bulb humidity control for timber drying and environmental chambers.",
     related: "TH135",
   },
   {
@@ -488,6 +883,30 @@ export const applications = [
     related: "pH/ORP800",
   },
 ];
+
+export type DownloadCategory = "manual" | "datasheet" | "software" | "wiring" | "selection";
+
+function downloadCategory(title: string, file: string): DownloadCategory {
+  const value = `${title} ${file}`.toLowerCase();
+
+  if (value.endsWith(".rar") || value.includes("software")) {
+    return "software";
+  }
+
+  if (value.includes("wire") || value.includes("wiring")) {
+    return "wiring";
+  }
+
+  if (value.includes("datasheet") || value.includes("data sheet")) {
+    return "datasheet";
+  }
+
+  if (value.includes("selection") || value.includes("model coding")) {
+    return "selection";
+  }
+
+  return "manual";
+}
 
 export const downloads = [
   ["AL807 Instruction Manual", "174K", "03/29/2006", "AL807_EN.pdf"],
@@ -508,7 +927,7 @@ export const downloads = [
   ["TC808 中文说明书", "568K", "04/14/2005", "TC808.pdf"],
   ["TC818 Tension Controller Manual V4.00", "614K", "05/20/2009", "TC818_V4_EN.pdf"],
   ["TC818 中文说明书 V4.00", "614K", "05/20/2009", "TC818_V4.pdf"],
-  ["TC930 Radius Tension Controller Manual", "751K", "06/12/2009", "TC930.pdf"],
+  ["TC930 Roll-Diameter Tension Controller Manual", "751K", "06/12/2009", "TC930.pdf"],
   ["TC950 Tension Controller Manual", "810K", "05/18/2005", "TC950_EN.pdf"],
   ["TC950 中文说明书", "810K", "05/18/2005", "TC950.pdf"],
   ["TC950-Y1 with SKCH Series SCR Module Wiring", "238K", "05/18/2005", "TC950_SKCH_Wire.pdf"],
@@ -551,5 +970,6 @@ export const downloads = [
   date,
   file,
   href: downloadAsset(file),
+  category: downloadCategory(String(title), String(file)),
   type: String(file).endsWith(".rar") ? "Software" : "PDF",
 }));

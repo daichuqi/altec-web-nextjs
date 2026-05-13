@@ -3,7 +3,7 @@ import path from "node:path";
 import process from "node:process";
 
 const projectRoot = process.cwd();
-const publicRoot = path.join(projectRoot, "public");
+const skippedDirectories = new Set([".git", ".next", "node_modules", "out"]);
 const removedFiles = [];
 
 async function clean(directory) {
@@ -13,6 +13,10 @@ async function clean(directory) {
     const absolutePath = path.join(directory, entry.name);
 
     if (entry.isDirectory()) {
+      if (skippedDirectories.has(entry.name)) {
+        continue;
+      }
+
       await clean(absolutePath);
       continue;
     }
@@ -24,8 +28,8 @@ async function clean(directory) {
   }
 }
 
-await clean(publicRoot);
+await clean(projectRoot);
 
 if (removedFiles.length > 0) {
-  console.log(`Removed ${removedFiles.length} public metadata file(s).`);
+  console.log(`Removed ${removedFiles.length} macOS metadata file(s).`);
 }

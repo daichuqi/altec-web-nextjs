@@ -1,28 +1,24 @@
 import { assetRoots } from "@/lib/assets";
 
-const cdnBaseUrl = (process.env.NEXT_PUBLIC_CDN_BASE_URL || "").replace(/\/$/, "");
+const downloadsCdnBaseUrl = (process.env.NEXT_PUBLIC_DOWNLOADS_CDN_BASE_URL || "").replace(/\/$/, "");
 const optimizedAssetVersion = (process.env.NEXT_PUBLIC_ASSET_VERSION || "local").replace(/[^a-zA-Z0-9._-]/g, "-");
 const optimizedWidths = [160, 320, 480, 640, 960, 1280, 1600] as const;
 const optimizableImagePattern = /^\/altec\/images\/(?!optimized\/)(.+)\.(?:jpe?g|png)$/i;
 
-function shouldUseCdn(path: string) {
-  return /^(\/(altec|downloads))\//.test(path);
+function isDownloadPath(path: string) {
+  return path.startsWith(`${assetRoots.downloads}/`) || path.startsWith("/downloads/");
 }
 
 export function assetUrl(path: string) {
-  if (!cdnBaseUrl) {
-    return path;
-  }
-
   if (path.startsWith("https://") || path.startsWith("http://") || !path.startsWith("/")) {
     return path;
   }
 
-  if (!shouldUseCdn(path)) {
+  if (!downloadsCdnBaseUrl || !isDownloadPath(path)) {
     return path;
   }
 
-  return `${cdnBaseUrl}${path}`;
+  return `${downloadsCdnBaseUrl}${path}`;
 }
 
 function optimizedImagePath(path: string, width: number, format: "avif" | "webp") {

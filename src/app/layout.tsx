@@ -18,6 +18,20 @@ const themeInitScript = `
   })();
 `;
 
+function externalOrigin(value: string | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return new URL(value).origin;
+  } catch {
+    return null;
+  }
+}
+
+const downloadsCdnOrigin = externalOrigin(process.env.NEXT_PUBLIC_DOWNLOADS_CDN_BASE_URL);
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: company.brand,
@@ -80,6 +94,12 @@ export default function RootLayout({
       className="h-full antialiased"
       suppressHydrationWarning
     >
+      {downloadsCdnOrigin ? (
+        <head>
+          <link rel="preconnect" href={downloadsCdnOrigin} />
+          <link rel="dns-prefetch" href={downloadsCdnOrigin} />
+        </head>
+      ) : null}
       <body className="min-h-full flex flex-col">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         {children}

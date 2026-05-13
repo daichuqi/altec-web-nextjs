@@ -1,6 +1,6 @@
 # ALTEC Aliyun Publish Setup
 
-This is the practical checklist for enabling the new Aliyun publish path in this repo.
+This is the checklist for the current full OSS/CDN publish path for `altec-sz.com`. The old Aliyun Cloud Virtual Host zip flow is now a legacy fallback only.
 
 ## 1) OSS Preparation
 
@@ -40,8 +40,8 @@ so the URLs above can resolve from object storage without runtime rewrites.
 
 Set repository variable:
 
-- `ALIYUN_SITE_URL` = your public Aliyun origin (example: `https://china-altec.com`)
-- `NEXT_PUBLIC_SITE_URL` = canonical production origin (example: `https://china-altec.com`)
+- `ALIYUN_SITE_URL` = your public Aliyun origin (currently `https://www.altec-sz.com`)
+- `NEXT_PUBLIC_SITE_URL` = canonical production origin (currently `https://www.altec-sz.com`)
 
 Set repository secrets:
 
@@ -52,17 +52,17 @@ Set repository secrets:
 
 Optional:
 
-- `NEXT_PUBLIC_CDN_BASE_URL` or `ALIYUN_CDN_BASE_URL` = dedicated Aliyun CDN asset origin, if using one
+- `NEXT_PUBLIC_DOWNLOADS_CDN_BASE_URL` or `ALIYUN_DOWNLOADS_CDN_BASE_URL` = dedicated Aliyun CDN origin for `/altec/downloads/*`, if using one
 - `ALIYUN_PRODUCTION_SMOKE_REQUIRED=true` = make CI fail when `ALIYUN_SITE_URL` is not serving the latest OSS/CDN deploy. Leave unset during DNS cutover.
 - `ALIYUN_OSS_PREFIX`
 - `ALIYUN_OSS_REGION`
-- `ALIYUN_OSSUTIL_VERSION` (defaults to `1.7.18`)
 
 The workflow sets `NEXT_PUBLIC_ASSET_VERSION` to the Git commit SHA. Optimized image assets are generated under `/altec/images/optimized/<sha>/` and cached as immutable.
+The workflow calls `npm run sync:site:oss`, so local and CI publishes share the same SDK-based manifest diff logic.
 
 ## 4) Enable and Verify
 
-1. Trigger GitHub Action `Deploy to Aliyun OSS` (or push to `main`).
+1. For local publishing, run `npm run deploy:aliyun:oss`. For CI publishing, trigger GitHub Action `Deploy to Aliyun OSS` (or push to `main`).
 2. Wait for CI and check:
    - build succeeded
    - OSS sync succeeded
@@ -90,9 +90,9 @@ If GitHub Actions reports that OSS smoke passed but production smoke failed:
 
 - The build and upload are good.
 - The public domain probably still points to the old host, DNS has not propagated, or CDN has not refreshed.
-- Check that `china-altec.com` and `www.china-altec.com` resolve to the Aliyun CDN/OSS route instead of the legacy Apache virtual host.
+- Check that `altec-sz.com` and `www.altec-sz.com` resolve to the Aliyun CDN/OSS route instead of the legacy Apache virtual host.
 - The optimized image URL under `/altec/images/optimized/<commit-sha>/...` is a useful canary because the old host will not have that versioned object.
 
 Current DNS note:
 
-- `china-altec.com` currently uses `ce1.xincache.com` and `ce2.xincache.com` as authoritative name servers, so Aliyun DNS records will not affect this domain until the name servers are changed or records are added at the current DNS provider.
+- `altec-sz.com` is registered in Aliyun. Keep DNS, HTTPS certificate, CDN custom domain and `NEXT_PUBLIC_SITE_URL` aligned before making it the public canonical domain.

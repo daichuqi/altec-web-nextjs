@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Search, X } from "lucide-react";
-import { activeProducts, productCategories, productDetails, productSlug, type Product } from "@/lib/site-data";
+import { activeProducts, productCategories, productDetails, productDisplayName, productSelectionGuides, productSlug, type Product } from "@/lib/site-data";
 import { OptimizedImage } from "@/components/optimized-image";
 import { categoryDescriptions, localizedPath, pick, ui, type Lang } from "@/lib/i18n";
 
@@ -19,11 +19,25 @@ function compactSearch(value: string) {
 
 function productSearchText(product: Product) {
   const detail = productDetails[product.model];
+  const guide = productSelectionGuides[product.model];
   return [
     product.model,
+    productDisplayName(product),
     product.zh,
     product.en,
     product.category,
+    guide?.productType.zh,
+    guide?.productType.en,
+    guide?.input.zh,
+    guide?.input.en,
+    guide?.output.zh,
+    guide?.output.en,
+    guide?.control.zh,
+    guide?.control.en,
+    guide?.modelSeries,
+    ...(guide?.applications.flatMap((application) => [application.zh, application.en]) ?? []),
+    ...(guide?.filters.signalControl.flatMap((filter) => [filter.zh, filter.en]) ?? []),
+    ...(guide?.filters.applications.flatMap((filter) => [filter.zh, filter.en]) ?? []),
     detail?.overview.zh,
     detail?.overview.en,
     ...(detail?.highlights.zh ?? []),
@@ -44,13 +58,62 @@ function productsForCategory(category: ProductCategory) {
     .filter((product): product is Product => Boolean(product));
 }
 
+type FilterOption = {
+  value: string;
+  label: string;
+};
+
+function uniqueLocalizedOptions(items: Array<{ en: string; zh: string }>, lang: Lang) {
+  return Array.from(
+    items.reduce((options, item) => {
+      if (item.en) {
+        options.set(item.en, { value: item.en, label: item[lang] });
+      }
+
+      return options;
+    }, new Map<string, FilterOption>()).values(),
+  ).sort((a, b) => a.label.localeCompare(b.label));
+}
+
+function uniqueSeriesOptions(values: string[]) {
+  return Array.from(new Set(values.filter(Boolean)))
+    .sort((a, b) => a.localeCompare(b))
+    .map((value) => ({ value, label: value }));
+}
+
+function productMatchesFilters(product: Product, signal: string, application: string, series: string) {
+  const guide = productSelectionGuides[product.model];
+
+  if (!guide) {
+    return signal === "all" && application === "all" && series === "all";
+  }
+
+  const matchesSignal = signal === "all" || guide.filters.signalControl.some((item) => item.en === signal);
+  const matchesApplication = application === "all" || guide.filters.applications.some((item) => item.en === application);
+  const matchesSeries = series === "all" || guide.modelSeries === series;
+
+  return matchesSignal && matchesApplication && matchesSeries;
+}
+
 export function ProductBrowser({ lang }: { lang: Lang }) {
   const copy = ui.productBrowser;
   const searchId = `product-search-${lang}`;
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
+  const [activeSignal, setActiveSignal] = useState("all");
+  const [activeApplication, setActiveApplication] = useState("all");
+  const [activeSeries, setActiveSeries] = useState("all");
   const normalizedQuery = normalizeSearch(query);
   const compactQuery = compactSearch(query);
+  const filterOptions = useMemo(() => {
+    const guides = activeProducts.map((product) => productSelectionGuides[product.model]).filter(Boolean);
+
+    return {
+      signals: uniqueLocalizedOptions(guides.flatMap((guide) => guide.filters.signalControl), lang),
+      applications: uniqueLocalizedOptions(guides.flatMap((guide) => guide.filters.applications), lang),
+      series: uniqueSeriesOptions(guides.map((guide) => guide.modelSeries)),
+    };
+  }, [lang]);
 
   const sections = useMemo(
     () =>
@@ -58,6 +121,10 @@ export function ProductBrowser({ lang }: { lang: Lang }) {
         .filter((category) => activeCategory === "all" || category.en === activeCategory)
         .map((category) => {
           const categoryProducts = productsForCategory(category).filter((product) => {
+            if (!productMatchesFilters(product, activeSignal, activeApplication, activeSeries)) {
+              return false;
+            }
+
             if (!normalizedQuery) {
               return true;
             }
@@ -69,7 +136,7 @@ export function ProductBrowser({ lang }: { lang: Lang }) {
           return { category, products: categoryProducts };
         })
         .filter((section) => section.products.length > 0),
-    [activeCategory, compactQuery, normalizedQuery],
+    [activeApplication, activeCategory, activeSeries, activeSignal, compactQuery, normalizedQuery],
   );
 
   const visibleCount = sections.reduce((count, section) => count + section.products.length, 0);
@@ -106,9 +173,33 @@ export function ProductBrowser({ lang }: { lang: Lang }) {
             ) : null}
           </div>
 
-        <p className="text-sm font-semibold text-copy-muted">
+          <p className="text-sm font-semibold text-copy-muted">
             {`${activeCategoryLabel} · ${visibleCount} ${pick(copy.modelsSuffix, lang)}`}
           </p>
+        </div>
+
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <FilterSelect
+            label={pick(copy.signalFilter, lang)}
+            value={activeSignal}
+            allLabel={pick(copy.allSignals, lang)}
+            options={filterOptions.signals}
+            onChange={setActiveSignal}
+          />
+          <FilterSelect
+            label={pick(copy.applicationFilter, lang)}
+            value={activeApplication}
+            allLabel={pick(copy.allApplications, lang)}
+            options={filterOptions.applications}
+            onChange={setActiveApplication}
+          />
+          <FilterSelect
+            label={pick(copy.seriesFilter, lang)}
+            value={activeSeries}
+            allLabel={pick(copy.allSeries, lang)}
+            options={filterOptions.series}
+            onChange={setActiveSeries}
+          />
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -172,6 +263,38 @@ export function ProductBrowser({ lang }: { lang: Lang }) {
   );
 }
 
+function FilterSelect({
+  label,
+  value,
+  allLabel,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  allLabel: string;
+  options: FilterOption[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="grid gap-1.5 text-xs font-bold uppercase tracking-[0.12em] text-copy-subtle">
+      {label}
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-11 border border-line-strong bg-panel px-3 text-sm font-semibold normal-case tracking-normal text-heading outline-none focus:border-accent"
+      >
+        <option value="all">{allLabel}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function ProductCategorySection({
   lang,
   index,
@@ -204,7 +327,7 @@ function ProductCategorySection({
               prefetch={false}
               className="border border-line-strong bg-panel px-3 py-1.5 text-xs font-bold text-copy hover:border-accent hover:text-accent"
             >
-              {product.model}
+              {productDisplayName(product)}
             </Link>
           ))}
         </div>
@@ -222,27 +345,30 @@ function ProductCategorySection({
 function ProductResultCard({ lang, product }: { lang: Lang; product: Product }) {
   const copy = ui.productBrowser;
   const detail = productDetails[product.model];
+  const guide = productSelectionGuides[product.model];
+  const displayModel = productDisplayName(product);
   const highlights = detail?.highlights[lang].slice(0, 2) ?? [];
 
   return (
     <Link
       href={localizedPath(lang, `/products/${productSlug(product.model)}`)}
       prefetch={false}
-      className="group grid min-h-full border border-line bg-panel hover:border-accent sm:grid-cols-[210px_1fr]"
+      className="group grid min-h-full border border-line bg-panel hover:border-accent sm:grid-cols-[minmax(300px,0.86fr)_1fr] xl:grid-cols-[minmax(340px,0.95fr)_1fr]"
     >
-      <div className="relative min-h-[180px] bg-panel-muted">
+      <div className="relative aspect-[4/3] min-h-[210px] bg-panel-muted">
         <OptimizedImage
           src={product.image}
-          alt={`${product.model} ${product[lang]}`}
+          alt={`${displayModel} ${product[lang]}`}
           fill
           className="object-contain p-1 sm:p-2"
-          sizes="(min-width: 1024px) 210px, 60vw"
+          sizes="(min-width: 1280px) 380px, (min-width: 640px) 46vw, 100vw"
         />
+        <span className="pointer-events-none absolute inset-0 bg-heading/[0.08] opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100" />
       </div>
       <div className="flex min-w-0 flex-col p-5">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <h3 className="text-2xl font-bold text-heading group-hover:text-accent">{product.model}</h3>
+          <div className="min-w-0">
+            <h3 className="break-words text-xl font-bold leading-tight text-heading group-hover:text-accent xl:text-2xl">{displayModel}</h3>
             <p className="mt-1 text-sm font-semibold text-copy-muted">{product[lang]}</p>
           </div>
           <ArrowRight size={18} className="mt-2 shrink-0 text-copy-subtle group-hover:text-accent" />
@@ -257,6 +383,17 @@ function ProductResultCard({ lang, product }: { lang: Lang; product: Product }) 
               </li>
             ))}
           </ul>
+        ) : null}
+
+        {guide ? (
+          <div className="mt-5 flex flex-wrap gap-2">
+            <span className="bg-panel-muted px-2.5 py-1 text-xs font-bold text-copy-muted">{guide.modelSeries}</span>
+            {guide.filters.signalControl.slice(0, 2).map((item) => (
+              <span key={item.en} className="bg-panel-muted px-2.5 py-1 text-xs font-bold text-copy-muted">
+                {item[lang]}
+              </span>
+            ))}
+          </div>
         ) : null}
 
         <span className="mt-auto pt-5 text-sm font-bold text-accent">

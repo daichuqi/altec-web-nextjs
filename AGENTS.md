@@ -12,7 +12,7 @@ This project is the bilingual company website for Shenzhen ALTEC Electronics Co.
 
 - Framework: Next.js App Router, version pinned in `package.json`.
 - Styling: Tailwind CSS.
-- Deployment target: Aliyun OSS/CDN, configured by `.github/workflows/aliyun-oss.yml`.
+- Deployment target: Aliyun OSS bucket/CDN. The legacy Aliyun Cloud Virtual Host zip upload by FTP is retained only as a fallback path.
 - Node runtime for deploy: Node 22.
 - Main content source: `src/lib/site-data.ts`.
 - Shared page UI: `src/components/pages.tsx` and `src/components/site-layout.tsx`.
@@ -72,12 +72,10 @@ Run locally:
 npm run dev
 ```
 
-Verify before handing off or publishing:
+Verify before handing off:
 
 ```bash
-npm run lint
-npm run audit:images
-npm run build
+npm run verify
 ```
 
 Do not publish changes that fail lint or build.
@@ -91,23 +89,41 @@ Preferred and only production platform: Aliyun.
 
 Local publishing rules:
 
-- Do not use 1Password for ALTEC FTP deploy credentials. Read `ALIYUN_FTP_USER` and `ALIYUN_FTP_PASSWORD` from the local ignored `.env.local` file.
-- `.env.local` is the local auth file for FTP deploys and is intentionally ignored by git. Never copy real FTP secrets into tracked docs or final summaries.
-- If those local env values are missing or empty, stop and ask for the local env to be filled. Do not fall back to 1Password.
+- Default publish path is full Aliyun OSS bucket sync: run `npm run deploy:aliyun:oss`.
+- For OSS deploys, read `ALIYUN_ACCESS_KEY_ID`, `ALIYUN_ACCESS_KEY_SECRET`, `ALIYUN_OSS_BUCKET` and `ALIYUN_OSS_ENDPOINT` from local env or `.env.local`. Never copy real secrets into tracked docs or final summaries.
+- Do not use 1Password for ALTEC FTP deploy credentials. FTP is legacy fallback only; if needed, read `ALIYUN_FTP_USER` and `ALIYUN_FTP_PASSWORD` from `.env.local`.
+- `.env.local` is the local auth file for deploys and is intentionally ignored by git.
+- If required local env values are missing or empty, stop and ask for the local env to be filled. Do not fall back to 1Password.
 - For Aliyun console actions that need an authenticated browser session, use the Codex Chrome Extension / Chrome automation path first so the user's normal browsing is not disturbed.
-- For virtual-host deploys, upload the prepared zip by FTP. Do not upload production zip files through the Aliyun web UI.
-- Use the Aliyun file manager only to extract the FTP-uploaded zip into `htdocs` with overwrite enabled.
+- For virtual-host fallback deploys, run `npm run prepare:aliyun`. It runs `npm run verify` once, then packages the current `out/` without rebuilding.
+- Use `npm run package:aliyun` only when `npm run verify` already passed for the current working tree and the existing `out/` should be reused.
+- Do not run `npm run build` again after `npm run verify` during a publish; it wastes time and can change the `out/` being packaged.
+- For virtual-host fallback deploys, upload the prepared zip by FTP. Do not upload production zip files through the Aliyun web UI.
+- After the FTP upload succeeds and the zip is confirmed in `htdocs`, tell the user the zip is uploaded and open the Aliyun virtual host file manager for `hyu1283370001`. The user will handle the `解压缩` step by default.
+- Do not manually extract the uploaded zip in the Aliyun file manager unless the user explicitly says Codex should do the manual extraction.
+- If the user asks Codex to manually extract, use the Aliyun file manager only to extract the FTP-uploaded zip into `htdocs` with overwrite enabled.
 - Do not recursively FTP the exported site file by file.
+- Do not include `altec/downloads/` in the virtual-host zip. Downloads are served from OSS/CDN and the package script enforces this.
 
-Before the first production deploy:
+Before production deploy:
 
 1. Confirm the final production domain.
-2. Set `NEXT_PUBLIC_SITE_URL` to the exact Aliyun production origin, for example `https://china-altec.com`.
-3. Confirm DNS points to the Aliyun OSS/CDN or Aliyun virtual host origin.
-4. Run `npm run lint` and `npm run build` locally.
-5. Deploy through the Aliyun workflow.
+2. Set `NEXT_PUBLIC_SITE_URL` to the exact Aliyun production origin, currently `https://www.altec-sz.com`.
+3. Confirm whether the publish path is current OSS bucket/CDN or legacy virtual host FTP zip.
+4. For OSS publishing, run `npm run deploy:aliyun:oss` locally.
+5. Follow the matching runbook in `docs/deployment-runbook.md`.
 
-### Aliyun OSS publishing
+### Downloads OSS/CDN publishing
+
+Use this when only manuals/software should move to OSS/CDN:
+
+```bash
+npm run sync:downloads:oss
+```
+
+Download CDN scope: only `/altec/downloads/*` should be rewritten to the downloads CDN. Do not set a global public asset CDN for images or `_next/static` unless the deployment architecture and smoke checks are updated deliberately.
+
+### Full Aliyun OSS publishing
 
 1. Set required Aliyun secrets:
    - `ALIYUN_ACCESS_KEY_ID`
@@ -115,12 +131,12 @@ Before the first production deploy:
    - `ALIYUN_OSS_BUCKET`
    - `ALIYUN_OSS_ENDPOINT`
 2. Optionally set:
-   - `NEXT_PUBLIC_CDN_BASE_URL` or `ALIYUN_CDN_BASE_URL`
+   - `NEXT_PUBLIC_DOWNLOADS_CDN_BASE_URL` or `ALIYUN_DOWNLOADS_CDN_BASE_URL` for manuals/software downloads only
    - `ALIYUN_OSS_PREFIX`
    - `ALIYUN_OSS_REGION`
    - `ALIYUN_SITE_URL`
 3. Ensure OSS/CDN routing serves clean paths correctly for routes like `/products/th136`, `/en/products/th136`, `/applications/...`.
-4. Run `npm run verify` before pushing.
+4. Run `npm run deploy:aliyun:oss` locally, or push/dispatch `.github/workflows/aliyun-oss.yml` after repository variables/secrets are configured.
 5. Follow `docs/aliyun-oss-setup.md` for domain/CDN/OSS one-time setup.
 
 After publishing:
@@ -132,14 +148,15 @@ After publishing:
 5. Submit `https://YOUR_DOMAIN/sitemap.xml` in Google Search Console.
 6. Use URL Inspection in Google Search Console for the homepage, `/products`, `/en`, and `/en/products`.
 
-### Aliyun virtual host fallback
+### Aliyun virtual host publishing
 
-Use this only while the production domain still points to the Aliyun cloud virtual host instead of OSS/CDN.
+Use this only as a legacy fallback while a domain is served by the Aliyun Cloud Virtual Host.
 
 - Do not publish the static export by recursive FTP mirroring as the normal process. Uploading many individual `_next`, image, page and route files is too slow and easy to interrupt.
-- Build the site, create one zip package from the deploy folder, upload that zip by FTP, then use the Aliyun virtual host file manager only to extract it into `htdocs` with overwrite enabled.
+- Run `npm run prepare:aliyun`, upload the generated zip by FTP, confirm it exists, then tell the user and open the Aliyun virtual host file manager. The user normally performs the server-side unzip; Codex only performs the manual unzip when explicitly asked.
+- If `npm run verify` already passed in the same working tree, run only `npm run package:aliyun` to package the current `out/`.
 - Do not use the Aliyun control panel upload button for production packages.
-- Keep `docs/aliyun-virtual-host-deploy.md` as the source of truth for the zip-and-extract fallback process.
+- Keep `docs/aliyun-virtual-host-deploy.md` as the source of truth for the zip-and-extract process.
 
 ## Maintenance
 
@@ -154,9 +171,9 @@ Use this only while the production domain still points to the Aliyun cloud virtu
 
 ## Release Checklist
 
-- `npm run lint` passes.
-- `npm run audit:images` passes.
-- `npm run build` passes.
+- For non-publish handoff, `npm run verify` passes.
+- For OSS publishing, `npm run deploy:aliyun:oss` passes.
+- For virtual-host publishing, `npm run prepare:aliyun` passes. Do not run `npm run verify` and then another `npm run build`.
 - Chinese and English routes render.
 - `/robots.txt` allows crawling.
 - `/sitemap.xml` lists the expected routes and production domain.

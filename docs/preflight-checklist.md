@@ -95,33 +95,42 @@ For every new knowledge or application page:
 
 ## 7. Aliyun Deploy Preflight
 
-Production deployment uses Aliyun only.
+Production deployment uses Aliyun only. The current normal publish path is the Aliyun OSS bucket/CDN flow in `docs/aliyun-oss-setup.md`.
 
 Verify repository configuration:
 
 ```bash
-gh variable list | rg -i "ALIYUN|NEXT_PUBLIC_SITE_URL|NEXT_PUBLIC_CDN_BASE_URL"
+gh variable list | rg -i "ALIYUN|NEXT_PUBLIC_SITE_URL|NEXT_PUBLIC_DOWNLOADS_CDN_BASE_URL"
 gh secret list | rg -i "ALIYUN"
 ```
 
-Required:
+Required for OSS workflow:
 
 - `ALIYUN_ACCESS_KEY_ID`
 - `ALIYUN_ACCESS_KEY_SECRET`
 - `ALIYUN_OSS_BUCKET`
 - `ALIYUN_OSS_ENDPOINT`
-- `NEXT_PUBLIC_SITE_URL=https://china-altec.com`
+- `NEXT_PUBLIC_SITE_URL=https://www.altec-sz.com`
 
-Recommended:
+Local OSS publish command:
+
+```bash
+npm run deploy:aliyun:oss
+```
+
+Recommended for OSS workflow:
 
 - `ALIYUN_OSS_PREFIX`
 - `ALIYUN_OSS_REGION`
-- `ALIYUN_SITE_URL=https://china-altec.com`
-- `ALIYUN_OSSUTIL_VERSION`
-- `NEXT_PUBLIC_CDN_BASE_URL` if a dedicated Aliyun CDN asset domain is used
+- `ALIYUN_SITE_URL=https://www.altec-sz.com`
+- `NEXT_PUBLIC_DOWNLOADS_CDN_BASE_URL` if a dedicated Aliyun CDN domain is used for manuals/software downloads
 
 Virtual host fallback rules:
 
+- Create the deploy package with `npm run prepare:aliyun`.
+- If `npm run verify` already passed in the same working tree, use `npm run package:aliyun` to reuse the current `out/`.
+- Do not run `npm run build` again between verify and package.
+- Confirm the package excludes `altec/downloads/`.
 - Upload the prepared deploy zip by FTP.
 - Use the Aliyun control panel only to extract the uploaded zip.
 - Do not upload production zip files through the browser UI.
@@ -133,33 +142,33 @@ Virtual host fallback rules:
 The production URL is:
 
 ```text
-https://china-altec.com
+https://www.altec-sz.com
 ```
 
 Smoke test:
 
 ```bash
-curl -fsS https://china-altec.com/ >/tmp/altec-home.html
-curl -fsS https://china-altec.com/products/th136 >/tmp/altec-th136.html
-curl -fsS https://china-altec.com/applications/control-basics >/tmp/altec-app-control.html
-curl -fsS https://china-altec.com/en/applications/tc950-tension-control-applications >/tmp/altec-app-tc950-en.html
-curl -fsS https://china-altec.com/altec/images/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
-curl -fsS https://china-altec.com/altec/images/applications/details/TC950/TC950_Wind.gif >/tmp/altec-tc950-application.gif
+curl -fsS https://www.altec-sz.com/ >/tmp/altec-home.html
+curl -fsS https://www.altec-sz.com/products/th136 >/tmp/altec-th136.html
+curl -fsS https://www.altec-sz.com/applications/control-basics >/tmp/altec-app-control.html
+curl -fsS https://www.altec-sz.com/en/applications/tc950-tension-control-applications >/tmp/altec-app-tc950-en.html
+curl -fsS https://www.altec-sz.com/altec/images/details/TH136/TH136_Panel.gif >/tmp/altec-th136-panel.gif
+curl -fsS https://www.altec-sz.com/altec/images/applications/details/TC950/TC950_Wind.gif >/tmp/altec-tc950-application.gif
 grep -q "ALTEC" /tmp/altec-home.html
 grep -q "完整技术资料" /tmp/altec-th136.html
 grep -q "工业过程控制常用名词解释" /tmp/altec-app-control.html
 grep -q "TC950 Tension Controller Applications" /tmp/altec-app-tc950-en.html
 ```
 
-If a clean path fails, confirm OSS/CDN contains extensionless HTML alias objects such as `products/th136`.
+If a clean path fails on the virtual host, confirm the deployed zip included directory `index.html` aliases such as `products/th136/index.html`.
 
-## 9. Wait For CI
+## 9. Wait For CI When Applicable
 
-After pushing to `main`:
+For full OSS workflow publishes, after pushing to `main`:
 
 ```bash
 gh run list --branch main --limit 5
 gh run watch <run-id> --exit-status
 ```
 
-Do not call the task done until GitHub Actions has passed.
+For virtual-host zip fallback publishes, GitHub Actions is not the production gate; local `npm run prepare:aliyun`, extraction, and production smoke tests are the gate.

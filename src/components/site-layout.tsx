@@ -15,7 +15,7 @@ export function SiteHeader({ lang }: { lang: Lang }) {
           <Image
             src={brandLogo}
             alt="ALTEC"
-            width={154}
+            width={150}
             height={38}
             className="h-9 w-auto"
             priority
@@ -48,7 +48,7 @@ export function SiteFooter({ lang }: { lang: Lang }) {
     <footer className="border-t border-line bg-panel-contrast text-copy-inverse">
       <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 md:grid-cols-[1fr_1.2fr]">
         <div>
-          <Image src={brandLogo} alt="ALTEC" width={154} height={38} className="h-7 w-auto" />
+          <Image src={brandLogo} alt="ALTEC" width={150} height={38} className="h-7 w-auto" />
           <p className="mt-3 max-w-md text-sm leading-6 text-copy-inverse-muted">
             {pick(ui.footer.summary, lang)}
           </p>

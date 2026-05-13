@@ -1,9 +1,9 @@
-import { access, mkdir, readdir, rename, rm } from "node:fs/promises";
+import { mkdir, readdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import sharp from "sharp";
+import { pathExists, projectRoot, relativeToRoot } from "./lib/common.mjs";
 
-const projectRoot = process.cwd();
 const sourceDir = path.resolve(projectRoot, process.argv[2] || "products_renew/modern-clean");
 const productDir = path.join(projectRoot, "public", "altec", "images", "products");
 const archiveRoot = path.join(projectRoot, "asset-archive", "images");
@@ -13,15 +13,6 @@ const originalsArchiveDir = path.join(archiveRoot, `product-photo-batch-${batchI
 const targetWidth = 1200;
 const targetHeight = 900;
 const sourceImagePattern = /\.(?:avif|jpe?g|png|webp)$/i;
-
-async function exists(file) {
-  try {
-    await access(file);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 async function productFileMap() {
   const files = await readdir(productDir);
@@ -49,7 +40,7 @@ async function promoteImage(sourceFile, productFiles) {
   const archivedOriginalPath = path.join(originalsArchiveDir, sourceFile);
   const targetPath = path.join(productDir, `${model}.jpg`);
 
-  if (await exists(currentPath)) {
+  if (await pathExists(currentPath)) {
     await rename(currentPath, archivedOldPath);
   }
 
@@ -71,8 +62,8 @@ async function promoteImage(sourceFile, productFiles) {
 }
 
 async function main() {
-  if (!(await exists(sourceDir))) {
-    throw new Error(`Source directory does not exist: ${path.relative(projectRoot, sourceDir)}`);
+  if (!(await pathExists(sourceDir))) {
+    throw new Error(`Source directory does not exist: ${relativeToRoot(sourceDir)}`);
   }
 
   await mkdir(oldArchiveDir, { recursive: true });

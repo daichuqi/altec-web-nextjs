@@ -21,6 +21,9 @@
   --action: #1d4ed8;
   --action-strong: #1e40af;
   --action-contrast: #ffffff;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
 }
 
 html.dark {
@@ -78,6 +81,74 @@ body {
   font-family: var(--font-sans);
 }
 
+:where(button, input, textarea, select) {
+  border-radius: var(--radius-md);
+}
+
+:where(button, [role="button"]) {
+  cursor: pointer;
+}
+
+:where(button:disabled, [aria-disabled="true"]) {
+  cursor: not-allowed;
+}
+
+:where(a, button)[class*="bg-action"],
+:where(a, button)[class*="border-line-strong"],
+:where(a, button)[class*="border-line"][class*="px-"],
+:where(a, button)[class*="ring-line"] {
+  border-radius: var(--radius-md);
+}
+
+:where(a, button)[class*="bg-action"] {
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+:where(a, button)[class*="bg-action"]:hover {
+  box-shadow: 0 8px 18px rgba(29, 78, 216, 0.18);
+}
+
+:where(a, button)[class*="border-line-strong"],
+:where(a, button)[class*="border-line"][class*="px-"] {
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+:where(a, button)[class*="border-line-strong"]:hover,
+:where(a, button)[class*="border-line"][class*="px-"]:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--panel));
+  color: var(--accent);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+:where([class*="border"][class*="bg-panel"], [class*="border"][class*="bg-panel-muted"], [class*="ring-line"][class*="bg-panel"]) {
+  border-radius: var(--radius-lg);
+}
+
+:where([class*="overflow-hidden"][class*="bg-panel-muted"], [class*="relative"][class*="bg-panel-muted"]) {
+  border-radius: var(--radius-md);
+}
+
+:where([class*="overflow-hidden"][class*="bg-panel-muted"], [class*="relative"][class*="bg-panel-muted"], button[class*="bg-panel-muted"]) {
+  overflow: hidden;
+}
+
+.download-row {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.download-row:hover {
+  border-color: var(--line) !important;
+  background: var(--panel-muted) !important;
+  box-shadow: none !important;
+}
+
+:where(img) {
+  border-radius: inherit;
+}
+
 html {
   scroll-behavior: auto;
 }
@@ -106,6 +177,7 @@ html {
 .product-rich-detail .contents a {
   display: inline-flex;
   border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
   padding: 0.5rem 0.75rem;
   color: var(--accent);
   font-weight: 700;
@@ -143,6 +215,7 @@ html {
   max-width: min(100%, 760px);
   height: auto;
   border: 1px solid var(--line);
+  border-radius: var(--radius-md);
   background: var(--panel);
 }
 
@@ -168,6 +241,7 @@ html {
   margin: 1rem 0 1.5rem;
   min-width: 520px;
   border-collapse: collapse;
+  border-radius: var(--radius-md);
   background: var(--panel);
 }
 
@@ -216,6 +290,7 @@ html {
 
 .product-rich-detail .pc900-feature-grid div {
   border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
   background: var(--panel-muted);
   padding: 0.9rem 1rem;
 }

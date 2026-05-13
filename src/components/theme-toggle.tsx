@@ -77,17 +77,17 @@ export function ThemeToggle({ lang }: { lang: Lang }) {
       aria-label={pick(ui.themeToggle.ariaLabel, lang)}
       aria-pressed={isDark}
       onClick={toggleTheme}
-      className="relative inline-grid h-9 w-[4.5rem] grid-cols-2 items-center border border-line-strong bg-panel p-0.5 text-copy-muted transition hover:border-line-strong"
+      className="relative inline-grid h-9 w-[4.5rem] cursor-pointer grid-cols-2 items-center overflow-hidden rounded-lg border border-line-strong bg-panel text-copy-muted transition hover:border-accent hover:bg-panel-muted hover:shadow-sm"
     >
       <span
-        className={`pointer-events-none absolute left-0.5 top-0.5 h-8 w-[2.125rem] bg-action transition-transform duration-200 ${
-          isDark ? "translate-x-[2.125rem]" : "translate-x-0"
+        className={`pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-action shadow-sm transition-transform duration-200 ease-out ${
+          isDark ? "translate-x-full" : "translate-x-0"
         }`}
       />
-      <span className={`relative z-10 grid h-8 place-items-center ${isDark ? "text-copy-subtle" : "text-action-contrast"}`}>
+      <span className={`relative z-10 grid h-8 place-items-center transition-colors ${isDark ? "text-copy-subtle" : "text-action-contrast"}`}>
         <Sun size={16} />
       </span>
-      <span className={`relative z-10 grid h-8 place-items-center ${isDark ? "text-action-contrast" : "text-copy-subtle"}`}>
+      <span className={`relative z-10 grid h-8 place-items-center transition-colors ${isDark ? "text-action-contrast" : "text-copy-subtle"}`}>
         <Moon size={16} />
       </span>
     </button>

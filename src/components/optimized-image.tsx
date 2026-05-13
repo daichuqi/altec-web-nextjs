@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+// Static export uses pre-generated AVIF/WebP files. A custom picture/img wrapper
+// lets us serve those variants without relying on Next's runtime image optimizer.
 import { assetUrl, optimizedImageSources } from "@/lib/cdn-assets";
 
 type OptimizedImageProps = {

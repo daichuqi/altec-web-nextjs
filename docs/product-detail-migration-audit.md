@@ -1,6 +1,6 @@
 # Product Detail Migration Audit
 
-Last updated: 2026-05-11
+Last updated: 2026-05-13
 
 ## Legacy Sources
 
@@ -19,15 +19,21 @@ The previous ALTEC content is still reachable on the Aliyun host under these pat
   - `/docc/Tension_Sensor.htm`
 - English product index: `https://china-altec.com/english/products.htm`
 
-## 2026-05-10 Findings
+## Current Status
+
+Structured product detail pages:
+
+- AL808, AL810 and AL830 now use typed bilingual sections in `src/lib/product-structured-details.ts` for overview notes, model coding, dimensions, wiring, specifications and documents. The legacy rich HTML remains available only as a fallback pattern for products that have not been migrated yet.
+- `npm run verify` includes `npm run audit:product-details`, which checks structured detail product keys plus referenced local images and downloads before build.
 
 Products already present in the new site with rich detail pages:
 
 - AL807, AL808, AL810, AL830, PC900, D4, DC220
 - TC808, TC818, TC930, TC950, AL210
 - TH135, TH136, MTC35, pH/ORP800, CPC316
+- CTS, HTS, LXA, SUP
 
-Missing from the new site but available as real legacy detail pages:
+Previously missing tension-sensor detail pages, now migrated:
 
 - CTS: `/docc/products/tension_sensor/CTS.htm`
 - HTS: `/docc/products/tension_sensor/HTS.htm`
@@ -60,6 +66,7 @@ Retired and removed models:
 - Keep Chinese and English content side by side in the data model whenever possible. A product should not have rich Chinese detail content while the English page quietly falls back to a thin overview.
 - Avoid adding more long inline HTML blobs to `src/lib/product-rich-details.ts`. Existing `html` / `htmlEn` entries are a migration bridge, not the preferred long-term content architecture.
 - For every product with rich detail content, require parity checks for both languages: same major sections, local images, local downloads and relevant technical specifications.
+- Structured details must pass `npm run audit:product-details`; any referenced image or download must already exist under `public/altec`.
 - When adding or changing a product, update the data, SEO, sitemap and related downloads together, then run `npm run verify`.
 
 ## 2026-05-11 Content Architecture Note

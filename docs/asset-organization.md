@@ -4,7 +4,7 @@ This site keeps static assets under `public/` so the static export can be served
 
 ## Canonical Locations
 
-All image assets live under `public/altec/images/`. Downloads stay in `public/altec/downloads/` because manuals and software packages are not image assets.
+All project image assets live under `public/altec/images/`. The only allowed root-level public image is `public/favicon.ico` for browser compatibility. Downloads stay in `public/altec/downloads/` because manuals and software packages are not image assets.
 
 - `public/altec/images/brand/` - logo, favicon and other brand images.
 - `public/altec/images/products/` - catalog and product-card images. One primary product image per model, named by model when possible, for example `AL808.jpg`.
@@ -26,6 +26,7 @@ Historical source batches, replaced product photos, Topaz workbench files, and u
 - Do not add random image directories under `public/`.
 - Do not use old `china-altec.com` image URLs at runtime.
 - `legacy/` and `optimized/` are skipped by the build-time optimizer; only active source images should be optimized into WebP/AVIF.
+- The optimizer keeps a content-hash cache under `.next/cache/altec-optimized-images/`. If a source image has not changed, the existing AVIF/WebP variants are copied from cache instead of regenerated.
 
 ## Product Photo Batches
 
@@ -45,4 +46,4 @@ Run:
 npm run audit:images
 ```
 
-The audit checks that image references in `src/` point to approved asset roots and that referenced files exist under `public/`. It also fails if image files are added outside `public/altec/images/`, except for private archives under `asset-archive/`.
+The audit checks that image references in `src/` point to approved asset roots and that referenced files exist under `public/`. It also fails if image files are added outside `public/altec/images/`, except for `public/favicon.ico` and private archives under `asset-archive/`.

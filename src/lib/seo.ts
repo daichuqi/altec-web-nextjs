@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
 import { applicationArticles, type ApplicationArticle } from "@/lib/application-data";
-import { activeProducts, contactEmail, productDetails, productSlug, products, type Product } from "@/lib/site-data";
+import {
+  activeProducts,
+  contactEmail,
+  downloads,
+  productDetails,
+  productDisplayName,
+  productSelectionGuides,
+  productSlug,
+  products,
+  type Product,
+} from "@/lib/site-data";
 import { brandLogo, brandOgImage } from "@/lib/assets";
 import { assetUrl } from "@/lib/cdn-assets";
 import { isZh, languages, localizedPath, navItems, pick, ui, type Lang } from "@/lib/i18n";
@@ -8,7 +18,7 @@ import { isZh, languages, localizedPath, navItems, pick, ui, type Lang } from "@
 export { localizedPath } from "@/lib/i18n";
 
 export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://china-altec.com"
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.altec-sz.com"
 ).replace(/\/$/, "");
 
 export const company = {
@@ -33,7 +43,7 @@ export const seoPages = {
     zhDescription:
       "深圳市亚特克电子有限公司专注工业自动化智能过程控制仪表，提供温度控制器、张力控制器、pH/ORP 控制器、恒压供水控制器、温湿度控制器及产品资料下载。",
     enDescription:
-      "Shenzhen ALTEC Electronics provides industrial process control instruments including temperature controllers, tension controllers, pH/ORP controllers, constant-pressure water controllers and temperature-humidity controllers.",
+      "Shenzhen ALTEC Electronics manufactures industrial temperature controllers, tension controllers, pH/ORP controllers, humidity controllers and VFD constant-pressure water-supply controllers.",
   },
   about: {
     path: "/about",
@@ -42,7 +52,7 @@ export const seoPages = {
     zhDescription:
       "了解深圳市亚特克电子有限公司的工业自动化仪表研发、生产、定制和应用服务能力。",
     enDescription:
-      "Learn about Shenzhen ALTEC Electronics, an industrial automation instrument manufacturer focused on process control, custom instruments and engineering applications.",
+      "Learn about Shenzhen ALTEC Electronics, a process-control instrument manufacturer for temperature, tension, pH/ORP, humidity and water-supply control applications.",
   },
   products: {
     path: "/products",
@@ -51,7 +61,7 @@ export const seoPages = {
     zhDescription:
       "查看 ALTEC 亚特克产品，包括 AL807、AL808、AL810、AL830、TC818、TC930、TC950、MTC35、CPC316 等型号。",
     enDescription:
-      "Browse ALTEC industrial controllers including AL807, AL808, AL810, AL830, TC818, TC930, TC950, MTC35 and CPC316.",
+      "Compare ALTEC controller models including AL807, AL808, AL810, AL830, TC818, TC930, TC950, MTC35, pH/ORP800 and CPC316 with specifications and manuals.",
   },
   applications: {
     path: "/applications",
@@ -60,7 +70,7 @@ export const seoPages = {
     zhDescription:
       "查看 ALTEC 亚特克工业过程控制基础知识、温湿度测量知识，以及张力控制、pH/ORP 水处理、恒压供水等典型应用方案。",
     enDescription:
-      "Review ALTEC control references, measurement notes and application solutions for tension control, pH/ORP water treatment, constant-pressure water supply and industrial process control.",
+      "Review ALTEC application notes for tension control, pH/ORP water treatment, humidity measurement, constant-pressure water supply and industrial process control.",
   },
   downloads: {
     path: "/downloads",
@@ -69,7 +79,7 @@ export const seoPages = {
     zhDescription:
       "下载 ALTEC 亚特克产品说明书、通讯协议、传感器资料和软件，涵盖 AL808、TC818、TC950、MTC35、CPC316 等型号。",
     enDescription:
-      "Download ALTEC manuals, communication protocols, sensor documents and software for AL808, TC818, TC950, MTC35, CPC316 and more.",
+      "Download ALTEC product manuals, communication protocols, sensor documents and software utilities for AL808, TC818, TC950, MTC35, CPC316 and more.",
   },
   contact: {
     path: "/contact",
@@ -78,7 +88,7 @@ export const seoPages = {
     zhDescription:
       "联系深圳市亚特克电子有限公司，咨询工业控制仪表选型、产品资料、定制仪表和售后支持。",
     enDescription:
-      "Contact Shenzhen ALTEC Electronics for industrial controller selection, product documents, custom instruments and support.",
+      "Contact Shenzhen ALTEC Electronics for controller model selection, product documents, replacement suggestions, custom instruments and technical support.",
   },
 } as const;
 
@@ -93,7 +103,7 @@ export function absoluteAssetUrl(path: string) {
   return candidate.startsWith("http") ? candidate : absoluteUrl(candidate);
 }
 
-const lastModified = "2026-05-12";
+export const seoLastModified = "2026-05-13";
 
 export function pageMetadata(key: SeoPageKey, lang: Lang): Metadata {
   const page = seoPages[key];
@@ -156,20 +166,22 @@ export function localizedAlternates(lang: Lang, path: string) {
 export function productPageMetadata(product: Product, lang: Lang): Metadata {
   const detail = productDetails[product.model];
   const path = `/products/${productSlug(product.model)}`;
+  const displayModel = productDisplayName(product);
   const title = isZh(lang)
-    ? `${product.model} ${product.zh} | ALTEC 亚特克产品详情`
-    : `${product.model} ${product.en} | ALTEC Product Details`;
+    ? `${displayModel} ${product.zh} | ALTEC 亚特克产品详情`
+    : `${displayModel} ${product.en} | ALTEC Product Details`;
   const description =
     detail?.overview[lang] ??
     (isZh(lang)
-      ? `${product.model} ${product.zh} 产品详情和本地下载资料。`
-      : `${product.model} ${product.en} details and local downloads.`);
+      ? `${displayModel} ${product.zh} 产品详情和本地下载资料。`
+      : `${displayModel} ${product.en} details and local downloads.`);
 
   return {
     title,
     description,
     keywords: [
       product.model,
+      displayModel,
       product.zh,
       product.en,
       product.category,
@@ -185,7 +197,7 @@ export function productPageMetadata(product: Product, lang: Lang): Metadata {
       siteName: pick(ui.seo.siteName, lang),
       locale: languages[lang].ogLocale,
       type: "website",
-      images: [{ url: absoluteAssetUrl(product.image), alt: `${product.model} ${product[lang]}` }],
+      images: [{ url: absoluteAssetUrl(product.image), alt: `${displayModel} ${product[lang]}` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -233,6 +245,7 @@ export function websiteJsonLd(lang: Lang) {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${siteUrl}/#website`,
     name: pick(ui.seo.siteName, lang),
     url: siteUrl,
     inLanguage: languages[lang].htmlLang,
@@ -253,6 +266,18 @@ export function organizationJsonLd() {
     logo: absoluteAssetUrl(brandLogo),
     email: company.email,
     telephone: company.phone,
+    areaServed: ["CN", "Worldwide"],
+    knowsAbout: [
+      "industrial process controller",
+      "temperature controller",
+      "tension controller",
+      "pH/ORP controller",
+      "humidity controller",
+      "VFD constant-pressure water-supply controller",
+      "工业过程控制仪表",
+      "温度控制器",
+      "张力控制器",
+    ],
     address: {
       "@type": "PostalAddress",
       ...company.address,
@@ -261,6 +286,7 @@ export function organizationJsonLd() {
       {
         "@type": "ContactPoint",
         telephone: company.phone[0],
+        email: company.email,
         contactType: "sales",
         areaServed: ["CN", "Worldwide"],
         availableLanguage: [pick(ui.seo.languageName, "zh"), pick(ui.seo.languageName, "en")],
@@ -274,25 +300,118 @@ export function productListJsonLd(lang: Lang) {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: pick(ui.seo.productListName, lang),
-    itemListElement: activeProducts.map((product, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: {
+    itemListElement: activeProducts.map((product, index) => {
+      const displayModel = productDisplayName(product);
+
+      return {
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Product",
+          "@id": `${absoluteUrl(localizedPath(lang, `/products/${productSlug(product.model)}`))}#product`,
+          name: `${displayModel} ${product[lang]}`,
+          sku: product.model,
+          mpn: product.model,
+          model: displayModel,
+          brand: {
+            "@type": "Brand",
+            name: "ALTEC",
+          },
+          category: product.category,
+          image: absoluteAssetUrl(product.image),
+          url: absoluteUrl(localizedPath(lang, `/products/${productSlug(product.model)}`)),
+          description: isZh(lang)
+            ? `${displayModel} ${product.zh}，${pick(ui.seo.productDescriptionSuffix, lang)}`
+            : `${displayModel} ${product.en} ${pick(ui.seo.productDescriptionSuffix, lang)}`,
+        },
+      };
+    }),
+  };
+}
+
+function normalizeToken(value: string) {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+function relatedDownloadsForProduct(product: Product) {
+  const productToken = normalizeToken(product.model);
+  return downloads
+    .filter((download) => normalizeToken(`${download.title} ${download.file}`).includes(productToken))
+    .slice(0, 8);
+}
+
+function parseDownloadDate(value: string) {
+  const match = value.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!match) {
+    return undefined;
+  }
+
+  const [, month, day, year] = match;
+  return `${year}-${month}-${day}`;
+}
+
+function downloadLanguage(title: string) {
+  return /[\u3400-\u9fff]/.test(title) ? "zh-CN" : "en-US";
+}
+
+function productDocumentJsonLd(product: Product) {
+  return relatedDownloadsForProduct(product).map((download) => {
+    const dateModified = parseDownloadDate(download.date);
+
+    return {
+      "@type": "DigitalDocument",
+      name: download.title,
+      url: absoluteAssetUrl(download.href),
+      encodingFormat: download.type === "PDF" ? "application/pdf" : "application/octet-stream",
+      inLanguage: downloadLanguage(download.title),
+      about: {
         "@type": "Product",
-        name: `${product.model} ${product[lang]}`,
+        name: productDisplayName(product),
+        sku: product.model,
         brand: {
           "@type": "Brand",
           name: "ALTEC",
         },
-        category: product.category,
-        image: absoluteAssetUrl(product.image),
-        url: absoluteUrl(localizedPath(lang, `/products/${productSlug(product.model)}`)),
-        description: isZh(lang)
-          ? `${product.model} ${product.zh}，${pick(ui.seo.productDescriptionSuffix, lang)}`
-          : `${product.model} ${product.en} ${pick(ui.seo.productDescriptionSuffix, lang)}`,
       },
-    })),
-  };
+      ...(dateModified ? { dateModified } : {}),
+    };
+  });
+}
+
+function productAdditionalProperties(product: Product, lang: Lang) {
+  const detail = productDetails[product.model];
+  const guide = productSelectionGuides[product.model];
+  const properties = [
+    ...(guide
+      ? [
+          { name: pick(ui.product.buyingFields.productType, lang), value: guide.productType[lang] },
+          { name: pick(ui.product.buyingFields.applications, lang), value: guide.applications.map((item) => item[lang]).join("; ") },
+          { name: pick(ui.product.buyingFields.input, lang), value: guide.input[lang] },
+          { name: pick(ui.product.buyingFields.output, lang), value: guide.output[lang] },
+          { name: pick(ui.product.buyingFields.control, lang), value: guide.control[lang] },
+          { name: pick(ui.product.buyingFields.model, lang), value: guide.modelSeries },
+        ]
+      : []),
+    ...(detail?.specs.map((spec) => ({
+      name: spec.label[lang],
+      value: spec.value[lang],
+    })) ?? []),
+  ];
+  const seen = new Set<string>();
+
+  return properties
+    .filter((property) => {
+      const key = `${property.name}:${property.value}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    })
+    .map((property) => ({
+      "@type": "PropertyValue",
+      ...property,
+    }));
 }
 
 export function productJsonLd(lang: Lang, model: string) {
@@ -303,11 +422,17 @@ export function productJsonLd(lang: Lang, model: string) {
 
   const detail = productDetails[product.model];
   const path = localizedPath(lang, `/products/${productSlug(product.model)}`);
+  const displayModel = productDisplayName(product);
+  const documents = productDocumentJsonLd(product);
+
   return {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: `${product.model} ${product[lang]}`,
+    "@id": `${absoluteUrl(path)}#product`,
+    name: `${displayModel} ${product[lang]}`,
     sku: product.model,
+    mpn: product.model,
+    model: displayModel,
     brand: {
       "@type": "Brand",
       name: "ALTEC",
@@ -318,17 +443,50 @@ export function productJsonLd(lang: Lang, model: string) {
     category: product.category,
     image: absoluteAssetUrl(product.image),
     url: absoluteUrl(path),
-    mainEntityOfPage: absoluteUrl(path),
+    mainEntityOfPage: {
+      "@id": `${absoluteUrl(path)}#webpage`,
+    },
+    inLanguage: languages[lang].htmlLang,
     description:
       detail?.overview[lang] ??
       (isZh(lang)
-        ? `${product.model} ${product.zh}，${pick(ui.seo.productDescriptionSuffix, lang)}`
-        : `${product.model} ${product.en} ${pick(ui.seo.productDescriptionSuffix, lang)}`),
-    additionalProperty: detail?.specs.map((spec) => ({
-      "@type": "PropertyValue",
-      name: spec.label[lang],
-      value: spec.value[lang],
-    })),
+        ? `${displayModel} ${product.zh}，${pick(ui.seo.productDescriptionSuffix, lang)}`
+        : `${displayModel} ${product.en} ${pick(ui.seo.productDescriptionSuffix, lang)}`),
+    additionalProperty: productAdditionalProperties(product, lang),
+    ...(documents.length > 0 ? { subjectOf: documents } : {}),
+  };
+}
+
+export function productWebPageJsonLd(lang: Lang, product: Product) {
+  const detail = productDetails[product.model];
+  const path = localizedPath(lang, `/products/${productSlug(product.model)}`);
+  const url = absoluteUrl(path);
+  const displayModel = productDisplayName(product);
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${url}#webpage`,
+    url,
+    name: isZh(lang)
+      ? `${displayModel} ${product.zh} | ALTEC 亚特克产品详情`
+      : `${displayModel} ${product.en} | ALTEC Product Details`,
+    description:
+      detail?.overview[lang] ??
+      (isZh(lang)
+        ? `${displayModel} ${product.zh} 产品详情和本地下载资料。`
+        : `${displayModel} ${product.en} details and local downloads.`),
+    inLanguage: languages[lang].htmlLang,
+    isPartOf: {
+      "@id": `${siteUrl}/#website`,
+    },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: absoluteAssetUrl(product.image),
+    },
+    mainEntity: {
+      "@id": `${url}#product`,
+    },
   };
 }
 
@@ -345,7 +503,7 @@ export function applicationArticleJsonLd(lang: Lang, article: ApplicationArticle
     mainEntityOfPage: absoluteUrl(path),
     inLanguage: languages[lang].htmlLang,
     articleSection: article.category,
-    dateModified: lastModified,
+    dateModified: seoLastModified,
     publisher: {
       "@id": `${siteUrl}/#organization`,
     },
@@ -412,7 +570,7 @@ export function productDetailBreadcrumbJsonLd(lang: Lang, product: Product) {
       {
         "@type": "ListItem",
         position: 3,
-        name: `${product.model} ${product[lang]}`,
+        name: `${productDisplayName(product)} ${product[lang]}`,
         item: absoluteUrl(localizedPath(lang, `/products/${productSlug(product.model)}`)),
       },
     ],

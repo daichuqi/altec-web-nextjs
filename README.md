@@ -2,7 +2,7 @@
 
 Next.js + Tailwind CSS rebuild for Shenzhen ALTEC Electronics Co., Ltd.
 
-Legacy ALTEC content, product imagery, manuals and product details have been reorganized into a modern bilingual industrial catalog. Download files are hosted locally by this site.
+Legacy ALTEC content, product imagery, manuals and product details have been reorganized into a modern bilingual industrial catalog. Production publishing uses Aliyun OSS/CDN; manuals and software can also be synced separately to the downloads path on OSS.
 
 ## Development
 
@@ -26,14 +26,14 @@ npm run verify
 Set `NEXT_PUBLIC_SITE_URL` to the production origin before deploying, for example:
 
 ```bash
-NEXT_PUBLIC_SITE_URL=https://china-altec.com
+NEXT_PUBLIC_SITE_URL=https://www.altec-sz.com
 ```
 
 The value is used for canonical URLs, `hreflang`, `robots.txt`, `sitemap.xml`, Open Graph metadata and structured data.
 
 ## Aliyun OSS Deployment
 
-Production deployment uses Aliyun only. The deploy workflow is `.github/workflows/aliyun-oss.yml`.
+Production deployment uses Aliyun OSS bucket/CDN. The deploy workflow is `.github/workflows/aliyun-oss.yml`; local deploys can use `npm run deploy:aliyun:oss`.
 
 Required GitHub secrets:
 
@@ -46,13 +46,12 @@ Recommended optional settings:
 
 - `ALIYUN_OSS_PREFIX` (for example `altec`)
 - `ALIYUN_OSS_REGION`
-- `ALIYUN_SITE_URL` (for smoke test, for example `https://www.your-domain.com`)
-- `ALIYUN_OSSUTIL_VERSION` (defaults to `1.7.18` in the workflow)
+- `ALIYUN_SITE_URL` (for smoke test, currently `https://www.altec-sz.com`)
 
 How it works:
 
 1. Build exports static files to `out/`.
-2. Upload all files to OSS.
+2. Upload changed files to OSS through the SDK-based manifest diff.
 3. For every `.html` page, publish an extensionless alias object (for example `/products/th136.html` + `/products/th136`) so clean route URLs keep working without a server rewrite.
 4. Optional smoke checks use `ALIYUN_SITE_URL`.
 

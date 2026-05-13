@@ -1,126 +1,89 @@
-# ALTEC Aliyun Deployment Runbook
-
-Related docs:
-
-- `docs/aliyun-oss-setup.md`
-- `docs/aliyun-virtual-host-deploy.md`
-- `docs/preflight-checklist.md`
-- `docs/performance-optimization.md`
-
-## Current Production Policy
+# ALTEC Deployment Runbook
 
 ALTEC web deploys to Aliyun only. Do not deploy this project to Netlify.
 
-Primary production origin:
+## Current Production Path
 
-- `https://china-altec.com`
-- `https://www.china-altec.com`
+The current public site should be served from Aliyun OSS bucket/CDN bound to:
 
-Static build facts:
+- Primary canonical origin: `https://www.altec-sz.com`
+- Secondary host: `https://altec-sz.com` should redirect to the canonical origin when host-level redirects are available.
 
-- Build command: `npm run build`
-- Publish directory: `out`
-- Next.js mode: static export via `output: "export"`
-- Images: generated at build time into versioned AVIF/WebP variants under `/altec/images/optimized/<asset-version>/`
+Use this sequence for normal production publishes:
 
-## GitHub Actions Deploy
+1. Set `NEXT_PUBLIC_SITE_URL=https://www.altec-sz.com`.
+2. Set OSS credentials locally or in GitHub Actions.
+3. Run `npm run deploy:aliyun:oss`, or dispatch `.github/workflows/aliyun-oss.yml`.
+4. Smoke test the OSS origin and production URLs.
+5. Submit `https://www.altec-sz.com/sitemap.xml` in Google Search Console after DNS is live.
 
-The active deployment workflow is:
+`npm run deploy:aliyun:oss` is intentionally the single local bucket publish command. It runs `npm run verify`, which builds the static export, then syncs the current `out/` to OSS and creates extensionless route objects for clean URLs.
 
-- `.github/workflows/aliyun-oss.yml`
+Deployment performance rules:
 
-It runs on every push to `main` and performs:
+- Prefer CDN cache rules for `_next/static`, optimized images, HTML, `robots.txt`, and `sitemap.xml`. Do not run slow per-object metadata updates during normal deploys.
+- Keep clean URL aliases until CDN rewrite rules can map extensionless paths to `.html` objects.
+- Do not pass AccessKey values as command-line arguments. The local and CI sync scripts use the Aliyun OSS SDK with environment variables.
 
-- Static build (`npm run build`)
-- Build-time AVIF/WebP generation (`npm run optimize:images`, via `prebuild`)
-- Sync `out/` to OSS
-- Cache-Control metadata setup for static assets and HTML
-- Extensionless HTML alias upload for clean route compatibility
-- Mandatory smoke checks against the direct OSS object origin
-- Production smoke checks against `ALIYUN_SITE_URL` when configured
-- Optimized image cache-header smoke checks
+## Legacy Virtual Host Fallback
 
-Required secrets:
+The virtual host zip flow is retained only as a fallback while a domain is still bound to the Aliyun Cloud Virtual Host:
 
-- `ALIYUN_ACCESS_KEY_ID`
-- `ALIYUN_ACCESS_KEY_SECRET`
-- `ALIYUN_OSS_BUCKET`
-- `ALIYUN_OSS_ENDPOINT`
-
-Recommended variables/secrets:
-
-- `ALIYUN_SITE_URL=https://china-altec.com`
-- `NEXT_PUBLIC_SITE_URL=https://china-altec.com`
-- `NEXT_PUBLIC_CDN_BASE_URL` or `ALIYUN_CDN_BASE_URL` if a dedicated Aliyun CDN asset domain is used for images/downloads
-- `NEXT_PUBLIC_NEXT_ASSET_PREFIX` only if Next.js core `_next/static` files are deployed and smoke-tested on that exact asset origin
-- `ALIYUN_PRODUCTION_SMOKE_REQUIRED=true` after DNS/CDN cutover is complete
-- `ALIYUN_OSS_PREFIX`
-- `ALIYUN_OSS_REGION`
-
-Current Aliyun OSS production settings:
-
-- Bucket: `altec-web-prod-30330238`
-- Region: `cn-hangzhou`
-- Endpoint: `oss-cn-hangzhou.aliyuncs.com`
-
-## Routing Notes
-
-OSS static website hosting does not guarantee server-side rewrites. The workflow therefore uploads both:
-
-- `products/al808.html`
-- `products/al808`
-
-This keeps clean URLs such as `/products/al808` working without a server runtime.
-
-## Safe Deploy Checklist
-
-Before any production publish:
+If `npm run verify` already passed in the same working tree and you only need to regenerate the zip, run:
 
 ```bash
-npm run verify
+npm run package:aliyun
 ```
 
-Then push to `main` and wait for `Deploy to Aliyun OSS`.
+Do not run `npm run build` again between verify and package unless you deliberately want to replace the current `out/`.
 
-After deployment, smoke test:
+Detailed commands live in `docs/aliyun-virtual-host-deploy.md`.
+
+The Aliyun package intentionally excludes `altec/downloads/`; manuals and software are served from OSS/CDN through `NEXT_PUBLIC_DOWNLOADS_CDN_BASE_URL`.
+
+## Downloads CDN
+
+Manuals and software may be served from OSS/CDN without moving the rest of the site:
 
 ```bash
-SHA=$(git rev-parse HEAD)
+npm run sync:downloads:oss
+```
 
-curl -fsS https://altec-web-prod-30330238.oss-cn-hangzhou.aliyuncs.com/index.html >/tmp/altec-oss-home.html
-curl -fsS https://altec-web-prod-30330238.oss-cn-hangzhou.aliyuncs.com/products/al808 >/tmp/altec-oss-al808.html
-curl -fsS https://altec-web-prod-30330238.oss-cn-hangzhou.aliyuncs.com/en/products/pc900 >/tmp/altec-oss-pc900-en.html
-curl -fsSI https://altec-web-prod-30330238.oss-cn-hangzhou.aliyuncs.com/altec/images/optimized/$SHA/products/AL808-640.avif
+This command uses the same Aliyun OSS SDK environment as the full site sync and uploads only files under `public/altec/downloads/`.
 
-curl -fsS https://china-altec.com/ >/tmp/altec-home.html
-curl -fsS https://china-altec.com/products/al808 >/tmp/altec-al808.html
-curl -fsS https://china-altec.com/en/products/pc900 >/tmp/altec-pc900-en.html
-curl -fsSI https://china-altec.com/altec/images/optimized/$SHA/products/AL808-640.avif
+When `NEXT_PUBLIC_DOWNLOADS_CDN_BASE_URL` is set, only `/altec/downloads/*` links are rewritten to that origin. Images, HTML, and `_next/static` JavaScript/CSS stay on the normal site origin.
+
+Do not use a global CDN asset variable for this project unless the whole static site is deliberately moved and smoke-tested on that origin.
+
+## Full OSS Path
+
+`.github/workflows/aliyun-oss.yml` is the normal CI publish path after repository variables and secrets are configured. Use `docs/aliyun-oss-setup.md` when preparing or validating the OSS/CDN architecture.
+
+## Required Local Checks
+
+Before publishing:
+
+```bash
+npm run deploy:aliyun:oss
+```
+
+After publishing:
+
+```bash
+curl -fsS https://www.altec-sz.com/ >/tmp/altec-home.html
+curl -fsS https://www.altec-sz.com/products/al808 >/tmp/altec-al808.html
+curl -fsS https://www.altec-sz.com/en/products/pc900 >/tmp/altec-pc900-en.html
+curl -fsSI https://www.altec-sz.com/altec/downloads/TC950.pdf
 
 grep -q "ALTEC" /tmp/altec-home.html
 grep -q "AL808" /tmp/altec-al808.html
 grep -q "PC900" /tmp/altec-pc900-en.html
 ```
 
-If the direct OSS checks pass but `china-altec.com` fails, do not rebuild first. Fix DNS/CDN/domain binding or purge CDN cache. A production domain that still returns `Server: Apache` is still on the legacy virtual host, not the OSS/CDN path.
+## Hard Rules
 
-If `china-altec.com` is still served by the Apache virtual host, do not build HTML that points `_next/static` JavaScript to the OSS bucket. The virtual host fallback must ship HTML and `_next/static` in the same zip package so one missing OSS chunk cannot crash the page.
-
-As of the initial OSS migration, `china-altec.com` is delegated to `ce1.xincache.com` and `ce2.xincache.com`, not Aliyun DNS. Domain verification TXT records and the final CNAME/A record cutover must be made at that DNS provider, or the domain name servers must first be migrated to Aliyun DNS.
-
-## Fallback: Aliyun Virtual Host
-
-If OSS/CDN is not available, use the FTP-based Aliyun virtual host process in `docs/aliyun-virtual-host-deploy.md`.
-
-Virtual host fallback deploys must use this sequence:
-
-1. `npm run verify`
-2. Package `out/` as one zip with clean-route aliases.
-3. Upload that zip by FTP.
-4. Use the Aliyun control panel only to extract the uploaded zip.
-5. Delete the uploaded zip by FTP.
-6. Smoke test production URLs.
-
-Do not use recursive FTP mirroring as the normal deploy path. It is too slow for this site and has already produced retry failures.
-
-Do not upload production zip files through the Aliyun web UI. Browser upload is not the deploy mechanism; FTP upload is.
+- Do not use Netlify.
+- Do not use 1Password for Aliyun deploy credentials; use local `.env.local` or GitHub secrets.
+- Do not use the virtual-host zip flow unless OSS/CDN is unavailable or the user explicitly asks for the legacy fallback.
+- Do not point `_next/static` at a different origin from HTML unless the full OSS/CDN architecture and smoke checks are updated deliberately.
+- Keep `/altec/downloads/*` stable because customers may bookmark manuals directly.

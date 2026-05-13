@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
-import { absoluteAssetUrl, absoluteUrl, localizedPath, sitemapEntries, sitemapImagesForPath } from "@/lib/seo";
+import { absoluteAssetUrl, absoluteUrl, localizedPath, seoLastModified, sitemapEntries, sitemapImagesForPath } from "@/lib/seo";
 import { locales, type Lang } from "@/lib/i18n";
 
 export const dynamic = "force-static";
 
 const languages: Lang[] = [...locales];
-const lastModified = new Date("2026-05-12");
+const lastModified = new Date(seoLastModified);
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return sitemapEntries.flatMap((path) =>

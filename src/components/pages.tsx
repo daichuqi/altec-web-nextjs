@@ -2,10 +2,36 @@ import Link from "next/link";
 import { ArrowRight, Download, FileText, Layers, Wrench, type LucideIcon } from "lucide-react";
 import { applicationArticles, applicationCategories, getApplicationBySlug } from "@/lib/application-data";
 import { getProductRichDetailHtml, productRichDetails } from "@/lib/product-rich-details";
-import { aboutContent, activeProducts, contactEmail, downloads, productCategories, productDetails, productSlug, products } from "@/lib/site-data";
+import { productStructuredDetails } from "@/lib/product-structured-details";
+import {
+  aboutContent,
+  activeProducts,
+  contactBusinessHours,
+  contactEmail,
+  downloads,
+  productCategories,
+  productDetails,
+  productDisplayName,
+  productSelectionGuides,
+  productSlug,
+  products,
+  type DownloadCategory,
+} from "@/lib/site-data";
+import {
+  ApplicationListCard,
+  DetailHero,
+  DownloadListPanel,
+  HighlightPanel,
+  PurchasingFitPanel,
+  RelatedArticlesPanel,
+  RelatedProductsPanel,
+  RichDetailPanel,
+  SpecsPanel,
+  StructuredProductDetailPanel,
+} from "@/components/detail-sections";
 import { ProductBrowser } from "@/components/product-browser";
 import { OptimizedImage } from "@/components/optimized-image";
-import { assetUrl, rewriteHtmlAssetLinks } from "@/lib/cdn-assets";
+import { assetUrl } from "@/lib/cdn-assets";
 import { localizedPath, pick, ui, type Lang } from "@/lib/i18n";
 import {
   applicationArticleJsonLd,
@@ -15,6 +41,7 @@ import {
   productDetailBreadcrumbJsonLd,
   productJsonLd,
   productListJsonLd,
+  productWebPageJsonLd,
   websiteJsonLd,
   type SeoPageKey,
 } from "@/lib/seo";
@@ -70,11 +97,12 @@ export function HomePage({ lang }: { lang: Lang }) {
                   className="group bg-panel p-3 ring-1 ring-line hover:ring-accent"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden bg-panel-muted">
-                    <OptimizedImage src={item.image} alt={`${item.model} ${item[lang]}`} fill className="object-cover" sizes="(min-width: 1280px) 260px, (min-width: 640px) 45vw, 90vw" />
+                    <OptimizedImage src={item.image} alt={`${productDisplayName(item)} ${item[lang]}`} fill className="object-cover" sizes="(min-width: 1280px) 260px, (min-width: 640px) 45vw, 90vw" />
+                    <span className="pointer-events-none absolute inset-0 bg-heading/[0.08] opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100" />
                   </div>
                   <div className="mt-3 flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-base font-bold text-heading group-hover:text-accent">{item.model}</p>
+                      <p className="text-base font-bold text-heading group-hover:text-accent">{productDisplayName(item)}</p>
                       <p className="mt-1 text-xs leading-5 text-copy-subtle">{item[lang]}</p>
                     </div>
                     <ArrowRight size={16} className="mt-1 shrink-0 text-copy-subtle group-hover:text-accent" />
@@ -128,13 +156,17 @@ export function AboutPage({ lang }: { lang: Lang }) {
         title={pick(copy.title, lang)}
         text={pick(copy.text, lang)}
       />
-      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[0.8fr_1.2fr]">
-        <aside className="border border-line bg-panel p-6">
-          <h2 className="text-xl font-bold">{pick(copy.highlights, lang)}</h2>
-          <div className="mt-5 grid gap-3">
+      <section className="mx-auto grid max-w-7xl items-start gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <aside className="border-t-4 border-accent bg-panel py-6 lg:sticky lg:top-24">
+          <div className="border-b border-line px-5 pb-4">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">ALTEC</p>
+            <h2 className="mt-2 text-xl font-bold text-heading">{pick(copy.highlights, lang)}</h2>
+          </div>
+          <div className="divide-y divide-line">
             {content.highlights.map((item) => (
-              <div key={item} className="bg-panel-muted px-4 py-3 text-sm font-semibold text-copy">
-                {item}
+              <div key={item} className="flex gap-3 px-5 py-4 text-sm font-semibold leading-6 text-copy">
+                <span className="mt-2.5 h-1.5 w-1.5 shrink-0 bg-action" />
+                <span>{item}</span>
               </div>
             ))}
           </div>
@@ -158,7 +190,7 @@ export function ProductsPage({ lang }: { lang: Lang }) {
   const copy = ui.pages.products;
   return (
     <PageShell lang={lang}>
-      <JsonLd data={[breadcrumbJsonLd(lang, "products"), productListJsonLd(lang)]} />
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), breadcrumbJsonLd(lang, "products"), productListJsonLd(lang)]} />
       <PageTitle
         eyebrow={pick(copy.eyebrow, lang)}
         title={pick(copy.title, lang)}
@@ -173,6 +205,8 @@ function normalizeToken(value: string) {
   return value.toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
 
+const downloadCategoryOrder: DownloadCategory[] = ["manual", "datasheet", "software", "wiring", "selection"];
+
 export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }) {
   const copy = ui.product;
   const product = products.find((item) => item.model === model);
@@ -184,122 +218,94 @@ export function ProductDetailPage({ lang, model }: { lang: Lang; model: string }
 
   const category = productCategories.find((item) => item.items.includes(product.model));
   const isArchived = product.status === "archived";
+  const structuredDetail = productStructuredDetails[product.model];
   const richDetail = productRichDetails[product.model];
-  const richDetailHtml = getProductRichDetailHtml(richDetail, lang);
-  const richDetailHtmlWithCdn = richDetailHtml ? rewriteHtmlAssetLinks(richDetailHtml) : "";
+  const richDetailHtml = structuredDetail ? undefined : getProductRichDetailHtml(richDetail, lang);
+  const displayModel = productDisplayName(product);
+  const selectionGuide = productSelectionGuides[product.model];
   const relatedProducts = activeProducts.filter((item) => item.category === product.category && item.model !== product.model).slice(0, 4);
   const productToken = normalizeToken(product.model);
   const relatedDownloads = downloads
     .filter((item) => normalizeToken(`${item.title} ${item.file}`).includes(productToken))
     .slice(0, 6);
+  const inquirySubject = encodeURIComponent(`${displayModel} ${product[lang]} inquiry`);
+  const inquiryHref = `mailto:${contactEmail}?subject=${inquirySubject}`;
 
   return (
     <PageShell lang={lang}>
-      <JsonLd data={[productJsonLd(lang, product.model), productDetailBreadcrumbJsonLd(lang, product)]} />
-      <section className="border-b border-line bg-panel">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div className="relative aspect-[4/3] border border-line bg-panel-muted">
-            <OptimizedImage src={product.image} alt={`${product.model} ${product[lang]}`} fill className="object-contain p-2 sm:p-4" sizes="(min-width: 1024px) 48vw, 100vw" priority />
-          </div>
-          <div>
-            <Link href={localizedPath(lang, "/products")} className="text-sm font-bold text-accent hover:text-accent-strong">
-              {pick(copy.back, lang)}
-            </Link>
-            <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-copy-subtle">{category?.[lang] ?? product.category}</p>
-            <h1 className="mt-4 text-4xl font-bold tracking-tight text-heading sm:text-6xl">{product.model}</h1>
-            <p className="mt-4 text-2xl font-semibold text-copy">{product[lang]}</p>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-copy-muted">{detail.overview[lang]}</p>
-            {isArchived ? (
-              <div className="mt-6 border border-line bg-panel-muted px-4 py-3 text-sm font-semibold leading-6 text-copy-muted">
-                {pick(copy.archivedNotice, lang)}
-              </div>
-            ) : null}
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href={localizedPath(lang, "/downloads")} className="bg-action px-5 py-3 text-sm font-semibold text-action-contrast hover:bg-action-strong">
-                {pick(copy.viewDownloads, lang)}
-              </Link>
-              <Link href={localizedPath(lang, "/contact")} className="border border-line-strong px-5 py-3 text-sm font-semibold text-copy hover:border-line-strong">
-                {pick(isArchived ? copy.askReplacement : copy.askSelection, lang)}
-              </Link>
-            </div>
-          </div>
-        </div>
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), productWebPageJsonLd(lang, product), productJsonLd(lang, product.model), productDetailBreadcrumbJsonLd(lang, product)]} />
+      <DetailHero
+        lang={lang}
+        backHref="/products"
+        backLabel={pick(copy.back, lang)}
+        eyebrow={category?.[lang] ?? product.category}
+        title={displayModel}
+        subtitle={product[lang]}
+        text={detail.overview[lang]}
+        image={product.image}
+        imageAlt={`${displayModel} ${product[lang]}`}
+        enableImagePreview
+        notice={isArchived ? pick(copy.archivedNotice, lang) : undefined}
+        ctas={[
+          { href: "/downloads", label: pick(copy.viewDownloads, lang) },
+          { href: "/contact", label: pick(isArchived ? copy.askReplacement : copy.askSelection, lang), variant: "secondary" },
+        ]}
+      />
+
+      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[0.95fr_1.05fr]">
+        {selectionGuide ? (
+          <PurchasingFitPanel
+            lang={lang}
+            title={pick(copy.buyingInfoTitle, lang)}
+            text={pick(copy.buyingInfoText, lang)}
+            labels={{
+              model: pick(copy.buyingFields.model, lang),
+              productType: pick(copy.buyingFields.productType, lang),
+              applications: pick(copy.buyingFields.applications, lang),
+              input: pick(copy.buyingFields.input, lang),
+              output: pick(copy.buyingFields.output, lang),
+              control: pick(copy.buyingFields.control, lang),
+              documents: pick(copy.buyingFields.documents, lang),
+              inquiry: pick(copy.buyingFields.inquiry, lang),
+            }}
+            product={product}
+            guide={selectionGuide}
+            manualLabel={pick(relatedDownloads.length > 0 ? copy.manualAvailable : copy.manualCheckRequired, lang)}
+            quoteLabel={pick(copy.getQuote, lang)}
+            engineerLabel={pick(copy.contactEngineer, lang)}
+            hasDownloads={relatedDownloads.length > 0}
+            inquiryHref={inquiryHref}
+          />
+        ) : (
+          <HighlightPanel title={pick(copy.highlights, lang)} items={detail.highlights[lang]} />
+        )}
+        <SpecsPanel lang={lang} title={pick(copy.specs, lang)} specs={detail.specs} />
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[0.85fr_1.15fr]">
-        <aside className="border border-line bg-panel p-6">
-          <h2 className="text-2xl font-bold">{pick(copy.highlights, lang)}</h2>
-          <div className="mt-6 grid gap-3">
-            {detail.highlights[lang].map((item) => (
-              <div key={item} className="flex gap-3 bg-panel-muted px-4 py-3 text-sm font-semibold leading-6 text-copy">
-                <span className="mt-2 h-1.5 w-1.5 shrink-0 bg-action" />
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-        </aside>
-        <article className="border border-line bg-panel">
-          <div className="border-b border-line px-6 py-5">
-            <h2 className="text-2xl font-bold">{pick(copy.specs, lang)}</h2>
-          </div>
-          <dl className="divide-y divide-line">
-            {detail.specs.map((spec) => (
-              <div key={spec.label.en} className="grid gap-2 px-6 py-4 sm:grid-cols-[180px_1fr]">
-                <dt className="font-bold text-heading">{spec.label[lang]}</dt>
-                <dd className="leading-7 text-copy-muted">{spec.value[lang]}</dd>
-              </div>
-            ))}
-          </dl>
-        </article>
-      </section>
-
-      {richDetailHtml ? (
+      {selectionGuide ? (
         <section className="mx-auto max-w-7xl px-5 pb-10 sm:px-8">
-          <div className="border border-line bg-panel">
-            <div className="border-b border-line px-6 py-5">
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-accent">{pick(copy.technicalEyebrow, lang)}</p>
-              <h2 className="mt-2 text-2xl font-bold">{pick(copy.technicalDetails, lang)}</h2>
-            </div>
-            <div className="product-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: richDetailHtmlWithCdn }} />
-          </div>
+          <HighlightPanel title={pick(copy.highlights, lang)} items={detail.highlights[lang]} />
+        </section>
+      ) : null}
+
+      {structuredDetail ? (
+        <section className="mx-auto max-w-7xl px-5 pb-10 sm:px-8">
+          <StructuredProductDetailPanel
+            lang={lang}
+            eyebrow={pick(copy.technicalEyebrow, lang)}
+            title={pick(copy.technicalDetails, lang)}
+            detail={structuredDetail}
+          />
+        </section>
+      ) : richDetailHtml ? (
+        <section className="mx-auto max-w-7xl px-5 pb-10 sm:px-8">
+          <RichDetailPanel eyebrow={pick(copy.technicalEyebrow, lang)} title={pick(copy.technicalDetails, lang)} html={richDetailHtml} />
         </section>
       ) : null}
 
       <section className="mx-auto grid max-w-7xl gap-8 px-5 pb-14 sm:px-8 lg:grid-cols-2">
-        <div className="border border-line bg-panel p-6">
-          <h2 className="text-2xl font-bold">{pick(copy.relatedDownloads, lang)}</h2>
-          <div className="mt-5 divide-y divide-line">
-            {relatedDownloads.length > 0 ? (
-              relatedDownloads.map((item) => (
-                <a key={item.file} href={assetUrl(item.href)} download className="flex items-center justify-between gap-4 py-4 hover:text-accent">
-                  <span className="flex items-center gap-3 font-semibold">
-                    <FileText size={18} className="shrink-0 text-accent" />
-                    {item.title}
-                  </span>
-                  <span className="shrink-0 text-sm text-copy-subtle">{item.type}</span>
-                </a>
-              ))
-            ) : (
-              <p className="py-4 text-sm leading-6 text-copy-muted">{pick(copy.noDownloads, lang)}</p>
-            )}
-          </div>
-        </div>
-        <div className="border border-line bg-panel p-6">
-          <h2 className="text-2xl font-bold">{pick(copy.relatedProducts, lang)}</h2>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            {relatedProducts.map((item) => (
-              <Link key={item.model} href={localizedPath(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-line p-3 hover:border-accent">
-                <div className="relative h-16 w-16 shrink-0 bg-panel-muted">
-                  <OptimizedImage src={item.image} alt={item.model} fill className="object-contain p-2" sizes="64px" />
-                </div>
-                <div>
-                  <p className="font-bold text-heading group-hover:text-accent">{item.model}</p>
-                  <p className="text-sm text-copy-muted">{item[lang]}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+        <DownloadListPanel title={pick(copy.relatedDownloads, lang)} items={relatedDownloads} emptyText={pick(copy.noDownloads, lang)} />
+        <RelatedProductsPanel lang={lang} title={pick(copy.relatedProducts, lang)} products={relatedProducts} />
       </section>
     </PageShell>
   );
@@ -331,30 +337,7 @@ export function ApplicationsPage({ lang }: { lang: Lang }) {
               {applicationArticles
                 .filter((article) => article.category === category.key)
                 .map((article) => (
-                  <Link
-                    key={article.slug}
-                    href={localizedPath(lang, `/applications/${article.slug}`)}
-                    className="group grid gap-5 border border-line bg-panel p-4 hover:border-accent sm:grid-cols-[210px_1fr]"
-                  >
-                    <div className="relative aspect-[1.25] overflow-hidden bg-panel-muted">
-                      <OptimizedImage src={article.image} alt={article.title[lang]} fill className="object-contain" sizes="220px" />
-                    </div>
-                    <div>
-                      <div className="flex flex-wrap gap-2">
-                        {article.related.map((item) => (
-                          <span key={item} className="bg-panel-muted px-2.5 py-1 text-xs font-bold text-copy-muted">
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                      <h3 className="mt-4 text-xl font-bold text-heading group-hover:text-accent">{article.title[lang]}</h3>
-                      <p className="mt-3 text-sm leading-6 text-copy-muted">{article.excerpt[lang]}</p>
-                      <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-accent">
-                        {pick(copy.readDetails, lang)}
-                        <ArrowRight size={16} />
-                      </span>
-                    </div>
-                  </Link>
+                  <ApplicationListCard key={article.slug} lang={lang} article={article} readDetailsLabel={pick(copy.readDetails, lang)} />
                 ))}
             </div>
           </div>
@@ -380,70 +363,29 @@ export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string
 
   return (
     <PageShell lang={lang}>
-      <JsonLd data={[applicationArticleJsonLd(lang, article), applicationDetailBreadcrumbJsonLd(lang, article)]} />
-      <section className="border-b border-line bg-panel">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-          <div>
-            <Link href={localizedPath(lang, "/applications")} className="text-sm font-bold text-accent hover:text-accent-strong">
-              {pick(copy.back, lang)}
-            </Link>
-            <p className="mt-6 text-sm font-bold uppercase tracking-[0.16em] text-copy-subtle">{category?.[lang]}</p>
-            <h1 className="mt-4 max-w-3xl text-3xl font-bold tracking-tight text-heading sm:text-5xl">{article.title[lang]}</h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-copy-muted">{article.excerpt[lang]}</p>
-            <div className="mt-8 flex flex-wrap gap-2">
-              {article.related.map((item) => (
-                <span key={item} className="bg-panel-muted px-3 py-1.5 text-sm font-bold text-copy">
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="relative aspect-[1.2] border border-line bg-panel-muted">
-            <OptimizedImage src={article.image} alt={article.title[lang]} fill className="object-contain p-6" sizes="(min-width: 1024px) 42vw, 100vw" priority />
-          </div>
-        </div>
-      </section>
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), applicationArticleJsonLd(lang, article), applicationDetailBreadcrumbJsonLd(lang, article)]} />
+      <DetailHero
+        lang={lang}
+        backHref="/applications"
+        backLabel={pick(copy.back, lang)}
+        eyebrow={category?.[lang]}
+        title={article.title[lang]}
+        text={article.excerpt[lang]}
+        image={article.image}
+        imageAlt={article.title[lang]}
+        imageClassName="object-contain p-6"
+        imageSizes="(min-width: 1024px) 42vw, 100vw"
+        imageAspectClassName="aspect-[1.2]"
+        titleClassName="mt-4 max-w-3xl text-3xl font-bold tracking-tight text-heading sm:text-5xl"
+        tags={article.related}
+      />
 
       <section className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <article className="border border-line bg-panel">
-          <div className="border-b border-line px-6 py-5">
-            <p className="text-sm font-bold uppercase tracking-[0.16em] text-accent">{pick(copy.technicalNote, lang)}</p>
-            <h2 className="mt-2 text-2xl font-bold">{pick(copy.details, lang)}</h2>
-          </div>
-          <div className="product-rich-detail application-rich-detail px-6 py-7" dangerouslySetInnerHTML={{ __html: rewriteHtmlAssetLinks(article.html[lang]) }} />
-        </article>
+        <RichDetailPanel eyebrow={pick(copy.technicalNote, lang)} title={pick(copy.details, lang)} html={article.html[lang]} variant="application" />
 
         <aside className="space-y-6">
-          {relatedProducts.length > 0 ? (
-            <div className="border border-line bg-panel p-6">
-              <h2 className="text-xl font-bold">{pick(copy.relatedProducts, lang)}</h2>
-              <div className="mt-5 grid gap-3">
-                {relatedProducts.map((item) => (
-                    <Link key={item.model} href={localizedPath(lang, `/products/${productSlug(item.model)}`)} className="group flex items-center gap-4 border border-line p-3 hover:border-accent">
-                      <div className="relative h-16 w-16 shrink-0 bg-panel-muted">
-                        <OptimizedImage src={item.image} alt={item.model} fill className="object-contain p-2" sizes="64px" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-heading group-hover:text-accent">{item.model}</p>
-                        <p className="text-sm leading-5 text-copy-muted">{item[lang]}</p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          <div className="border border-line bg-panel p-6">
-            <h2 className="text-xl font-bold">{pick(copy.relatedNotes, lang)}</h2>
-            <div className="mt-5 grid gap-3">
-              {relatedArticles.map((item) => (
-                <Link key={item.slug} href={localizedPath(lang, `/applications/${item.slug}`)} className="block border border-line p-4 hover:border-accent">
-                  <p className="font-bold text-heading">{item.title[lang]}</p>
-                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-copy-muted">{item.excerpt[lang]}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
+          <RelatedProductsPanel lang={lang} title={pick(copy.relatedProducts, lang)} products={relatedProducts} columns="" headingClassName="text-xl font-bold" />
+          <RelatedArticlesPanel lang={lang} title={pick(copy.relatedNotes, lang)} articles={relatedArticles} />
         </aside>
       </section>
     </PageShell>
@@ -452,6 +394,11 @@ export function ApplicationDetailPage({ lang, slug }: { lang: Lang; slug: string
 
 export function DownloadsPage({ lang }: { lang: Lang }) {
   const copy = ui.pages.downloads;
+  const groupedDownloads = downloadCategoryOrder.map((category) => ({
+    category,
+    items: downloads.filter((item) => item.category === category),
+  }));
+
   return (
     <PageShell lang={lang}>
       <PageJsonLd lang={lang} page="downloads" />
@@ -461,28 +408,41 @@ export function DownloadsPage({ lang }: { lang: Lang }) {
         text={pick(copy.text, lang)}
       />
       <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
-        <div className="overflow-hidden border border-line bg-panel">
-          <div className="grid grid-cols-[1fr_90px_120px_120px] bg-panel-muted px-5 py-3 text-sm font-bold text-copy-muted max-md:hidden">
-            <span>{pick(copy.columns.file, lang)}</span>
-            <span>{pick(copy.columns.type, lang)}</span>
-            <span>{pick(copy.columns.size, lang)}</span>
-            <span>{pick(copy.columns.date, lang)}</span>
-          </div>
-          {downloads.map((item) => (
-            <a
-              key={item.file}
-              href={assetUrl(item.href)}
-              download
-              className="grid gap-3 border-t border-line px-5 py-4 hover:bg-panel-muted md:grid-cols-[1fr_90px_120px_120px] md:items-center"
-            >
-              <span className="flex items-center gap-3 font-semibold text-heading">
-                <FileText size={18} className="text-accent" />
-                {item.title}
-              </span>
-              <span className="text-sm text-copy-muted">{item.type}</span>
-              <span className="text-sm text-copy-muted">{item.size}</span>
-              <span className="text-sm text-copy-muted">{item.date}</span>
-            </a>
+        <div className="grid gap-8">
+          {groupedDownloads.map(({ category, items }) => (
+            <section key={category} className="overflow-hidden border border-line bg-panel">
+              <div className="border-b border-line bg-panel-muted px-5 py-4">
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">{pick(copy.groupedTitle, lang)}</p>
+                <h2 className="mt-1 text-xl font-bold text-heading">{pick(copy.categories[category], lang)}</h2>
+              </div>
+              <div className="grid grid-cols-[1fr_90px_120px_120px] bg-canvas px-5 py-3 text-sm font-bold text-copy-muted max-md:hidden">
+                <span>{pick(copy.columns.file, lang)}</span>
+                <span>{pick(copy.columns.type, lang)}</span>
+                <span>{pick(copy.columns.size, lang)}</span>
+                <span>{pick(copy.columns.date, lang)}</span>
+              </div>
+              {items.length > 0 ? (
+                items.map((item) => (
+                  <a
+                    key={item.file}
+                    href={assetUrl(item.href)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="download-row grid gap-3 border-t border-line px-5 py-4 hover:bg-panel-muted md:grid-cols-[1fr_90px_120px_120px] md:items-center"
+                  >
+                    <span className="flex items-center gap-3 font-semibold text-heading">
+                      <FileText size={18} className="text-accent" />
+                      {item.title}
+                    </span>
+                    <span className="text-sm text-copy-muted">{item.type}</span>
+                    <span className="text-sm text-copy-muted">{item.size}</span>
+                    <span className="text-sm text-copy-muted">{item.date}</span>
+                  </a>
+                ))
+              ) : (
+                <p className="border-t border-line px-5 py-5 text-sm leading-6 text-copy-muted">{pick(copy.emptyGroup, lang)}</p>
+              )}
+            </section>
           ))}
         </div>
       </section>
@@ -494,7 +454,7 @@ export function ContactPage({ lang }: { lang: Lang }) {
   const copy = ui.pages.contact;
   return (
     <PageShell lang={lang}>
-      <JsonLd data={[organizationJsonLd(), breadcrumbJsonLd(lang, "contact")]} />
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), breadcrumbJsonLd(lang, "contact")]} />
       <PageTitle
         eyebrow={pick(copy.eyebrow, lang)}
         title={pick(copy.title, lang)}
@@ -506,7 +466,12 @@ export function ContactPage({ lang }: { lang: Lang }) {
           <div className="mt-6 space-y-4 leading-7 text-copy-muted">
             <p>{pick(copy.address, lang)}</p>
             <p>{pick(copy.phone, lang)}</p>
+            <p>{pick(copy.mobile, lang)}</p>
             <p>{pick(copy.fax, lang)}</p>
+            <p>
+              {pick(copy.hoursLabel, lang)}
+              {pick(contactBusinessHours, lang)}
+            </p>
             <p>
               {pick(copy.emailLabel, lang)}
               <a href={`mailto:${contactEmail}`} className="font-semibold text-accent hover:text-accent-strong">
@@ -520,6 +485,10 @@ export function ContactPage({ lang }: { lang: Lang }) {
           <p className="mt-4 leading-7 text-copy-muted">
             {pick(copy.supportText, lang)}
           </p>
+          <div className="mt-6 border-t border-line pt-5">
+            <h3 className="text-lg font-bold text-heading">{pick(copy.internationalTitle, lang)}</h3>
+            <p className="mt-3 text-sm leading-6 text-copy-muted">{pick(copy.internationalText, lang)}</p>
+          </div>
           <Link href={localizedPath(lang, "/downloads")} className="mt-6 inline-flex bg-action px-5 py-3 text-sm font-semibold text-action-contrast hover:bg-action-strong">
             {pick(copy.goDownloads, lang)}
           </Link>
@@ -530,7 +499,7 @@ export function ContactPage({ lang }: { lang: Lang }) {
 }
 
 function PageJsonLd({ lang, page }: { lang: Lang; page: SeoPageKey }) {
-  return <JsonLd data={breadcrumbJsonLd(lang, page)} />;
+  return <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), breadcrumbJsonLd(lang, page)]} />;
 }
 
 function JsonLd({ data }: { data: object | object[] }) {

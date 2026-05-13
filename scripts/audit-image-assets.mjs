@@ -1,9 +1,8 @@
-import { access, readFile, readdir } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { pathExists, projectRoot, publicRoot, relativeToRoot, walkFiles } from "./lib/common.mjs";
 
-const projectRoot = process.cwd();
-const publicRoot = path.join(projectRoot, "public");
 const sourceRoots = ["src"];
 const imageExtensionPattern = /\.(?:avif|gif|ico|jpe?g|png|svg|webp)$/i;
 const skippedProjectDirectories = new Set([".git", ".next", "asset-archive", "node_modules", "out"]);
@@ -15,29 +14,8 @@ const applicationCoverImageCallPattern = /applicationCoverImage\(["'`]([^"'`]+)[
 const applicationDetailImageCallPattern = /applicationDetailImage\(["'`]([^"'`]+)["'`],\s*["'`]([^"'`]+)["'`]\)/g;
 const productImageFilesBlockPattern = /productImageFiles\s*=\s*\{([\s\S]*?)\}\s+as const/;
 const productImageFileEntryPattern = /["']?([^"',:\n]+)["']?\s*:\s*["'`]([^"'`]+)["'`]/g;
+const allowedRootImages = new Set(["/favicon.ico"]);
 const allowedImageRoots = ["/altec/images/"];
-
-async function walk(directory, options = {}) {
-  const entries = await readdir(directory, { withFileTypes: true });
-  const files = [];
-
-  for (const entry of entries) {
-    const absolutePath = path.join(directory, entry.name);
-
-    if (entry.isDirectory()) {
-      if (options.skipDirectory?.(entry.name, absolutePath)) {
-        continue;
-      }
-
-      files.push(...(await walk(absolutePath, options)));
-      continue;
-    }
-
-    files.push(absolutePath);
-  }
-
-  return files;
-}
 
 function isImageFile(file) {
   return imageExtensionPattern.test(file);
@@ -46,17 +24,11 @@ function isImageFile(file) {
 async function fileExists(relativeAssetPath) {
   const cleanPath = relativeAssetPath.split("?")[0];
   const absolutePath = path.join(publicRoot, cleanPath.replace(/^\//, ""));
-
-  try {
-    await access(absolutePath);
-    return true;
-  } catch {
-    return false;
-  }
+  return pathExists(absolutePath);
 }
 
 function allowedImagePath(assetPath) {
-  return allowedImageRoots.some((root) => assetPath === root || assetPath.startsWith(root));
+  return allowedRootImages.has(assetPath) || allowedImageRoots.some((root) => assetPath === root || assetPath.startsWith(root));
 }
 
 function bucketFor(assetPath) {
@@ -90,7 +62,7 @@ async function productImageFileMap() {
 }
 
 async function main() {
-  const sourceFiles = (await Promise.all(sourceRoots.map((root) => walk(path.join(projectRoot, root))))).flat();
+  const sourceFiles = (await Promise.all(sourceRoots.map((root) => walkFiles(path.join(projectRoot, root))))).flat();
   const productImages = await productImageFileMap();
   const imageReferences = new Set();
   const missing = [];
@@ -154,11 +126,15 @@ async function main() {
     memo.set(bucket, (memo.get(bucket) || 0) + 1);
     return memo;
   }, new Map());
-  const projectFiles = await walk(projectRoot, {
+  const projectFiles = await walkFiles(projectRoot, {
     skipDirectory: (name) => skippedProjectDirectories.has(name),
   });
   const misplacedImageFiles = projectFiles.filter((file) => {
     if (!isImageFile(file)) {
+      return false;
+    }
+
+    if (path.relative(publicRoot, file) === "favicon.ico") {
       return false;
     }
 
@@ -176,28 +152,28 @@ async function main() {
   if (disallowed.length > 0) {
     console.error("\nImage paths outside the approved asset roots:");
     for (const issue of disallowed) {
-      console.error(`- ${path.relative(projectRoot, issue.file)} -> ${issue.assetPath}`);
+      console.error(`- ${relativeToRoot(issue.file)} -> ${issue.assetPath}`);
     }
   }
 
   if (missing.length > 0) {
     console.error("\nMissing referenced image files:");
     for (const issue of missing) {
-      console.error(`- ${path.relative(projectRoot, issue.file)} -> ${issue.assetPath}`);
+      console.error(`- ${relativeToRoot(issue.file)} -> ${issue.assetPath}`);
     }
   }
 
   if (misplacedImageFiles.length > 0) {
     console.error("\nImage files outside public/altec/images:");
     for (const file of misplacedImageFiles) {
-      console.error(`- ${path.relative(projectRoot, file)}`);
+      console.error(`- ${relativeToRoot(file)}`);
     }
   }
 
   if (publicMetadataFiles.length > 0) {
     console.error("\nUnexpected macOS metadata files in public:");
     for (const file of publicMetadataFiles) {
-      console.error(`- ${path.relative(projectRoot, file)}`);
+      console.error(`- ${relativeToRoot(file)}`);
     }
   }
 
