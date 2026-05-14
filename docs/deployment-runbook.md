@@ -59,6 +59,8 @@ Do not use a global CDN asset variable for this project unless the whole static 
 
 `.github/workflows/aliyun-oss.yml` is the normal CI publish path after repository variables and secrets are configured. Use `docs/aliyun-oss-setup.md` when preparing or validating the OSS/CDN architecture.
 
+Pushes to `main` only trigger this publish workflow when user-facing site, asset, build, dependency, or deployment script files change. Documentation-only updates stay in GitHub and do not sync the bucket. Use the manual `workflow_dispatch` trigger when a deploy is needed after a non-matching change.
+
 ## Required Local Checks
 
 Before publishing:
