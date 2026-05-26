@@ -38,8 +38,8 @@ export const company = {
 export const seoPages = {
   home: {
     path: "/",
-    zhTitle: "ALTEC 亚特克 | 工业自动化过程控制仪表厂家",
-    enTitle: "ALTEC Industrial Process Controllers | Shenzhen ALTEC Electronics",
+    zhTitle: "ALTEC 亚特克 | 深圳市亚特克电子有限公司工业控制仪表",
+    enTitle: "Shenzhen ALTEC Electronics | Industrial Process Controllers",
     zhDescription:
       "深圳市亚特克电子有限公司专注工业自动化智能过程控制仪表，提供温度控制器、张力控制器、pH/ORP 控制器、恒压供水控制器、温湿度控制器及产品资料下载。",
     enDescription:
@@ -255,15 +255,58 @@ export function websiteJsonLd(lang: Lang) {
   };
 }
 
+export function pageWebPageJsonLd(lang: Lang, key: SeoPageKey) {
+  const page = seoPages[key];
+  const path = localizedPath(lang, page.path);
+  const title = isZh(lang) ? page.zhTitle : page.enTitle;
+  const description = isZh(lang) ? page.zhDescription : page.enDescription;
+  const pageTypes: Record<SeoPageKey, string> = {
+    home: "WebPage",
+    about: "AboutPage",
+    products: "CollectionPage",
+    applications: "CollectionPage",
+    downloads: "CollectionPage",
+    contact: "ContactPage",
+  };
+
+  return {
+    "@context": "https://schema.org",
+    "@type": pageTypes[key],
+    "@id": `${absoluteUrl(path)}#webpage`,
+    url: absoluteUrl(path),
+    name: title,
+    description,
+    inLanguage: languages[lang].htmlLang,
+    isPartOf: {
+      "@id": `${siteUrl}/#website`,
+    },
+    publisher: {
+      "@id": `${siteUrl}/#organization`,
+    },
+    ...(key === "products" ? { mainEntity: { "@id": `${absoluteUrl(path)}#product-list` } } : {}),
+  };
+}
+
 export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": `${siteUrl}/#organization`,
     name: company.name,
-    alternateName: [company.englishName, "ALTEC", "亚特克"],
+    legalName: company.name,
+    alternateName: [
+      company.englishName,
+      "Shenzhen ALTEC Electronics",
+      "Shenzhen ALTEC Electronic",
+      "Shenzhen Altec",
+      "ALTEC Electronics",
+      "ALTEC",
+      "亚特克",
+    ],
     url: siteUrl,
     logo: absoluteAssetUrl(brandLogo),
+    description:
+      "Shenzhen ALTEC Electronics Co., Ltd. manufactures industrial process-control instruments, including temperature controllers, tension controllers, pH/ORP controllers, humidity controllers and VFD constant-pressure water-supply controllers.",
     email: company.email,
     telephone: company.phone,
     areaServed: ["CN", "Worldwide"],
@@ -299,6 +342,7 @@ export function productListJsonLd(lang: Lang) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
+    "@id": `${absoluteUrl(localizedPath(lang, seoPages.products.path))}#product-list`,
     name: pick(ui.seo.productListName, lang),
     itemListElement: activeProducts.map((product, index) => {
       const displayModel = productDisplayName(product);

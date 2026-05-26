@@ -11,6 +11,8 @@
     "audit:product-details": "node scripts/audit-product-structured-details.mjs",
     "audit:production-performance": "node scripts/audit-production-performance.mjs",
     "deploy:aliyun:oss": "npm run verify && npm run sync:site:oss",
+    "docker:build": "docker build -t altec-web:local .",
+    "docker:run": "docker run --rm -p 3000:80 altec-web:local",
     "prepare:aliyun": "npm run verify && npm run package:aliyun",
     "package:aliyun": "node scripts/package-aliyun-virtual-host.mjs",
     "prewarm:downloads": "node scripts/prewarm-downloads-cdn.mjs",

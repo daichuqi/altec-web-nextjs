@@ -3,6 +3,8 @@ import { absoluteUrl, siteUrl } from "@/lib/seo";
 
 export const dynamic = "force-static";
 
+const siteHost = new URL(siteUrl).host;
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
@@ -10,6 +12,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
     },
     sitemap: absoluteUrl("/sitemap.xml"),
-    host: siteUrl,
+    host: siteHost,
   };
 }

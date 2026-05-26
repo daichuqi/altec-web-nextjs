@@ -43,6 +43,9 @@ export const metadata: Metadata = {
     "深圳市亚特克电子有限公司专注工业自动化智能过程控制仪表，提供温度控制器、张力控制器、pH/ORP 控制器、恒压供水控制器和温湿度控制器。",
   keywords: [
     "ALTEC",
+    "Shenzhen ALTEC Electronics",
+    "Shenzhen Altec",
+    "ALTEC Electronics",
     "亚特克",
     "深圳市亚特克电子有限公司",
     "工业自动化",

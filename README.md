@@ -58,3 +58,14 @@ How it works:
 Note: production domain routing on OSS depends on your OSS website/CNAME/CDN setup. Keep `ALIYUN_SITE_URL` aligned with the actual public origin.
 
 Operational setup details are documented in `docs/aliyun-oss-setup.md`.
+
+## Docker Static Runtime
+
+For ECS or VPC-hosted environments, build the static export into a lightweight Nginx image:
+
+```bash
+npm run docker:build
+npm run docker:run
+```
+
+The container serves port `80`; the local helper maps it to `http://127.0.0.1:3000`. ECS notes are documented in `docs/aliyun-ecs-docker.md`.

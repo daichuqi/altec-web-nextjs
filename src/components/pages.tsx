@@ -42,6 +42,7 @@ import {
   productJsonLd,
   productListJsonLd,
   productWebPageJsonLd,
+  pageWebPageJsonLd,
   websiteJsonLd,
   type SeoPageKey,
 } from "@/lib/seo";
@@ -57,7 +58,7 @@ export function HomePage({ lang }: { lang: Lang }) {
 
   return (
     <PageShell lang={lang}>
-      <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), breadcrumbJsonLd(lang, "home")]} />
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), pageWebPageJsonLd(lang, "home"), breadcrumbJsonLd(lang, "home")]} />
       <section className="bg-panel">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-10 sm:px-8 lg:py-12 xl:grid-cols-[minmax(0,0.86fr)_minmax(520px,1fr)] xl:items-center">
           <div>
@@ -190,7 +191,7 @@ export function ProductsPage({ lang }: { lang: Lang }) {
   const copy = ui.pages.products;
   return (
     <PageShell lang={lang}>
-      <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), breadcrumbJsonLd(lang, "products"), productListJsonLd(lang)]} />
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), pageWebPageJsonLd(lang, "products"), breadcrumbJsonLd(lang, "products"), productListJsonLd(lang)]} />
       <PageTitle
         eyebrow={pick(copy.eyebrow, lang)}
         title={pick(copy.title, lang)}
@@ -499,7 +500,7 @@ export function ContactPage({ lang }: { lang: Lang }) {
 }
 
 function PageJsonLd({ lang, page }: { lang: Lang; page: SeoPageKey }) {
-  return <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), breadcrumbJsonLd(lang, page)]} />;
+  return <JsonLd data={[organizationJsonLd(), websiteJsonLd(lang), pageWebPageJsonLd(lang, page), breadcrumbJsonLd(lang, page)]} />;
 }
 
 function JsonLd({ data }: { data: object | object[] }) {
